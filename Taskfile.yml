@@ -1,0 +1,29 @@
+version: "3"
+
+tasks:
+  go:test:
+    dir: ./slomad
+    cmds:
+      - go test github.com/ecshreve/slomad/...
+
+  go:test:verbose:
+    dir: ./slomad
+    cmds:
+      - go test -v github.com/ecshreve/slomad/...
+
+  go:build:
+    generates:
+      - bin/slomad
+    sources:
+      - ./**/*.go
+      - ./**/config/*.yml
+    dir: ./slomad
+    cmds:
+      - go build -o bin/slomad github.com/ecshreve/slomad/cmd/slomad
+
+  go:run:
+    deps:
+      - go:build
+    dir: ./slomad
+    cmds:
+      - bin/slomad
