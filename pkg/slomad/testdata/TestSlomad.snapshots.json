@@ -1,0 +1,462 @@
+[
+  {
+    "Name": "test-job",
+    "Values": [
+      {
+        "Args": [
+          "echo hello"
+        ],
+        "Constraint": "^worker-[0-9]+$",
+        "Env": null,
+        "Image": "reg.slab.lan:5000/test-job",
+        "Name": "test-job",
+        "Ports": [
+          {
+            "From": 0,
+            "Label": "http",
+            "Static": false,
+            "To": 8080
+          }
+        ],
+        "Shape": {
+          "CPU": 512,
+          "MEM": 512
+        },
+        "Storage": "",
+        "Templates": null,
+        "Type": 1,
+        "User": "",
+        "Volumes": null
+      }
+    ]
+  },
+  {
+    "Name": "nomad-job",
+    "Values": [
+      {
+        "Affinities": null,
+        "AllAtOnce": false,
+        "Constraints": [
+          {
+            "LTarget": "${attr.unique.hostname}",
+            "Operand": "regexp",
+            "RTarget": "^worker-[0-9]+$"
+          }
+        ],
+        "ConsulNamespace": "",
+        "ConsulToken": "",
+        "CreateIndex": 0,
+        "Datacenters": [
+          "dcs"
+        ],
+        "DispatchIdempotencyToken": "",
+        "Dispatched": false,
+        "ID": "test-job",
+        "JobModifyIndex": 0,
+        "Meta": null,
+        "ModifyIndex": 0,
+        "Multiregion": null,
+        "Name": "test-job",
+        "Namespace": "default",
+        "NomadTokenID": "",
+        "ParameterizedJob": null,
+        "ParentID": "",
+        "Payload": null,
+        "Periodic": null,
+        "Priority": 50,
+        "Region": "global",
+        "Spreads": null,
+        "Stable": false,
+        "Status": "",
+        "StatusDescription": "",
+        "Stop": false,
+        "SubmitTime": 0,
+        "TaskGroups": [
+          {
+            "Affinities": null,
+            "Constraints": null,
+            "Consul": null,
+            "Count": 1,
+            "EphemeralDisk": {
+              "Migrate": false,
+              "SizeMB": 500,
+              "Sticky": false
+            },
+            "MaxClientDisconnect": null,
+            "Meta": null,
+            "Migrate": null,
+            "Name": "test-job",
+            "Networks": [
+              {
+                "CIDR": "",
+                "DNS": null,
+                "Device": "",
+                "DynamicPorts": [
+                  {
+                    "HostNetwork": "",
+                    "Label": "http",
+                    "To": 8080,
+                    "Value": 0
+                  }
+                ],
+                "IP": "",
+                "MBits": 0,
+                "Mode": "",
+                "ReservedPorts": []
+              }
+            ],
+            "ReschedulePolicy": {
+              "Attempts": 0,
+              "Delay": 30000000000,
+              "DelayFunction": "exponential",
+              "Interval": 0,
+              "MaxDelay": 3600000000000,
+              "Unlimited": true
+            },
+            "RestartPolicy": {
+              "Attempts": 2,
+              "Delay": 15000000000,
+              "Interval": 1800000000000,
+              "Mode": "fail"
+            },
+            "Scaling": null,
+            "Services": null,
+            "ShutdownDelay": null,
+            "Spreads": null,
+            "StopAfterClientDisconnect": null,
+            "Tasks": [
+              {
+                "Affinities": null,
+                "Artifacts": null,
+                "CSIPluginConfig": null,
+                "Config": {
+                  "args": [
+                    "echo hello"
+                  ],
+                  "image": "reg.slab.lan:5000/test-job",
+                  "ports": [
+                    "http"
+                  ]
+                },
+                "Constraints": null,
+                "DispatchPayload": null,
+                "Driver": "docker",
+                "Env": null,
+                "Identity": null,
+                "KillSignal": "",
+                "KillTimeout": 0,
+                "Kind": "",
+                "Leader": false,
+                "Lifecycle": null,
+                "LogConfig": {
+                  "Disabled": false,
+                  "MaxFileSizeMB": 10,
+                  "MaxFiles": 10
+                },
+                "Meta": null,
+                "Name": "test-job",
+                "Resources": {
+                  "CPU": 512,
+                  "Cores": 0,
+                  "Devices": null,
+                  "DiskMB": 0,
+                  "IOPS": 0,
+                  "MemoryMB": 512,
+                  "MemoryMaxMB": 0,
+                  "Networks": null
+                },
+                "RestartPolicy": null,
+                "ScalingPolicies": null,
+                "Services": [
+                  {
+                    "Address": "",
+                    "AddressMode": "",
+                    "CanaryMeta": null,
+                    "CanaryTags": null,
+                    "Checks": [
+                      {
+                        "AddressMode": "",
+                        "Args": null,
+                        "Body": "",
+                        "CheckRestart": null,
+                        "Command": "",
+                        "Expose": false,
+                        "FailuresBeforeCritical": 0,
+                        "GRPCService": "",
+                        "GRPCUseTLS": false,
+                        "Header": null,
+                        "InitialStatus": "passing",
+                        "Interval": 10000000000,
+                        "Method": "",
+                        "Name": "test-job -- http = tcp check",
+                        "OnUpdate": "",
+                        "Path": "",
+                        "PortLabel": "",
+                        "Protocol": "",
+                        "SuccessBeforePassing": 0,
+                        "TLSSkipVerify": false,
+                        "TaskName": "",
+                        "Timeout": 2000000000,
+                        "Type": "tcp"
+                      }
+                    ],
+                    "Connect": null,
+                    "EnableTagOverride": false,
+                    "Meta": null,
+                    "Name": "test-job",
+                    "Namespace": "",
+                    "OnUpdate": "",
+                    "PortLabel": "http",
+                    "Provider": "consul",
+                    "TaggedAddresses": null,
+                    "Tags": [
+                      "traefik.enable=true"
+                    ],
+                    "TaskName": "test-job"
+                  }
+                ],
+                "ShutdownDelay": 0,
+                "Templates": null,
+                "User": "",
+                "Vault": null,
+                "VolumeMounts": []
+              }
+            ],
+            "Update": null,
+            "Volumes": null
+          }
+        ],
+        "Type": "service",
+        "Update": {
+          "AutoPromote": false,
+          "AutoRevert": false,
+          "Canary": 0,
+          "HealthCheck": "",
+          "HealthyDeadline": 0,
+          "MaxParallel": 0,
+          "MinHealthyTime": 0,
+          "ProgressDeadline": 0,
+          "Stagger": 0
+        },
+        "VaultNamespace": "",
+        "VaultToken": "",
+        "Version": 0
+      }
+    ]
+  },
+  {
+    "Name": "api-job",
+    "Values": [
+      {
+        "Affinities": null,
+        "AllAtOnce": null,
+        "Constraints": [
+          {
+            "LTarget": "${attr.unique.hostname}",
+            "Operand": "regexp",
+            "RTarget": "^worker-[0-9]+$"
+          }
+        ],
+        "ConsulNamespace": null,
+        "ConsulToken": null,
+        "CreateIndex": null,
+        "Datacenters": [
+          "dcs"
+        ],
+        "DispatchIdempotencyToken": null,
+        "Dispatched": false,
+        "ID": "test-job",
+        "JobModifyIndex": null,
+        "Meta": null,
+        "Migrate": null,
+        "ModifyIndex": null,
+        "Multiregion": null,
+        "Name": "test-job",
+        "Namespace": "default",
+        "NomadTokenID": null,
+        "ParameterizedJob": null,
+        "ParentID": null,
+        "Payload": null,
+        "Periodic": null,
+        "Priority": 50,
+        "Region": "global",
+        "Reschedule": null,
+        "Spreads": null,
+        "Stable": null,
+        "Status": null,
+        "StatusDescription": null,
+        "Stop": null,
+        "SubmitTime": null,
+        "TaskGroups": [
+          {
+            "Affinities": null,
+            "Constraints": null,
+            "Consul": null,
+            "Count": 1,
+            "EphemeralDisk": {
+              "Migrate": null,
+              "SizeMB": 500,
+              "Sticky": null
+            },
+            "MaxClientDisconnect": null,
+            "Meta": null,
+            "Migrate": null,
+            "Name": "test-job",
+            "Networks": [
+              {
+                "CIDR": "",
+                "DNS": null,
+                "Device": "",
+                "DynamicPorts": [
+                  {
+                    "HostNetwork": "",
+                    "Label": "http",
+                    "To": 8080,
+                    "Value": 0
+                  }
+                ],
+                "Hostname": "",
+                "IP": "",
+                "MBits": null,
+                "Mode": "",
+                "ReservedPorts": null
+              }
+            ],
+            "ReschedulePolicy": {
+              "Attempts": null,
+              "Delay": 30000000000,
+              "DelayFunction": "exponential",
+              "Interval": null,
+              "MaxDelay": 3600000000000,
+              "Unlimited": true
+            },
+            "RestartPolicy": {
+              "Attempts": 2,
+              "Delay": 15000000000,
+              "Interval": 1800000000000,
+              "Mode": "fail"
+            },
+            "Scaling": null,
+            "Services": null,
+            "ShutdownDelay": null,
+            "Spreads": null,
+            "StopAfterClientDisconnect": null,
+            "Tasks": [
+              {
+                "Affinities": null,
+                "Artifacts": null,
+                "Config": {
+                  "args": [
+                    "echo hello"
+                  ],
+                  "image": "reg.slab.lan:5000/test-job",
+                  "ports": [
+                    "http"
+                  ]
+                },
+                "Constraints": null,
+                "DispatchPayload": null,
+                "Driver": "docker",
+                "Env": null,
+                "KillSignal": "",
+                "KillTimeout": null,
+                "Kind": "",
+                "Leader": false,
+                "Lifecycle": null,
+                "LogConfig": {
+                  "MaxFileSizeMB": 10,
+                  "MaxFiles": 10
+                },
+                "Meta": null,
+                "Name": "test-job",
+                "Resources": {
+                  "CPU": 512,
+                  "Cores": null,
+                  "Devices": null,
+                  "DiskMB": null,
+                  "IOPS": null,
+                  "MemoryMB": 512,
+                  "MemoryMaxMB": null,
+                  "Networks": null
+                },
+                "RestartPolicy": null,
+                "ScalingPolicies": null,
+                "Services": [
+                  {
+                    "Address": "",
+                    "AddressMode": "",
+                    "CanaryMeta": null,
+                    "CanaryTags": null,
+                    "CheckRestart": null,
+                    "Checks": [
+                      {
+                        "AddressMode": "",
+                        "Advertise": "",
+                        "Args": null,
+                        "Body": "",
+                        "CheckRestart": null,
+                        "Command": "",
+                        "Expose": false,
+                        "FailuresBeforeCritical": 0,
+                        "GRPCService": "",
+                        "GRPCUseTLS": false,
+                        "Header": null,
+                        "InitialStatus": "passing",
+                        "Interval": 10000000000,
+                        "Method": "",
+                        "Name": "test-job -- http = tcp check",
+                        "OnUpdate": "",
+                        "Path": "",
+                        "PortLabel": "",
+                        "Protocol": "",
+                        "SuccessBeforePassing": 0,
+                        "TLSSkipVerify": false,
+                        "TaskName": "",
+                        "Timeout": 2000000000,
+                        "Type": "tcp"
+                      }
+                    ],
+                    "Connect": null,
+                    "EnableTagOverride": false,
+                    "Meta": null,
+                    "Name": "test-job",
+                    "OnUpdate": "",
+                    "PortLabel": "http",
+                    "Provider": "consul",
+                    "TaggedAddresses": null,
+                    "Tags": [
+                      "traefik.enable=true"
+                    ],
+                    "TaskName": "test-job"
+                  }
+                ],
+                "ShutdownDelay": 0,
+                "Templates": null,
+                "User": "",
+                "Vault": null,
+                "VolumeMounts": null
+              }
+            ],
+            "Update": null,
+            "Volumes": null
+          }
+        ],
+        "Type": "service",
+        "Update": {
+          "AutoPromote": null,
+          "AutoRevert": null,
+          "Canary": null,
+          "HealthCheck": null,
+          "HealthyDeadline": null,
+          "MaxParallel": null,
+          "MinHealthyTime": null,
+          "ProgressDeadline": null,
+          "Stagger": null
+        },
+        "VaultNamespace": null,
+        "VaultToken": null,
+        "Version": null
+      }
+    ]
+  }
+]

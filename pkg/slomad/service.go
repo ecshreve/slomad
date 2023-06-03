@@ -112,13 +112,14 @@ func getConfig(j *Job) map[string]interface{} {
 	return config
 }
 
+// getDisk returns a nomad disk struct with a default size for a given job.
 func getDisk() *nomadStructs.EphemeralDisk {
 	return &nomadStructs.EphemeralDisk{
 		SizeMB: 500,
 	}
 }
 
-// GetConstraint returns a nomad constraint for a given job.
+// getConstraint returns a nomad constraint for a given job.
 func getConstraint(j *Job) *nomadStructs.Constraint {
 	return &nomadStructs.Constraint{
 		LTarget: "${attr.unique.hostname}",
@@ -127,6 +128,7 @@ func getConstraint(j *Job) *nomadStructs.Constraint {
 	}
 }
 
+// getReschedulePolicy returns a nomad reschedule policy for a given job.
 func getReschedulePolicy(j *Job) *nomadStructs.ReschedulePolicy {
 	if j.Type == SERVICE {
 		return &nomadStructs.DefaultServiceJobReschedulePolicy
