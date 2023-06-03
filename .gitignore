@@ -1,3 +1,4 @@
 .task
 slomad/bin
 bin
+.env

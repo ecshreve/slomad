@@ -1,4 +1,6 @@
 version: "3"
+  
+dotenv: ['.env', '{{.ENV}}/.env.', '{{.HOME}}/.env']
 
 tasks:
   go:test:
@@ -22,4 +24,4 @@ tasks:
     deps:
       - go:build
     cmds:
-      - bin/slomad
+      - bin/slomad {{.CLI_ARGS}}

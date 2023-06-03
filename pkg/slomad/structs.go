@@ -2,6 +2,7 @@ package slomad
 
 import (
 	"fmt"
+	"os"
 	"sort"
 
 	"github.com/google/uuid"
@@ -192,7 +193,7 @@ func (j *Job) CreateApiJob(force bool) (*nomadApi.Job, error) {
 // for the given job, printing the output diff.
 func planApiJob(job *nomadApi.Job) error {
 	nomadConfig := nomadApi.DefaultConfig()
-	nomadConfig.Address = "http://10.35.220.50:4646"
+	nomadConfig.Address = os.Getenv("NOMAD_TARGET")
 	nomadClient, err := nomadApi.NewClient(nomadConfig)
 	if err != nil {
 		return oops.Wrapf(err, "unable to create nomad api client")
@@ -200,8 +201,8 @@ func planApiJob(job *nomadApi.Job) error {
 
 	planResp, _, nomadErr := nomadClient.Jobs().Plan(job, true, nil)
 	if nomadErr != nil {
-		log.Errorf("Error submitting job: %s", nomadErr)
-		return fmt.Errorf(fmt.Sprintf("Error submitting job: %s", nomadErr))
+		log.Errorf("Error planning job: %s", nomadErr)
+		return fmt.Errorf(fmt.Sprintf("Error planning job: %s", nomadErr))
 	}
 
 	log.Infof("Sucessfully planned nomad job %s - %+v\n", *job.Name, planResp.Annotations.DesiredTGUpdates[*job.Name])
@@ -211,7 +212,7 @@ func planApiJob(job *nomadApi.Job) error {
 // submitApiJob creates a nomad api client, and submits the job to nomad.
 func submitApiJob(job *nomadApi.Job) error {
 	nomadConfig := nomadApi.DefaultConfig()
-	nomadConfig.Address = "http://10.35.220.50:4646"
+	nomadConfig.Address = os.Getenv("NOMAD_TARGET")
 	nomadClient, err := nomadApi.NewClient(nomadConfig)
 	if err != nil {
 		return oops.Wrapf(err, "unable to create nomad api client")
