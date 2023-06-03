@@ -1,0 +1,45 @@
+[
+  {
+    "Name": "networks",
+    "Values": [
+      [
+        {
+          "CIDR": "",
+          "DNS": null,
+          "Device": "",
+          "DynamicPorts": [
+            {
+              "HostNetwork": "",
+              "Label": "http",
+              "To": 8080,
+              "Value": 0
+            },
+            {
+              "HostNetwork": "",
+              "Label": "https",
+              "To": 4334,
+              "Value": 0
+            }
+          ],
+          "IP": "",
+          "MBits": 0,
+          "Mode": "",
+          "ReservedPorts": [
+            {
+              "HostNetwork": "",
+              "Label": "dns",
+              "To": 8081,
+              "Value": 80
+            },
+            {
+              "HostNetwork": "",
+              "Label": "ssh",
+              "To": 22,
+              "Value": 22
+            }
+          ]
+        }
+      ]
+    ]
+  }
+]

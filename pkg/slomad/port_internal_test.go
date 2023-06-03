@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	nomadStructs "github.com/hashicorp/nomad/nomad/structs"
+	"github.com/samsarahq/go/snapshotter"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -63,6 +64,7 @@ func TestBasicPort(t *testing.T) {
 	for _, tc := range testcases {
 		t.Run(tc.desc, func(t *testing.T) {
 			assert.Equal(t, tc.expected, *basicPort(tc.val))
+			assert.Equal(t, []*Port{&tc.expected}, BasicPortConfig(tc.val))
 		})
 	}
 }
@@ -103,4 +105,19 @@ func TestToNomadPortMap(t *testing.T) {
 	actual := toNomadPortMap(ports)
 	assert.Equal(t, expected["dynamic"], actual["dynamic"])
 	assert.Equal(t, expected["static"], actual["static"])
+}
+
+func TestGetNetworks(t *testing.T) {
+	snap := snapshotter.New(t)
+	defer snap.Verify()
+
+	ports := []*Port{
+		{Label: "http", To: 8080, From: 0, Static: false},
+		{Label: "https", To: 4334, From: 0, Static: false},
+		{Label: "dns", To: 8081, From: 80, Static: true},
+		{Label: "ssh", To: 22, From: 22, Static: true},
+	}
+
+	actual := getNetworks(ports)
+	snap.Snapshot("networks", actual)
 }
