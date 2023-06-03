@@ -1,8 +1,6 @@
 package slomad
 
 import (
-	"bytes"
-	"encoding/gob"
 	"fmt"
 	"strings"
 
@@ -12,46 +10,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type JobType int
-
-const (
-	UNKNOWN_JobType JobType = iota
-	SERVICE
-	SYSTEM
-)
-
-func (jt JobType) String() string {
-	return [...]string{"UNKNOWN", "service", "system"}[jt]
-}
-
-type CommonArgs struct {
-	Driver     string
-	Constraint string
-	Count      int
-	Priority   int
-}
-
+// Job is a struct that represents a Nomad Job.
 type Job struct {
-	Name      string
-	Image     *string
-	JobType   string
-	Storage   *string
-	User      *string
-	Size      map[string]int
-	Ports     []Port
-	Caps      []string
-	Args      []string
-	Env       map[string]string
-	Templates map[string]string
-	Volumes   map[string]string
-	Mounts    map[string]string
-	CommonArgs
-}
-
-// ++++++++++++
-
-// JJJob is a new type of job
-type App struct {
 	Name       string
 	Type       JobType
 	Shape      TaskResource
@@ -67,7 +27,7 @@ type App struct {
 }
 
 // ToNomadJob converts a JJJob to a Nomad Job
-func (j *App) ToNomadJob(force bool) (*nomadStructs.Job, *nomadApi.Job, error) {
+func (j *Job) ToNomadJob(force bool) (*nomadStructs.Job, *nomadApi.Job, error) {
 	job := &nomadStructs.Job{
 		Priority:    50,
 		Namespace:   "default",
@@ -104,23 +64,6 @@ func (j *App) ToNomadJob(force bool) (*nomadStructs.Job, *nomadApi.Job, error) {
 	return job, apiJob, nil
 }
 
-// convertJob converts a Nomad Job to a Nomad API Job.
-func convertJob(in *nomadStructs.Job) (*nomadApi.Job, error) {
-	gob.Register([]map[string]interface{}{})
-	gob.Register([]interface{}{})
-
-	var apiJob *nomadApi.Job
-	buf := new(bytes.Buffer)
-	if err := gob.NewEncoder(buf).Encode(in); err != nil {
-		return nil, err
-	}
-	if err := gob.NewDecoder(buf).Decode(&apiJob); err != nil {
-		return nil, err
-	}
-
-	return apiJob, nil
-}
-
 type JobParams struct {
 	Name   string
 	Type   JobType
@@ -143,8 +86,8 @@ type TaskConfigParams struct {
 	Templates map[string]string
 }
 
-func NewAppJob(params JobParams) *App {
-	return &App{
+func NewAppJob(params JobParams) *Job {
+	return &Job{
 		Name:       params.Name,
 		Image:      fmt.Sprintf("reg.slab.lan:5000/%s", params.Name),
 		Args:       params.Args,
@@ -160,8 +103,8 @@ func NewAppJob(params JobParams) *App {
 	}
 }
 
-func NewStorageJob(params JobParams) *App {
-	return &App{
+func NewStorageJob(params JobParams) *Job {
+	return &Job{
 		Name:       params.Name,
 		Image:      "reg.slab.lan:5000/csi-nfs-plugin",
 		Args:       params.Args,

@@ -11,7 +11,7 @@ import (
 
 func main() {
 
-	services := []*slomad.App{
+	services := []*slomad.Job{
 		registry.LokiJob,
 		registry.WhoamiJob,
 		registry.SpeedtestJob,
@@ -21,10 +21,7 @@ func main() {
 		registry.PromtailJob,
 		registry.ControllerJob,
 		registry.NodeJob,
-		// 		registry.JenkinsJob,
-		// 		registry.SemaphoreJob,
-		// 		registry.GlancesJob,
-		// 		registry.InfluxJob,
+		registry.InfluxDBJob,
 	}
 
 	args := os.Args[1:]
@@ -40,13 +37,13 @@ func main() {
 	}
 
 	for _, srvc := range services {
-		if err := srvc.PlanApp(false); err != nil {
+		if err := srvc.Plan(false); err != nil {
 			log.Fatalln(oops.Wrapf(err, "error planning api job"))
 		}
 
 		if apply {
 			log.Infof("deploying %s", srvc.Name)
-			if err := srvc.DeployApp(false); err != nil {
+			if err := srvc.Deploy(false); err != nil {
 				log.Fatalln(oops.Wrapf(err, "error submitting api job"))
 			}
 		} else {

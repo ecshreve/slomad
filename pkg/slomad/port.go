@@ -16,7 +16,7 @@ func NewPort(l string, t, f int) *Port {
 		Label:  l,
 		To:     t,
 		From:   f,
-		Static: t == f,
+		Static: t == f && t != 0,
 	}
 }
 
@@ -28,7 +28,7 @@ func ToNomadPort(p *Port) nomadStructs.Port {
 	}
 }
 
-func BasicPort(val int) *Port {
+func basicPort(val int) *Port {
 	return &Port{
 		Label:  "http",
 		To:     val,
@@ -37,8 +37,8 @@ func BasicPort(val int) *Port {
 	}
 }
 
-func BasicPorts(val int) []*Port {
-	return []*Port{BasicPort(val)}
+func BasicPortConfig(val int) []*Port {
+	return []*Port{basicPort(val)}
 }
 
 func ToPortMap(ports []*Port) map[string][]*Port {
@@ -88,4 +88,14 @@ func ExtractLabels(ports []*Port) []string {
 		labels = append(labels, p.Label)
 	}
 	return labels
+}
+
+func getNetworks(ports []*Port) []*nomadStructs.NetworkResource {
+	portMap := ToNomadPortMap(ports)
+	return []*nomadStructs.NetworkResource{
+		{
+			ReservedPorts: portMap["static"],
+			DynamicPorts:  portMap["dynamic"],
+		},
+	}
 }

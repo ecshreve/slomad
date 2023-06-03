@@ -13,21 +13,6 @@ type Volume struct {
 	Mount bool
 }
 
-func NewDockerVolume(src, dst string) *Volume {
-	return &Volume{
-		Src: src,
-		Dst: dst,
-	}
-}
-
-func NewNomadVolume(src, dst string) *Volume {
-	return &Volume{
-		Src:   src,
-		Dst:   dst,
-		Mount: true,
-	}
-}
-
 // getMounts converts a list of Volumes to a list of Nomad VolumeMounts.
 func getMounts(vols []Volume) []*nomadStructs.VolumeMount {
 	volMounts := []*nomadStructs.VolumeMount{}
@@ -66,9 +51,9 @@ func getNomadVolumes(storage string) map[string]*nomadStructs.VolumeRequest {
 	return csiVols
 }
 
-// toVolumeString converts a list of Volumes to a list of Volume strings.
+// getVolumeString converts a list of Volumes to a list of Volume strings.
 // These are meant to be passed to the docker driver.
-func toVolumeStrings(vols []Volume) []string {
+func getVolumeStrings(vols []Volume) []string {
 	volStrings := []string{}
 	for _, vol := range vols {
 		if vol.Mount {
@@ -80,4 +65,16 @@ func toVolumeStrings(vols []Volume) []string {
 
 	sort.Strings(volStrings)
 	return volStrings
+}
+
+func getCSIPluginConfig(j *Job) *nomadStructs.TaskCSIPluginConfig {
+	if j.Storage != "controller" && j.Storage != "node" {
+		return nil
+	}
+
+	return &nomadStructs.TaskCSIPluginConfig{
+		ID:       "nfs",
+		MountDir: "/csi",
+		Type:     nomadStructs.CSIPluginType(j.Storage),
+	}
 }

@@ -13,7 +13,7 @@ var PromtailJob = slomad.NewAppJob(slomad.JobParams{
 	Name: "promtail",
 	Type: slomad.SYSTEM,
 	TaskConfigParams: slomad.TaskConfigParams{
-		Ports: slomad.BasicPorts(3200),
+		Ports: slomad.BasicPortConfig(3200),
 		Shape: slomad.TINY_TASK,
 		Env:   map[string]string{"HOSTNAME": "${attr.unique.hostname}"},
 		Args: []string{
@@ -34,7 +34,7 @@ var NodeExporterJob = slomad.NewAppJob(slomad.JobParams{
 	Name: "node-exporter",
 	Type: slomad.SYSTEM,
 	TaskConfigParams: slomad.TaskConfigParams{
-		Ports: slomad.BasicPorts(9100),
+		Ports: slomad.BasicPortConfig(9100),
 		Shape: slomad.TINY_TASK,
 		Args: []string{
 			"--web.listen-address=:${NOMAD_PORT_http}",
@@ -58,7 +58,7 @@ var GrafanaJob = slomad.NewAppJob(slomad.JobParams{
 	Type:   slomad.SERVICE,
 	Target: slomad.WORKER,
 	TaskConfigParams: slomad.TaskConfigParams{
-		Ports: slomad.BasicPorts(3000),
+		Ports: slomad.BasicPortConfig(3000),
 		Shape: slomad.LARGE_TASK,
 		User:  "root",
 		Env:   map[string]string{"GF_SERVER_HTTP_PORT": "${NOMAD_PORT_http}"},
@@ -74,7 +74,7 @@ var LokiJob = slomad.NewAppJob(slomad.JobParams{
 	Type:   slomad.SERVICE,
 	Target: slomad.WORKER,
 	TaskConfigParams: slomad.TaskConfigParams{
-		Ports: slomad.BasicPorts(3100),
+		Ports: slomad.BasicPortConfig(3100),
 		Shape: slomad.TINY_TASK,
 	},
 })
@@ -87,7 +87,7 @@ var PrometheusJob = slomad.NewAppJob(slomad.JobParams{
 	Type:   slomad.SERVICE,
 	Target: slomad.WORKER,
 	TaskConfigParams: slomad.TaskConfigParams{
-		Ports:     slomad.BasicPorts(9090),
+		Ports:     slomad.BasicPortConfig(9090),
 		Shape:     slomad.LARGE_TASK,
 		Templates: map[string]string{"prometheus.yml": prometheusConfig},
 	},
@@ -102,7 +102,7 @@ var SpeedtestJob = slomad.NewAppJob(slomad.JobParams{
 	Type:   slomad.SERVICE,
 	Target: slomad.WORKER,
 	TaskConfigParams: slomad.TaskConfigParams{
-		Ports: slomad.BasicPorts(80),
+		Ports: slomad.BasicPortConfig(80),
 		Shape: slomad.TINY_TASK,
 	},
 })
@@ -114,6 +114,6 @@ var WhoamiJob = slomad.NewAppJob(slomad.JobParams{
 	TaskConfigParams: slomad.TaskConfigParams{
 		Shape: slomad.TINY_TASK,
 		Args:  []string{"--port", "${NOMAD_PORT_http}"},
-		Ports: slomad.BasicPorts(80),
+		Ports: slomad.BasicPortConfig(80),
 	},
 })

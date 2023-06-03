@@ -29,7 +29,7 @@ var ControllerJob = slomad.NewStorageJob(slomad.JobParams{
 	Type:   slomad.SERVICE,
 	Target: slomad.WORKER,
 	TaskConfigParams: slomad.TaskConfigParams{
-		Ports: slomad.BasicPorts(0),
+		Ports: slomad.BasicPortConfig(0),
 		Shape: slomad.DEFAULT_TASK,
 		Args:  getStorageArgs("controller"),
 	},
@@ -39,7 +39,7 @@ var NodeJob = slomad.NewStorageJob(slomad.JobParams{
 	Name: "storage-node",
 	Type: slomad.SYSTEM,
 	TaskConfigParams: slomad.TaskConfigParams{
-		Ports: slomad.BasicPorts(0),
+		Ports: slomad.BasicPortConfig(0),
 		Shape: slomad.TINY_TASK,
 		Args:  getStorageArgs("node"),
 	},

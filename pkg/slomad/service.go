@@ -7,7 +7,7 @@ import (
 	nomadStructs "github.com/hashicorp/nomad/nomad/structs"
 )
 
-func GetGroup(j *App) *nomadStructs.TaskGroup {
+func GetGroup(j *Job) *nomadStructs.TaskGroup {
 	return &nomadStructs.TaskGroup{
 		Name:             j.Name,
 		Count:            1,
@@ -20,7 +20,7 @@ func GetGroup(j *App) *nomadStructs.TaskGroup {
 	}
 }
 
-func GetTask(j *App) *nomadStructs.Task {
+func GetTask(j *Job) *nomadStructs.Task {
 	return &nomadStructs.Task{
 		Name:            j.Name,
 		Driver:          "docker",
@@ -91,7 +91,7 @@ func getServices(taskName string, portLabels []string) []*nomadStructs.Service {
 }
 
 // getConfig returns a nomad config struct for a given job.
-func getConfig(j *App) map[string]interface{} {
+func getConfig(j *Job) map[string]interface{} {
 	portLabels := ExtractLabels(j.Ports)
 	config := map[string]interface{}{
 		"image": j.Image,
@@ -99,7 +99,7 @@ func getConfig(j *App) map[string]interface{} {
 		"ports": portLabels,
 	}
 
-	vols := toVolumeStrings(j.Volumes)
+	vols := getVolumeStrings(j.Volumes)
 	if len(vols) > 0 {
 		config["volumes"] = vols
 	}
@@ -112,28 +112,6 @@ func getConfig(j *App) map[string]interface{} {
 	return config
 }
 
-func getCSIPluginConfig(j *App) *nomadStructs.TaskCSIPluginConfig {
-	if j.Storage != "controller" && j.Storage != "node" {
-		return nil
-	}
-
-	return &nomadStructs.TaskCSIPluginConfig{
-		ID:       "nfs",
-		MountDir: "/csi",
-		Type:     nomadStructs.CSIPluginType(j.Storage),
-	}
-}
-
-func getNetworks(ports []*Port) []*nomadStructs.NetworkResource {
-	portMap := ToNomadPortMap(ports)
-	return []*nomadStructs.NetworkResource{
-		{
-			ReservedPorts: portMap["static"],
-			DynamicPorts:  portMap["dynamic"],
-		},
-	}
-}
-
 func getDisk() *nomadStructs.EphemeralDisk {
 	return &nomadStructs.EphemeralDisk{
 		SizeMB: 500,
@@ -141,7 +119,7 @@ func getDisk() *nomadStructs.EphemeralDisk {
 }
 
 // GetConstraint returns a nomad constraint for a given job.
-func getConstraint(j *App) *nomadStructs.Constraint {
+func getConstraint(j *Job) *nomadStructs.Constraint {
 	return &nomadStructs.Constraint{
 		LTarget: "${attr.unique.hostname}",
 		RTarget: j.Constraint,
@@ -149,7 +127,7 @@ func getConstraint(j *App) *nomadStructs.Constraint {
 	}
 }
 
-func getReschedulePolicy(j *App) *nomadStructs.ReschedulePolicy {
+func getReschedulePolicy(j *Job) *nomadStructs.ReschedulePolicy {
 	if j.Type == SERVICE {
 		return &nomadStructs.DefaultServiceJobReschedulePolicy
 	}

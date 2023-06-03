@@ -4,6 +4,7 @@ type DeployTarget int
 
 const (
 	UNKNOWN DeployTarget = iota
+	ALL
 	SERVER
 	WORKER
 	CODERBOX
@@ -11,24 +12,22 @@ const (
 )
 
 var DeployTargetRegex = map[DeployTarget]string{
+	ALL:      "^.*$",
 	SERVER:   "^server-[0-9]+$",
 	WORKER:   "^worker-[0-9]+$",
 	CODERBOX: "^coderbox$",
 	DEVBOX:   "^devbox$",
 }
 
-type TaskParams struct {
-	Driver     string
-	Constraint string
-	Count      int
-	Priority   int
-}
+type JobType int
 
-func (dt DeployTarget) DefaultTaskParams() TaskParams {
-	return TaskParams{
-		Driver:     "docker",
-		Constraint: DeployTargetRegex[dt],
-		Count:      1,
-		Priority:   50,
-	}
+const (
+	UNKNOWN_JobType JobType = iota
+	SERVICE
+	SYSTEM
+	BATCH
+)
+
+func (jt JobType) String() string {
+	return [...]string{"UNKNOWN", "service", "system", "batch"}[jt]
 }
