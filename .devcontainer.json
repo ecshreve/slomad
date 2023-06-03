@@ -1,17 +1,8 @@
 {
 	"name": "toolbox",
-	// this is a locally hosted image, based on https://hub.docker.com/repository/docker/ecshreve/devbox/general
-	// but with some user / dotfile configuration on top
-	"image": "reg.slab.lan:5000/devbox-pub:dotfiles",
+	"image": "ecshreve/devbox",
 	"features": {
 		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
-	},
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"golang.Go"
-			]
-		}
 	},
 	"runArgs": ["--hostname", "toolbox"],
 	"remoteUser": "eric"
