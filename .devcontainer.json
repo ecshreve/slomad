@@ -1,20 +1,15 @@
 {
 	"name": "toolbox",
-	"image": "reg.slab.lan:5000/devbox-dotfiles:packer",
+	// this is a locally hosted image, based on https://hub.docker.com/repository/docker/ecshreve/devbox/general
+	// but with some user / dotfile configuration on top
+	"image": "reg.slab.lan:5000/devbox-pub:dotfiles",
 	"features": {
 		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
 	},
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"golang.Go",
-				"redhat.ansible",
-				"GitHub.copilot",
-				"hashicorp.hcl",
-				"hashicorp.terraform",
-				"mutantdino.resourcemonitor",
-				"Gruntfuggly.todo-tree",
-				"esbenp.prettier-vscode"
+				"golang.Go"
 			]
 		}
 	},

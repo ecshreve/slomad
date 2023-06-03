@@ -13,8 +13,9 @@ tasks:
 
   go:test:cov:
     cmds:
-      - go test -race -coverprofile=cover.out -covermode=atomic github.com/ecshreve/slomad/...
-      - go tool cover -html cover.out -o cover.html
+      - go test -race -coverprofile=reports/cover.out -covermode=atomic github.com/ecshreve/slomad/...
+      - go tool cover -html reports/cover.out -o reports/cover.html
+      - cd reports && python3 -m http.server 8008
 
   go:build:
     generates:

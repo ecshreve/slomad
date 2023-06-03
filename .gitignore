@@ -2,3 +2,4 @@
 slomad/bin
 bin
 .env
+.vscode

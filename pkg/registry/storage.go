@@ -11,7 +11,7 @@ import (
 func getStorageArgs(storage string) []string {
 	common := []string{
 		"--node-id=${attr.unique.hostname}",
-		fmt.Sprintf("--nfs-server=%s", os.Getenv("SYNOLOGY_VAULT")),
+		fmt.Sprintf("--nfs-server=%s", os.Getenv("NFS_MOUNT")),
 		"--mount-options=defaults",
 		fmt.Sprintf("--type=%s", storage),
 	}

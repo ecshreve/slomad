@@ -25,11 +25,11 @@ func main() {
 	}
 
 	args := os.Args[1:]
-	apply := false
+	confirm := false
 	if len(args) > 0 {
 		switch args[0] {
 		case "confirm":
-			apply = true
+			confirm = true
 
 		default:
 			log.Warnf("unknown arg: %s", args[0])
@@ -41,7 +41,8 @@ func main() {
 			log.Fatalln(oops.Wrapf(err, "error planning api job"))
 		}
 
-		if apply {
+		// TODO: move deploy code out of the slomad package
+		if confirm {
 			log.Infof("deploying %s", srvc.Name)
 			if err := srvc.Deploy(false); err != nil {
 				log.Fatalln(oops.Wrapf(err, "error submitting api job"))
@@ -53,10 +54,6 @@ func main() {
 	//something
 
 	// 	if err := registry.DeployTraefikJob(); err != nil {
-	// 		log.Panic(err)
-	// 	}
-
-	// 	if err := registry.DeployGlances(); err != nil {
 	// 		log.Panic(err)
 	// 	}
 
