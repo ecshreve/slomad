@@ -11,6 +11,11 @@ tasks:
     cmds:
       - go test -v github.com/ecshreve/slomad/...
 
+  go:test:cov:
+    cmds:
+      - go test -race -coverprofile=cover.out -covermode=atomic github.com/ecshreve/slomad/...
+      - go tool cover -html cover.out -o cover.html
+
   go:build:
     generates:
       - bin/slomad

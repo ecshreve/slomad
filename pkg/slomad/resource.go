@@ -30,10 +30,12 @@ var (
 	COMPUTE_TASK = TaskResource{CPU: LARGE, MEM: SMALL}
 )
 
+// TODO: remove this function?
+//
 // CustomTaskResource is a helper function to create a TaskResource with custom values.
-func CustomTaskResource(cpu ResourceValue, mem ResourceValue) TaskResource {
-	return TaskResource{CPU: cpu, MEM: mem}
-}
+// func CustomTaskResource(cpu ResourceValue, mem ResourceValue) TaskResource {
+// 	return TaskResource{CPU: cpu, MEM: mem}
+// }
 
 // getResource is a helper function to convert a TaskResource to a Nomad Resources struct.
 func getResource(tr TaskResource) *nomadStructs.Resources {

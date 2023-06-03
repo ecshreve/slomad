@@ -1,0 +1,759 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>slomad: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/ecshreve/slomad/pkg/slomad/deploy.go (0.0%)</option>
+				
+				<option value="file1">github.com/ecshreve/slomad/pkg/slomad/job.go (63.6%)</option>
+				
+				<option value="file2">github.com/ecshreve/slomad/pkg/slomad/port.go (100.0%)</option>
+				
+				<option value="file3">github.com/ecshreve/slomad/pkg/slomad/resource.go (100.0%)</option>
+				
+				<option value="file4">github.com/ecshreve/slomad/pkg/slomad/service.go (68.8%)</option>
+				
+				<option value="file5">github.com/ecshreve/slomad/pkg/slomad/storage.go (50.0%)</option>
+				
+				<option value="file6">github.com/ecshreve/slomad/pkg/slomad/types.go (100.0%)</option>
+				
+				<option value="file7">github.com/ecshreve/slomad/pkg/slomad/utils.go (100.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">no coverage</span>
+				<span class="cov1">low coverage</span>
+				<span class="cov2">*</span>
+				<span class="cov3">*</span>
+				<span class="cov4">*</span>
+				<span class="cov5">*</span>
+				<span class="cov6">*</span>
+				<span class="cov7">*</span>
+				<span class="cov8">*</span>
+				<span class="cov9">*</span>
+				<span class="cov10">high coverage</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package slomad
+
+import (
+        "fmt"
+        "os"
+
+        nomadApi "github.com/hashicorp/nomad/api"
+        "github.com/samsarahq/go/oops"
+        log "github.com/sirupsen/logrus"
+)
+
+// planApiJob creates a nomad api client, and runs a plan
+// for the given job, printing the output diff.
+func planApiJob(job *nomadApi.Job) error <span class="cov0" title="0">{
+        nomadConfig := nomadApi.DefaultConfig()
+        nomadConfig.Address = os.Getenv("NOMAD_TARGET")
+        nomadClient, err := nomadApi.NewClient(nomadConfig)
+        if err != nil </span><span class="cov0" title="0">{
+                return oops.Wrapf(err, "unable to create nomad api client")
+        }</span>
+
+        <span class="cov0" title="0">planResp, _, nomadErr := nomadClient.Jobs().Plan(job, true, nil)
+        if nomadErr != nil </span><span class="cov0" title="0">{
+                log.Errorf("Error planning job: %s", nomadErr)
+                return fmt.Errorf(fmt.Sprintf("Error planning job: %s", nomadErr))
+        }</span>
+
+        <span class="cov0" title="0">log.Infof("Sucessfully planned nomad job %s - %+v\n", *job.Name, planResp.Annotations.DesiredTGUpdates[*job.Name])
+        return nil</span>
+}
+
+// submitApiJob creates a nomad api client, and submits the job to nomad.
+//
+// TODO: move client creation to a helper function
+func submitApiJob(job *nomadApi.Job) error <span class="cov0" title="0">{
+        nomadConfig := nomadApi.DefaultConfig()
+        nomadConfig.Address = os.Getenv("NOMAD_TARGET")
+        nomadClient, err := nomadApi.NewClient(nomadConfig)
+        if err != nil </span><span class="cov0" title="0">{
+                return oops.Wrapf(err, "unable to create nomad api client")
+        }</span>
+
+        <span class="cov0" title="0">_, _, nomadErr := nomadClient.Jobs().Register(job, nil)
+        if nomadErr != nil </span><span class="cov0" title="0">{
+                return oops.Wrapf(err, "error submitting job: %+v", job)
+        }</span>
+
+        <span class="cov0" title="0">log.Infof("Sucessfully submitted nomad job %s\n", *job.Name)
+        return nil</span>
+}
+
+// Plan creates a new API job and runs a plan on it.
+func (j *Job) Plan(force bool) error <span class="cov0" title="0">{
+        _, aj, err := j.ToNomadJob(force)
+        if err != nil </span><span class="cov0" title="0">{
+                return oops.Wrapf(err, "error creating api job for job: %+v", j)
+        }</span>
+
+        <span class="cov0" title="0">if err = planApiJob(aj); err != nil </span><span class="cov0" title="0">{
+                return oops.Wrapf(err, "error planning api job")
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (j *Job) Deploy(force bool) error <span class="cov0" title="0">{
+        _, aj, err := j.ToNomadJob(force)
+        if err != nil </span><span class="cov0" title="0">{
+                return oops.Wrapf(err, "error creating api job for job: %+v", j)
+        }</span>
+
+        <span class="cov0" title="0">if err = submitApiJob(aj); err != nil </span><span class="cov0" title="0">{
+                return oops.Wrapf(err, "error submitting api job")
+        }</span>
+
+        <span class="cov0" title="0">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package slomad
+
+import (
+        "bytes"
+        "encoding/gob"
+        "fmt"
+        "strings"
+
+        "github.com/google/uuid"
+        nomadApi "github.com/hashicorp/nomad/api"
+        nomadStructs "github.com/hashicorp/nomad/nomad/structs"
+        log "github.com/sirupsen/logrus"
+)
+
+// Job is a struct that represents a Nomad Job.
+type Job struct {
+        Name       string
+        Type       JobType
+        Shape      TaskResource
+        Constraint string
+        Image      string
+        Args       []string
+        Ports      []*Port
+        Env        map[string]string
+        User       string
+        Storage    string
+        Volumes    []Volume
+        Templates  map[string]string
+}
+
+// ToNomadJob converts a JJJob to a Nomad Job
+func (j *Job) ToNomadJob(force bool) (*nomadStructs.Job, *nomadApi.Job, error) <span class="cov8" title="1">{
+        job := &amp;nomadStructs.Job{
+                Priority:    50,
+                Namespace:   "default",
+                Region:      "global",
+                Datacenters: []string{"dcs"},
+
+                ID:   j.Name,
+                Name: j.Name,
+
+                Type:        j.Type.String(),
+                TaskGroups:  []*nomadStructs.TaskGroup{GetGroup(j)},
+                Constraints: []*nomadStructs.Constraint{getConstraint(j)},
+        }
+
+        // Writing a new uuid to this field ensures Nomad will create a new
+        // version of the job.
+        if force </span><span class="cov0" title="0">{
+                job.Meta = map[string]string{
+                        "run_uuid": uuid.NewString(),
+                }
+        }</span>
+
+        <span class="cov8" title="1">if err := job.Validate(); err != nil </span><span class="cov0" title="0">{
+                log.Errorf("Nomad job validation failed. Error: %s\n", err)
+                return job, nil, err
+        }</span>
+
+        <span class="cov8" title="1">apiJob, err := convertJob(job)
+        if err != nil </span><span class="cov0" title="0">{
+                log.Errorf("Failed to convert nomad job in api call. Error: %s\n", err)
+                return job, apiJob, err
+        }</span>
+
+        <span class="cov8" title="1">return job, apiJob, nil</span>
+}
+
+// convertJob converts a Nomad Job to a Nomad API Job.
+func convertJob(in *nomadStructs.Job) (*nomadApi.Job, error) <span class="cov8" title="1">{
+        gob.Register([]map[string]interface{}{})
+        gob.Register([]interface{}{})
+
+        var apiJob *nomadApi.Job
+        buf := new(bytes.Buffer)
+        if err := gob.NewEncoder(buf).Encode(in); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">if err := gob.NewDecoder(buf).Decode(&amp;apiJob); err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return apiJob, nil</span>
+}
+
+type JobParams struct {
+        Name   string
+        Type   JobType
+        Target DeployTarget
+        TaskConfigParams
+        StorageParams
+}
+
+type StorageParams struct {
+        Storage *string
+        Volumes []Volume
+}
+
+type TaskConfigParams struct {
+        Args      []string
+        Ports     []*Port
+        Shape     TaskResource
+        Env       map[string]string
+        User      string
+        Templates map[string]string
+}
+
+func NewAppJob(params JobParams) *Job <span class="cov8" title="1">{
+        return &amp;Job{
+                Name:       params.Name,
+                Image:      fmt.Sprintf("reg.slab.lan:5000/%s", params.Name),
+                Args:       params.Args,
+                Ports:      params.Ports,
+                Type:       params.Type,
+                Shape:      params.Shape,
+                Constraint: DeployTargetRegex[params.Target],
+                Env:        params.Env,
+                User:       params.User,
+                Volumes:    params.Volumes,
+                Storage:    StringValOr(params.Storage, ""),
+                Templates:  params.Templates,
+        }
+}</span>
+
+func NewStorageJob(params JobParams) *Job <span class="cov0" title="0">{
+        return &amp;Job{
+                Name:       params.Name,
+                Image:      "reg.slab.lan:5000/csi-nfs-plugin",
+                Args:       params.Args,
+                Ports:      params.Ports,
+                Type:       params.Type,
+                Shape:      params.Shape,
+                Constraint: DeployTargetRegex[params.Target],
+                Env:        params.Env,
+                User:       params.User,
+                Volumes:    params.Volumes,
+                Storage:    strings.Split(params.Name, "-")[1],
+                Templates:  params.Templates,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package slomad
+
+import (
+        nomadStructs "github.com/hashicorp/nomad/nomad/structs"
+)
+
+// Port is a struct that represents a network port for a task.
+type Port struct {
+        Label  string
+        To     int
+        From   int
+        Static bool
+}
+
+func toNomadPort(p *Port) nomadStructs.Port <span class="cov10" title="13">{
+        return nomadStructs.Port{
+                Label: p.Label,
+                To:    p.To,
+                Value: p.From,
+        }
+}</span>
+
+// basicPort returns a basic port struct with a default label.
+func basicPort(val int) *Port <span class="cov5" title="4">{
+        return &amp;Port{
+                Label:  "http",
+                To:     val,
+                From:   0,
+                Static: false,
+        }
+}</span>
+
+// BasicPortConfig returns a list with a single Port element with a default label.
+func BasicPortConfig(val int) []*Port <span class="cov3" title="2">{
+        return []*Port{basicPort(val)}
+}</span>
+
+// toNomadPortMap converts a list of Ports to a map of static and dynamic ports.
+func toNomadPortMap(ports []*Port) map[string][]nomadStructs.Port <span class="cov4" title="3">{
+        stat := []nomadStructs.Port{}
+        dynm := []nomadStructs.Port{}
+
+        for _, p := range ports </span><span class="cov8" title="9">{
+                np := toNomadPort(p)
+                if p.Static </span><span class="cov5" title="4">{
+                        stat = append(stat, np)
+                }</span> else<span class="cov6" title="5"> {
+                        dynm = append(dynm, np)
+                }</span>
+        }
+
+        <span class="cov4" title="3">portMap := map[string][]nomadStructs.Port{
+                "static":  stat,
+                "dynamic": dynm,
+        }
+
+        return portMap</span>
+}
+
+// extractLabels returns a list of labels from a list of Ports.
+func extractLabels(ports []*Port) []string <span class="cov4" title="3">{
+        labels := []string{}
+        for _, p := range ports </span><span class="cov7" title="6">{
+                labels = append(labels, p.Label)
+        }</span>
+        <span class="cov4" title="3">return labels</span>
+}
+
+// getNetworks converts a list of Ports to a list of Nomad NetworkResources.
+func getNetworks(ports []*Port) []*nomadStructs.NetworkResource <span class="cov3" title="2">{
+        portMap := toNomadPortMap(ports)
+        return []*nomadStructs.NetworkResource{
+                {
+                        ReservedPorts: portMap["static"],
+                        DynamicPorts:  portMap["dynamic"],
+                },
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package slomad
+
+import (
+        nomadStructs "github.com/hashicorp/nomad/nomad/structs"
+)
+
+type ResourceValue int
+
+const (
+        TINY    ResourceValue = 128
+        SMALL   ResourceValue = 256
+        DEFAULT ResourceValue = 512
+        LARGE   ResourceValue = 1024
+        XLARGE  ResourceValue = 2048
+)
+
+// TaskResource is a struct that represents the CPU and MEM resources for a task.
+type TaskResource struct {
+        CPU ResourceValue
+        MEM ResourceValue
+}
+
+var (
+        DEFAULT_TASK = TaskResource{CPU: DEFAULT, MEM: DEFAULT}
+        TINY_TASK    = TaskResource{CPU: TINY, MEM: TINY}
+        SMALL_TASK   = TaskResource{CPU: SMALL, MEM: SMALL}
+        LARGE_TASK   = TaskResource{CPU: LARGE, MEM: LARGE}
+        XLARGE_TASK  = TaskResource{CPU: XLARGE, MEM: XLARGE}
+        MEM_TASK     = TaskResource{CPU: SMALL, MEM: LARGE}
+        COMPUTE_TASK = TaskResource{CPU: LARGE, MEM: SMALL}
+)
+
+// TODO: remove this function?
+//
+// CustomTaskResource is a helper function to create a TaskResource with custom values.
+// func CustomTaskResource(cpu ResourceValue, mem ResourceValue) TaskResource {
+//         return TaskResource{CPU: cpu, MEM: mem}
+// }
+
+// getResource is a helper function to convert a TaskResource to a Nomad Resources struct.
+func getResource(tr TaskResource) *nomadStructs.Resources <span class="cov10" title="8">{
+        return &amp;nomadStructs.Resources{
+                CPU:      int(tr.CPU),
+                MemoryMB: int(tr.MEM),
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package slomad
+
+import (
+        "fmt"
+        "time"
+
+        nomadStructs "github.com/hashicorp/nomad/nomad/structs"
+)
+
+func GetGroup(j *Job) *nomadStructs.TaskGroup <span class="cov8" title="1">{
+        return &amp;nomadStructs.TaskGroup{
+                Name:             j.Name,
+                Count:            1,
+                Tasks:            []*nomadStructs.Task{GetTask(j)},
+                RestartPolicy:    nomadStructs.NewRestartPolicy(j.Type.String()),
+                ReschedulePolicy: getReschedulePolicy(j),
+                EphemeralDisk:    getDisk(),
+                Networks:         getNetworks(j.Ports),
+                Volumes:          getNomadVolumes(j.Storage),
+        }
+}</span>
+
+func GetTask(j *Job) *nomadStructs.Task <span class="cov8" title="1">{
+        return &amp;nomadStructs.Task{
+                Name:            j.Name,
+                Driver:          "docker",
+                Config:          getConfig(j),
+                Resources:       getResource(j.Shape),
+                Services:        getServices(j.Name, extractLabels(j.Ports)),
+                LogConfig:       nomadStructs.DefaultLogConfig(),
+                Env:             j.Env,
+                User:            j.User,
+                VolumeMounts:    getMounts(j.Volumes),
+                Templates:       getTemplates(j.Templates),
+                CSIPluginConfig: getCSIPluginConfig(j),
+        }
+}</span>
+
+func GetService(taskName string, portLabel string) *nomadStructs.Service <span class="cov8" title="1">{
+        if taskName == "storage-controller" </span><span class="cov0" title="0">{
+                return nil
+        }</span>
+
+        <span class="cov8" title="1">return &amp;nomadStructs.Service{
+                Name:      taskName,
+                PortLabel: portLabel,
+                TaskName:  taskName,
+                Tags:      []string{"traefik.enable=true"},
+                Checks: []*nomadStructs.ServiceCheck{
+                        {
+                                Name:          fmt.Sprintf("%s -- %s = tcp check", taskName, portLabel),
+                                Type:          nomadStructs.ServiceCheckTCP,
+                                Interval:      10 * time.Second,
+                                Timeout:       2 * time.Second,
+                                InitialStatus: "passing",
+                        },
+                },
+                Provider: "consul",
+        }</span>
+}
+
+func getTemplates(templates map[string]string) []*nomadStructs.Template <span class="cov8" title="1">{
+        if templates == nil </span><span class="cov8" title="1">{
+                return nil
+        }</span>
+
+        <span class="cov0" title="0">nt := []*nomadStructs.Template{}
+        for tmplname, tmpl := range templates </span><span class="cov0" title="0">{
+                nt = append(nt, &amp;nomadStructs.Template{
+                        EmbeddedTmpl: tmpl,
+                        DestPath:     fmt.Sprintf("local/config/%s", tmplname),
+                        ChangeMode:   "signal",
+                        ChangeSignal: "SIGHUP",
+                })
+        }</span>
+
+        <span class="cov0" title="0">return nt</span>
+}
+
+// getServices returns a list of services for a given job.
+func getServices(taskName string, portLabels []string) []*nomadStructs.Service <span class="cov8" title="1">{
+        services := []*nomadStructs.Service{}
+        for _, pl := range portLabels </span><span class="cov8" title="1">{
+                srvc := GetService(taskName, pl)
+                if srvc == nil </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+                <span class="cov8" title="1">services = append(services, srvc)</span>
+        }
+        <span class="cov8" title="1">return services</span>
+}
+
+// getConfig returns a nomad config struct for a given job.
+func getConfig(j *Job) map[string]interface{} <span class="cov8" title="1">{
+        portLabels := extractLabels(j.Ports)
+        config := map[string]interface{}{
+                "image": j.Image,
+                "args":  j.Args,
+                "ports": portLabels,
+        }
+
+        vols := getVolumeStrings(j.Volumes)
+        if len(vols) &gt; 0 </span><span class="cov0" title="0">{
+                config["volumes"] = vols
+        }</span>
+
+        <span class="cov8" title="1">if j.Storage == "controller" || j.Storage == "node" </span><span class="cov0" title="0">{
+                config["privileged"] = true
+                config["network_mode"] = "host"
+        }</span>
+
+        <span class="cov8" title="1">return config</span>
+}
+
+// getDisk returns a nomad disk struct with a default size for a given job.
+func getDisk() *nomadStructs.EphemeralDisk <span class="cov8" title="1">{
+        return &amp;nomadStructs.EphemeralDisk{
+                SizeMB: 500,
+        }
+}</span>
+
+// getConstraint returns a nomad constraint for a given job.
+func getConstraint(j *Job) *nomadStructs.Constraint <span class="cov8" title="1">{
+        return &amp;nomadStructs.Constraint{
+                LTarget: "${attr.unique.hostname}",
+                RTarget: j.Constraint,
+                Operand: "regexp",
+        }
+}</span>
+
+// getReschedulePolicy returns a nomad reschedule policy for a given job.
+func getReschedulePolicy(j *Job) *nomadStructs.ReschedulePolicy <span class="cov8" title="1">{
+        if j.Type == SERVICE </span><span class="cov8" title="1">{
+                return &amp;nomadStructs.DefaultServiceJobReschedulePolicy
+        }</span>
+        <span class="cov0" title="0">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package slomad
+
+import (
+        "fmt"
+        "sort"
+
+        nomadStructs "github.com/hashicorp/nomad/nomad/structs"
+)
+
+type Volume struct {
+        Src   string
+        Dst   string
+        Mount bool
+}
+
+// getMounts converts a list of Volumes to a list of Nomad VolumeMounts.
+func getMounts(vols []Volume) []*nomadStructs.VolumeMount <span class="cov8" title="1">{
+        volMounts := []*nomadStructs.VolumeMount{}
+        for _, vol := range vols </span><span class="cov0" title="0">{
+                if !vol.Mount </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+
+                <span class="cov0" title="0">volMounts = append(volMounts, &amp;nomadStructs.VolumeMount{
+                        Volume:      vol.Src,
+                        Destination: vol.Dst,
+                        ReadOnly:    false,
+                })</span>
+        }
+        <span class="cov8" title="1">return volMounts</span>
+}
+
+// getNomadVolumes converts a list of Volumes to a list of Nomad Volumes.
+func getNomadVolumes(storage string) map[string]*nomadStructs.VolumeRequest <span class="cov8" title="1">{
+        if storage == "" || storage == "controller" || storage == "node" </span><span class="cov8" title="1">{
+                return nil
+        }</span>
+
+        <span class="cov0" title="0">csiVols := map[string]*nomadStructs.VolumeRequest{}
+        volName := fmt.Sprintf("%s-vol", storage)
+        csiVols[volName] = &amp;nomadStructs.VolumeRequest{
+                Name:   volName,
+                Source: volName,
+
+                Type:           "csi",
+                ReadOnly:       false,
+                AccessMode:     "single-node-writer",
+                AttachmentMode: "file-system",
+        }
+
+        return csiVols</span>
+}
+
+// getVolumeString converts a list of Volumes to a list of Volume strings.
+// These are meant to be passed to the docker driver.
+func getVolumeStrings(vols []Volume) []string <span class="cov8" title="1">{
+        volStrings := []string{}
+        for _, vol := range vols </span><span class="cov0" title="0">{
+                if vol.Mount </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+
+                <span class="cov0" title="0">volStrings = append(volStrings, fmt.Sprintf("%s:%s", vol.Src, vol.Dst))</span>
+        }
+
+        <span class="cov8" title="1">sort.Strings(volStrings)
+        return volStrings</span>
+}
+
+func getCSIPluginConfig(j *Job) *nomadStructs.TaskCSIPluginConfig <span class="cov8" title="1">{
+        if j.Storage != "controller" &amp;&amp; j.Storage != "node" </span><span class="cov8" title="1">{
+                return nil
+        }</span>
+
+        <span class="cov0" title="0">return &amp;nomadStructs.TaskCSIPluginConfig{
+                ID:       "nfs",
+                MountDir: "/csi",
+                Type:     nomadStructs.CSIPluginType(j.Storage),
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package slomad
+
+type DeployTarget int
+
+const (
+        UNKNOWN DeployTarget = iota
+        ALL
+        SERVER
+        WORKER
+        CODERBOX
+        DEVBOX
+)
+
+var DeployTargetRegex = map[DeployTarget]string{
+        ALL:      "^.*$",
+        SERVER:   "^server-[0-9]+$",
+        WORKER:   "^worker-[0-9]+$",
+        CODERBOX: "^coderbox$",
+        DEVBOX:   "^devbox$",
+}
+
+type JobType int
+
+const (
+        UNKNOWN_JobType JobType = iota
+        SERVICE
+        SYSTEM
+        BATCH
+)
+
+func (jt JobType) String() string <span class="cov10" title="2">{
+        return [...]string{"UNKNOWN", "service", "system", "batch"}[jt]
+}</span>
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package slomad
+
+// StringPtr returns a pointer to the given string.
+func StringPtr(s string) *string <span class="cov4" title="2">{
+        return &amp;s
+}</span>
+
+// StringValOr returns the value of a string pointer if it's not nil, or a
+// default value otherwise.
+func StringValOr(sp *string, val string) string <span class="cov10" title="5">{
+        if sp != nil </span><span class="cov4" title="2">{
+                return *sp
+        }</span>
+        <span class="cov7" title="3">return val</span>
+}
+
+// IntPtr returns a pointer to the given int.
+func IntPtr(i int) *int <span class="cov4" title="2">{
+        return &amp;i
+}</span>
+
+// IntValOr returns the value of an int pointer if it's not nil, or a default.
+func IntValOr(ip *int, val int) int <span class="cov8" title="4">{
+        if ip != nil </span><span class="cov4" title="2">{
+                return *ip
+        }</span>
+        <span class="cov4" title="2">return val</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
