@@ -7,11 +7,12 @@ import (
 	nomadStructs "github.com/hashicorp/nomad/nomad/structs"
 )
 
-func GetGroup(j *Job) *nomadStructs.TaskGroup {
+// getGroup returns a nomad task group struct for a given job.
+func getGroup(j *Job) *nomadStructs.TaskGroup {
 	return &nomadStructs.TaskGroup{
 		Name:             j.Name,
 		Count:            1,
-		Tasks:            []*nomadStructs.Task{GetTask(j)},
+		Tasks:            []*nomadStructs.Task{getTask(j)},
 		RestartPolicy:    nomadStructs.NewRestartPolicy(j.Type.String()),
 		ReschedulePolicy: getReschedulePolicy(j),
 		EphemeralDisk:    getDisk(),
@@ -20,7 +21,8 @@ func GetGroup(j *Job) *nomadStructs.TaskGroup {
 	}
 }
 
-func GetTask(j *Job) *nomadStructs.Task {
+// getTask returns a nomad task struct for a given job.
+func getTask(j *Job) *nomadStructs.Task {
 	return &nomadStructs.Task{
 		Name:            j.Name,
 		Driver:          "docker",
@@ -36,7 +38,8 @@ func GetTask(j *Job) *nomadStructs.Task {
 	}
 }
 
-func GetService(taskName string, portLabel string) *nomadStructs.Service {
+// getService returns a nomad service struct for a given task.
+func getService(taskName string, portLabel string) *nomadStructs.Service {
 	if taskName == "storage-controller" {
 		return nil
 	}
@@ -81,7 +84,7 @@ func getTemplates(templates map[string]string) []*nomadStructs.Template {
 func getServices(taskName string, portLabels []string) []*nomadStructs.Service {
 	services := []*nomadStructs.Service{}
 	for _, pl := range portLabels {
-		srvc := GetService(taskName, pl)
+		srvc := getService(taskName, pl)
 		if srvc == nil {
 			continue
 		}

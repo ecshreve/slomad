@@ -67,6 +67,7 @@ func getVolumeStrings(vols []Volume) []string {
 	return volStrings
 }
 
+// getCSIPluginConfig returns a CSIPluginConfig for a given job.
 func getCSIPluginConfig(j *Job) *nomadStructs.TaskCSIPluginConfig {
 	if j.Storage != "controller" && j.Storage != "node" {
 		return nil

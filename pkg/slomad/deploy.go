@@ -63,6 +63,7 @@ func (j *Job) Plan(force bool) error {
 	return nil
 }
 
+// Deploy creates a new API job and submits it to Nomad.
 func (j *Job) Deploy(force bool) error {
 	_, aj, err := j.ToNomadJob(force)
 	if err != nil {

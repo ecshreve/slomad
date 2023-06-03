@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/ecshreve/slomad/pkg/utils"
 	"github.com/google/uuid"
 	nomadApi "github.com/hashicorp/nomad/api"
 	nomadStructs "github.com/hashicorp/nomad/nomad/structs"
@@ -28,7 +29,7 @@ type Job struct {
 	Templates  map[string]string
 }
 
-// ToNomadJob converts a JJJob to a Nomad Job
+// ToNomadJob converts a Job to a it's Nomad representations.
 func (j *Job) ToNomadJob(force bool) (*nomadStructs.Job, *nomadApi.Job, error) {
 	job := &nomadStructs.Job{
 		Priority:    50,
@@ -40,7 +41,7 @@ func (j *Job) ToNomadJob(force bool) (*nomadStructs.Job, *nomadApi.Job, error) {
 		Name: j.Name,
 
 		Type:        j.Type.String(),
-		TaskGroups:  []*nomadStructs.TaskGroup{GetGroup(j)},
+		TaskGroups:  []*nomadStructs.TaskGroup{getGroup(j)},
 		Constraints: []*nomadStructs.Constraint{getConstraint(j)},
 	}
 
@@ -83,6 +84,7 @@ func convertJob(in *nomadStructs.Job) (*nomadApi.Job, error) {
 	return apiJob, nil
 }
 
+// JobParams is a struct that represents the parameters for creating a Job.
 type JobParams struct {
 	Name   string
 	Type   JobType
@@ -91,11 +93,15 @@ type JobParams struct {
 	StorageParams
 }
 
+// StorageParams is a struct that represents the parameters for creating a
+// storage associated with a Job.
 type StorageParams struct {
 	Storage *string
 	Volumes []Volume
 }
 
+// TaskConfigParams is a struct that represents the parameters for creating a
+// TaskConfig associated with a Job.
 type TaskConfigParams struct {
 	Args      []string
 	Ports     []*Port
@@ -105,6 +111,7 @@ type TaskConfigParams struct {
 	Templates map[string]string
 }
 
+// NewAppJob creates a new Job for an application.
 func NewAppJob(params JobParams) *Job {
 	return &Job{
 		Name:       params.Name,
@@ -117,11 +124,12 @@ func NewAppJob(params JobParams) *Job {
 		Env:        params.Env,
 		User:       params.User,
 		Volumes:    params.Volumes,
-		Storage:    StringValOr(params.Storage, ""),
+		Storage:    utils.StringValOr(params.Storage, ""),
 		Templates:  params.Templates,
 	}
 }
 
+// NewStorageJob creates a new Job for a storage controller or node.
 func NewStorageJob(params JobParams) *Job {
 	return &Job{
 		Name:       params.Name,

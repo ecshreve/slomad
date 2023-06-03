@@ -69,7 +69,7 @@
 				
 				<option value="file6">github.com/ecshreve/slomad/pkg/slomad/types.go (100.0%)</option>
 				
-				<option value="file7">github.com/ecshreve/slomad/pkg/slomad/utils.go (100.0%)</option>
+				<option value="file7">github.com/ecshreve/slomad/pkg/utils/utils.go (100.0%)</option>
 				
 				</select>
 			</div>
@@ -157,6 +157,7 @@ func (j *Job) Plan(force bool) error <span class="cov0" title="0">{
         <span class="cov0" title="0">return nil</span>
 }
 
+// Deploy creates a new API job and submits it to Nomad.
 func (j *Job) Deploy(force bool) error <span class="cov0" title="0">{
         _, aj, err := j.ToNomadJob(force)
         if err != nil </span><span class="cov0" title="0">{
@@ -179,6 +180,7 @@ import (
         "fmt"
         "strings"
 
+        "github.com/ecshreve/slomad/pkg/utils"
         "github.com/google/uuid"
         nomadApi "github.com/hashicorp/nomad/api"
         nomadStructs "github.com/hashicorp/nomad/nomad/structs"
@@ -201,7 +203,7 @@ type Job struct {
         Templates  map[string]string
 }
 
-// ToNomadJob converts a JJJob to a Nomad Job
+// ToNomadJob converts a Job to a it's Nomad representations.
 func (j *Job) ToNomadJob(force bool) (*nomadStructs.Job, *nomadApi.Job, error) <span class="cov8" title="1">{
         job := &amp;nomadStructs.Job{
                 Priority:    50,
@@ -213,7 +215,7 @@ func (j *Job) ToNomadJob(force bool) (*nomadStructs.Job, *nomadApi.Job, error) <
                 Name: j.Name,
 
                 Type:        j.Type.String(),
-                TaskGroups:  []*nomadStructs.TaskGroup{GetGroup(j)},
+                TaskGroups:  []*nomadStructs.TaskGroup{getGroup(j)},
                 Constraints: []*nomadStructs.Constraint{getConstraint(j)},
         }
 
@@ -256,6 +258,7 @@ func convertJob(in *nomadStructs.Job) (*nomadApi.Job, error) <span class="cov8" 
         <span class="cov8" title="1">return apiJob, nil</span>
 }
 
+// JobParams is a struct that represents the parameters for creating a Job.
 type JobParams struct {
         Name   string
         Type   JobType
@@ -264,11 +267,15 @@ type JobParams struct {
         StorageParams
 }
 
+// StorageParams is a struct that represents the parameters for creating a
+// storage associated with a Job.
 type StorageParams struct {
         Storage *string
         Volumes []Volume
 }
 
+// TaskConfigParams is a struct that represents the parameters for creating a
+// TaskConfig associated with a Job.
 type TaskConfigParams struct {
         Args      []string
         Ports     []*Port
@@ -278,6 +285,7 @@ type TaskConfigParams struct {
         Templates map[string]string
 }
 
+// NewAppJob creates a new Job for an application.
 func NewAppJob(params JobParams) *Job <span class="cov8" title="1">{
         return &amp;Job{
                 Name:       params.Name,
@@ -290,11 +298,12 @@ func NewAppJob(params JobParams) *Job <span class="cov8" title="1">{
                 Env:        params.Env,
                 User:       params.User,
                 Volumes:    params.Volumes,
-                Storage:    StringValOr(params.Storage, ""),
+                Storage:    utils.StringValOr(params.Storage, ""),
                 Templates:  params.Templates,
         }
 }</span>
 
+// NewStorageJob creates a new Job for a storage controller or node.
 func NewStorageJob(params JobParams) *Job <span class="cov0" title="0">{
         return &amp;Job{
                 Name:       params.Name,
@@ -450,11 +459,12 @@ import (
         nomadStructs "github.com/hashicorp/nomad/nomad/structs"
 )
 
-func GetGroup(j *Job) *nomadStructs.TaskGroup <span class="cov8" title="1">{
+// getGroup returns a nomad task group struct for a given job.
+func getGroup(j *Job) *nomadStructs.TaskGroup <span class="cov8" title="1">{
         return &amp;nomadStructs.TaskGroup{
                 Name:             j.Name,
                 Count:            1,
-                Tasks:            []*nomadStructs.Task{GetTask(j)},
+                Tasks:            []*nomadStructs.Task{getTask(j)},
                 RestartPolicy:    nomadStructs.NewRestartPolicy(j.Type.String()),
                 ReschedulePolicy: getReschedulePolicy(j),
                 EphemeralDisk:    getDisk(),
@@ -463,7 +473,8 @@ func GetGroup(j *Job) *nomadStructs.TaskGroup <span class="cov8" title="1">{
         }
 }</span>
 
-func GetTask(j *Job) *nomadStructs.Task <span class="cov8" title="1">{
+// getTask returns a nomad task struct for a given job.
+func getTask(j *Job) *nomadStructs.Task <span class="cov8" title="1">{
         return &amp;nomadStructs.Task{
                 Name:            j.Name,
                 Driver:          "docker",
@@ -479,7 +490,8 @@ func GetTask(j *Job) *nomadStructs.Task <span class="cov8" title="1">{
         }
 }</span>
 
-func GetService(taskName string, portLabel string) *nomadStructs.Service <span class="cov8" title="1">{
+// getService returns a nomad service struct for a given task.
+func getService(taskName string, portLabel string) *nomadStructs.Service <span class="cov8" title="1">{
         if taskName == "storage-controller" </span><span class="cov0" title="0">{
                 return nil
         }</span>
@@ -524,7 +536,7 @@ func getTemplates(templates map[string]string) []*nomadStructs.Template <span cl
 func getServices(taskName string, portLabels []string) []*nomadStructs.Service <span class="cov8" title="1">{
         services := []*nomadStructs.Service{}
         for _, pl := range portLabels </span><span class="cov8" title="1">{
-                srvc := GetService(taskName, pl)
+                srvc := getService(taskName, pl)
                 if srvc == nil </span><span class="cov0" title="0">{
                         continue</span>
                 }
@@ -649,6 +661,7 @@ func getVolumeStrings(vols []Volume) []string <span class="cov8" title="1">{
         return volStrings</span>
 }
 
+// getCSIPluginConfig returns a CSIPluginConfig for a given job.
 func getCSIPluginConfig(j *Job) *nomadStructs.TaskCSIPluginConfig <span class="cov8" title="1">{
         if j.Storage != "controller" &amp;&amp; j.Storage != "node" </span><span class="cov8" title="1">{
                 return nil
@@ -664,10 +677,11 @@ func getCSIPluginConfig(j *Job) *nomadStructs.TaskCSIPluginConfig <span class="c
 		
 		<pre class="file" id="file6" style="display: none">package slomad
 
+// DeployTarget is an enum that represents the target of a job.
 type DeployTarget int
 
 const (
-        UNKNOWN DeployTarget = iota
+        UNKNOWN_DEPLOY_TARGET DeployTarget = iota
         ALL
         SERVER
         WORKER
@@ -675,6 +689,8 @@ const (
         DEVBOX
 )
 
+// DeployTargetRegex is a map of DeployTarget to a regex string that matches
+// the target's hostname.
 var DeployTargetRegex = map[DeployTarget]string{
         ALL:      "^.*$",
         SERVER:   "^server-[0-9]+$",
@@ -683,47 +699,49 @@ var DeployTargetRegex = map[DeployTarget]string{
         DEVBOX:   "^devbox$",
 }
 
+// JobType is an enum that represents the type of a job.
 type JobType int
 
 const (
-        UNKNOWN_JobType JobType = iota
+        UNKNOWN_JOB_TYPE JobType = iota
         SERVICE
         SYSTEM
         BATCH
 )
 
+// String implements the Stringer interface for JobType.
 func (jt JobType) String() string <span class="cov10" title="2">{
         return [...]string{"UNKNOWN", "service", "system", "batch"}[jt]
 }</span>
 </pre>
 		
-		<pre class="file" id="file7" style="display: none">package slomad
+		<pre class="file" id="file7" style="display: none">package utils
 
 // StringPtr returns a pointer to the given string.
-func StringPtr(s string) *string <span class="cov4" title="2">{
+func StringPtr(s string) *string <span class="cov5" title="2">{
         return &amp;s
 }</span>
 
 // StringValOr returns the value of a string pointer if it's not nil, or a
 // default value otherwise.
-func StringValOr(sp *string, val string) string <span class="cov10" title="5">{
-        if sp != nil </span><span class="cov4" title="2">{
+func StringValOr(sp *string, val string) string <span class="cov10" title="4">{
+        if sp != nil </span><span class="cov5" title="2">{
                 return *sp
         }</span>
-        <span class="cov7" title="3">return val</span>
+        <span class="cov5" title="2">return val</span>
 }
 
 // IntPtr returns a pointer to the given int.
-func IntPtr(i int) *int <span class="cov4" title="2">{
+func IntPtr(i int) *int <span class="cov5" title="2">{
         return &amp;i
 }</span>
 
 // IntValOr returns the value of an int pointer if it's not nil, or a default.
-func IntValOr(ip *int, val int) int <span class="cov8" title="4">{
-        if ip != nil </span><span class="cov4" title="2">{
+func IntValOr(ip *int, val int) int <span class="cov10" title="4">{
+        if ip != nil </span><span class="cov5" title="2">{
                 return *ip
         }</span>
-        <span class="cov4" title="2">return val</span>
+        <span class="cov5" title="2">return val</span>
 }
 </pre>
 		

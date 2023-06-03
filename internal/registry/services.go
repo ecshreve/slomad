@@ -4,6 +4,7 @@ import (
 	_ "embed"
 
 	smd "github.com/ecshreve/slomad/pkg/slomad"
+	"github.com/ecshreve/slomad/pkg/utils"
 )
 
 //go:embed config/promtail.yml
@@ -64,7 +65,7 @@ var GrafanaJob = smd.NewAppJob(smd.JobParams{
 		Env:   map[string]string{"GF_SERVER_HTTP_PORT": "${NOMAD_PORT_http}"},
 	},
 	StorageParams: smd.StorageParams{
-		Storage: smd.StringPtr("grafana"),
+		Storage: utils.StringPtr("grafana"),
 		Volumes: []smd.Volume{{Src: "grafana-vol", Dst: "/var/lib/grafana", Mount: true}},
 	},
 })
@@ -92,7 +93,7 @@ var PrometheusJob = smd.NewAppJob(smd.JobParams{
 		Templates: map[string]string{"prometheus.yml": prometheusConfig},
 	},
 	StorageParams: smd.StorageParams{
-		Storage: smd.StringPtr("prometheus"),
+		Storage: utils.StringPtr("prometheus"),
 		Volumes: []smd.Volume{{Src: "local/config", Dst: "/etc/prometheus"}},
 	},
 })
