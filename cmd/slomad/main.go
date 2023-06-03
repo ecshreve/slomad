@@ -18,8 +18,7 @@ func main() {
 		registry.GrafanaJob,
 		registry.PrometheusJob,
 		registry.NodeExporterJob,
-		// 		registry.ProxmoxExporterJob,
-		// 		registry.PromtailJob,
+		registry.PromtailJob,
 		// 		registry.ControllerJob,
 		// 		registry.NodeJob,
 		// 		registry.JenkinsJob,
@@ -50,7 +49,7 @@ func main() {
 				log.Fatalln(oops.Wrapf(err, "error submitting api job"))
 			}
 		} else {
-			log.Infof("skipping deploy %s", srvc.Name)
+			log.Debugf("skipping deploy %s", srvc.Name)
 		}
 	}
 	//something
