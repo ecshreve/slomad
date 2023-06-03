@@ -1,7 +1,5 @@
 package slomad
 
-import "fmt"
-
 type DeployTarget int
 
 const (
@@ -12,20 +10,25 @@ const (
 	DEVBOX
 )
 
-type Targ interface {
-	GetRegex() string
+var DeployTargetRegex = map[DeployTarget]string{
+	SERVER:   "^server-[0-9]+$",
+	WORKER:   "^worker-[0-9]+$",
+	CODERBOX: "^coderbox$",
+	DEVBOX:   "^devbox$",
 }
 
-func (d DeployTarget) GetRegex() string {
-	return "^worker-[0-9]+$"
+type TaskParams struct {
+	Driver     string
+	Constraint string
+	Count      int
+	Priority   int
 }
 
-func NewJob(name string, d DeployTarget) *Job {
-	// dockerImage := getDockerImageString(name)
-	return nil
-}
-
-func getDockerImageString(name string) *string {
-	imageStr := fmt.Sprintf("registry.slab.lan:5000/%s:custom", name)
-	return &imageStr
+func (dt DeployTarget) DefaultTaskParams() TaskParams {
+	return TaskParams{
+		Driver:     "docker",
+		Constraint: DeployTargetRegex[dt],
+		Count:      1,
+		Priority:   50,
+	}
 }

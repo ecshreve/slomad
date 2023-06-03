@@ -1,81 +1,92 @@
 package slomad
 
 import (
-	"fmt"
-
 	nomadStructs "github.com/hashicorp/nomad/nomad/structs"
 )
 
 type Port struct {
+	Label  string
+	To     int
+	From   int
+	Static bool
+}
+
+type PortParams struct {
 	Label string
 	To    int
-	From  *int
+	From  int
 }
 
-func NewPort(label string, to int, from *int) *Port {
-	p := &Port{
-		Label: label,
-		To:    to,
+func NewPort(p PortParams) *Port {
+	return &Port{
+		Label:  p.Label,
+		To:     p.To,
+		From:   p.From,
+		Static: p.To == p.From,
 	}
-
-	if from != nil {
-		p.From = from
-	}
-
-	return p
 }
 
-func (p *Port) ToNomadPort() nomadStructs.Port {
-	port := nomadStructs.Port{
+func ToNomadPort(p *Port) nomadStructs.Port {
+	return nomadStructs.Port{
 		Label: p.Label,
 		To:    p.To,
+		Value: p.From,
 	}
-
-	if p.From != nil {
-		port.Value = *p.From
-	}
-
-	return port
 }
 
-type PortList struct {
-	Labels []string
-	Ports  []Port
+func NewPorts(args []PortParams) []*Port {
+	ports := []*Port{}
+	for _, arg := range args {
+		ports = append(ports, NewPort(arg))
+	}
+	return ports
 }
 
-func NewPortList(ports []Port) *PortList {
-	pl := &PortList{}
+func ToPortMap(ports []*Port) map[string][]*Port {
+	stat := []*Port{}
+	dynm := []*Port{}
+
 	for _, p := range ports {
-		pl.Labels = append(pl.Labels, p.Label)
-		pl.Ports = append(pl.Ports, p)
-	}
-	return pl
-}
-
-func BuildDynamicPortList(portTargets []int) *PortList {
-	ports := []Port{}
-	for ind, p := range portTargets {
-		ports = append(ports, *NewPort(fmt.Sprintf("http-%d", ind), p, nil))
-	}
-	return NewPortList(ports)
-}
-
-func (pl *PortList) GetDynamic() []nomadStructs.Port {
-	dynamic := []nomadStructs.Port{}
-	for _, p := range pl.Ports {
-		if p.From == nil {
-			dynamic = append(dynamic, p.ToNomadPort())
+		if p.Static {
+			stat = append(stat, p)
+		} else {
+			dynm = append(dynm, p)
 		}
 	}
-	return dynamic
+
+	portMap := map[string][]*Port{
+		"static":  stat,
+		"dynamic": dynm,
+	}
+
+	return portMap
 }
 
-func (pl *PortList) GetStatic() []nomadStructs.Port {
-	static := []nomadStructs.Port{}
-	for _, p := range pl.Ports {
-		if p.From != nil {
-			static = append(static, p.ToNomadPort())
+func ToNomadPortMap(ports []*Port) map[string][]nomadStructs.Port {
+	stat := []nomadStructs.Port{}
+	dynm := []nomadStructs.Port{}
+
+	for _, p := range ports {
+		np := ToNomadPort(p)
+		if p.Static {
+			stat = append(stat, np)
+		} else {
+			dynm = append(dynm, np)
 		}
 	}
-	return static
+
+	portMap := map[string][]nomadStructs.Port{
+		"static":  stat,
+		"dynamic": dynm,
+	}
+
+	return portMap
+}
+
+func ExtractLabels(ports []*Port) []string {
+	labels := []string{}
+	for _, p := range ports {
+		labels = append(labels, p.Label)
+	}
+	return labels
 }

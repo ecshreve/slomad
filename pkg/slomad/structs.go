@@ -1,11 +1,8 @@
 package slomad
 
 import (
-	"bytes"
-	"encoding/gob"
 	"fmt"
 	"sort"
-	"time"
 
 	"github.com/google/uuid"
 	nomadApi "github.com/hashicorp/nomad/api"
@@ -14,35 +11,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type CommonArgs struct {
-	Driver     string
-	Constraint string
-	Count      int
-	Priority   int
-}
-
-type Job struct {
-	Name      string
-	Image     *string
-	JobType   string
-	Storage   *string
-	User      *string
-	Size      map[string]int
-	Ports     []Port
-	Caps      []string
-	Args      []string
-	Tags      []string
-	Env       map[string]string
-	Templates map[string]string
-	Volumes   map[string]string
-	Mounts    map[string]string
-	CommonArgs
-}
-
 // CreateApiJob returns a validated nomad api job. The `force` argument
 // controls whether or not we want to explicitly force a new version.
 func (j *Job) CreateApiJob(force bool) (*nomadApi.Job, error) {
-	pl := NewPortList(j.Ports)
+	pl := struct{ Labels []string }{}
 	config := make(map[string]interface{})
 	if j.Image != nil {
 		config["image"] = j.Image
@@ -108,29 +80,9 @@ func (j *Job) CreateApiJob(force bool) (*nomadApi.Job, error) {
 		Operand: "regexp",
 	}
 
-	service := &nomadStructs.Service{
-		Name:      j.Name,
-		PortLabel: "http",
-		TaskName:  j.Name,
-		Checks: []*nomadStructs.ServiceCheck{
-			{
-				Name:          fmt.Sprintf("%s = tcp check", j.Name),
-				Type:          nomadStructs.ServiceCheckTCP,
-				Interval:      10 * time.Second,
-				Timeout:       2 * time.Second,
-				InitialStatus: "passing",
-			},
-		},
-		Provider: "consul",
-	}
-
-	if j.Tags != nil {
-		service.Tags = j.Tags
-	} else {
-		service.Tags = []string{
-			"traefik.enable=true",
-			fmt.Sprintf("traefik.http.routers.%s.entryPoints=web", j.Name),
-		}
+	services := []*nomadStructs.Service{}
+	for _, pl := range pl.Labels {
+		services = append(services, GetService(j.Name, pl))
 	}
 
 	templates := []*nomadStructs.Template{}
@@ -169,7 +121,7 @@ func (j *Job) CreateApiJob(force bool) (*nomadApi.Job, error) {
 		Env:             j.Env,
 		Templates:       templates,
 		LogConfig:       nomadStructs.DefaultLogConfig(),
-		Services:        []*nomadStructs.Service{service},
+		Services:        services,
 		CSIPluginConfig: pluginConfig,
 		VolumeMounts:    volumeMounts,
 	}
@@ -191,8 +143,8 @@ func (j *Job) CreateApiJob(force bool) (*nomadApi.Job, error) {
 		},
 		Networks: []*nomadStructs.NetworkResource{
 			{
-				ReservedPorts: pl.GetStatic(),
-				DynamicPorts:  pl.GetDynamic(),
+				ReservedPorts: nil,
+				DynamicPorts:  nil,
 			},
 		},
 	}
@@ -236,26 +188,11 @@ func (j *Job) CreateApiJob(force bool) (*nomadApi.Job, error) {
 	return apiJob, nil
 }
 
-func convertJob(in *nomadStructs.Job) (*nomadApi.Job, error) {
-	gob.Register([]map[string]interface{}{})
-	gob.Register([]interface{}{})
-
-	var apiJob *nomadApi.Job
-	buf := new(bytes.Buffer)
-	if err := gob.NewEncoder(buf).Encode(in); err != nil {
-		return nil, err
-	}
-	if err := gob.NewDecoder(buf).Decode(&apiJob); err != nil {
-		return nil, err
-	}
-
-	return apiJob, nil
-}
-
 // planApiJob creates a nomad api client, and runs a plan
 // for the given job, printing the output diff.
 func planApiJob(job *nomadApi.Job) error {
 	nomadConfig := nomadApi.DefaultConfig()
+	nomadConfig.Address = "http://10.35.220.50:4646"
 	nomadClient, err := nomadApi.NewClient(nomadConfig)
 	if err != nil {
 		return oops.Wrapf(err, "unable to create nomad api client")
@@ -274,6 +211,7 @@ func planApiJob(job *nomadApi.Job) error {
 // submitApiJob creates a nomad api client, and submits the job to nomad.
 func submitApiJob(job *nomadApi.Job) error {
 	nomadConfig := nomadApi.DefaultConfig()
+	nomadConfig.Address = "http://10.35.220.50:4646"
 	nomadClient, err := nomadApi.NewClient(nomadConfig)
 	if err != nil {
 		return oops.Wrapf(err, "unable to create nomad api client")
@@ -297,6 +235,24 @@ func (j *Job) Plan(force bool) error {
 
 	if err = planApiJob(apiJob); err != nil {
 		return oops.Wrapf(err, "error planning api job")
+	}
+
+	return nil
+}
+
+// Plan creates a new API job and runs a plan on it.
+func (j *JJJob) PlanAndApplyJJJ(force bool) error {
+	_, aj, err := j.ToNomadJob()
+	if err != nil {
+		return oops.Wrapf(err, "error creating api job for job: %+v", j)
+	}
+
+	if err = planApiJob(aj); err != nil {
+		return oops.Wrapf(err, "error planning api job")
+	}
+
+	if err = submitApiJob(aj); err != nil {
+		return oops.Wrapf(err, "error submitting api job")
 	}
 
 	return nil
