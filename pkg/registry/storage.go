@@ -2,6 +2,7 @@ package registry
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/ecshreve/slomad/pkg/slomad"
 	nomadApi "github.com/hashicorp/nomad/api"
@@ -9,20 +10,44 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var ControllerJob = &slomad.Job{
+func getStorageArgs(storage string) []string {
+	common := []string{
+		"--node-id=${attr.unique.hostname}",
+		fmt.Sprintf("--nfs-server=%s", os.Getenv("SYNOLOGY_VAULT")),
+		"--mount-options=defaults",
+	}
+
+	switch storage {
+	case "controller":
+		return append(common, "--type=controller")
+	case "node":
+		return append(common, "--type=node")
+	default:
+		log.Fatalf("unknown storage type: %s", storage)
+		return nil
+	}
+}
+
+var ControllerJobOld = &slomad.Job{
 	Name:       "storage-controller",
 	Image:      getDockerImageString("csi-nfs-plugin"),
 	CommonArgs: getCommonJobArgs("docker", "^worker-0$", 1, 99),
 	Storage:    slomad.StringPtr("controller"),
 	Ports:      []slomad.Port{{Label: "http"}},
-	Args: []string{
-		"--type=controller",
-		"--node-id=${attr.unique.hostname}",
-		"--nfs-server=10.35.90.50:/volume1/staging-data",
-		"--mount-options=defaults",
-	},
-	Size: map[string]int{"cpu": 512, "mem": 512},
+	Args:       getStorageArgs("controller"),
+	Size:       map[string]int{"cpu": 512, "mem": 512},
 }
+
+var ControllerJob = slomad.NewStorageJob(slomad.JobParams{
+	Name:   "storage-controller",
+	Type:   slomad.SERVICE,
+	Target: slomad.WORKER,
+	TaskConfigParams: slomad.TaskConfigParams{
+		Ports: slomad.BasicPorts(0),
+		Shape: slomad.DEFAULT_TASK,
+		Args:  getStorageArgs("controller"),
+	},
+})
 
 var NodeJob = &slomad.Job{
 	Name:       "storage-node",
@@ -31,13 +56,8 @@ var NodeJob = &slomad.Job{
 	JobType:    "system",
 	Storage:    slomad.StringPtr("node"),
 	Ports:      []slomad.Port{{Label: "http"}},
-	Args: []string{
-		"--type=node",
-		"--node-id=${attr.unique.hostname}",
-		"--nfs-server=10.35.90.50:/volume1/staging-data",
-		"--mount-options=defaults",
-	},
-	Size: map[string]int{"cpu": 128, "mem": 128},
+	Args:       getStorageArgs("node"),
+	Size:       map[string]int{"cpu": 128, "mem": 128},
 }
 
 func CreateVolume(volName string) error {

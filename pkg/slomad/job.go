@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/gob"
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	nomadApi "github.com/hashicorp/nomad/api"
@@ -155,6 +156,23 @@ func NewAppJob(params JobParams) *App {
 		User:       params.User,
 		Volumes:    params.Volumes,
 		Storage:    StringValOr(params.Storage, ""),
+		Templates:  params.Templates,
+	}
+}
+
+func NewStorageJob(params JobParams) *App {
+	return &App{
+		Name:       params.Name,
+		Image:      "reg.slab.lan:5000/csi-nfs-plugin",
+		Args:       params.Args,
+		Ports:      params.Ports,
+		Type:       params.Type,
+		Shape:      params.Shape,
+		Constraint: DeployTargetRegex[params.Target],
+		Env:        params.Env,
+		User:       params.User,
+		Volumes:    params.Volumes,
+		Storage:    strings.Split(params.Name, "-")[1],
 		Templates:  params.Templates,
 	}
 }

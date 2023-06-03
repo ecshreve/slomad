@@ -47,7 +47,7 @@ func getMounts(vols []Volume) []*nomadStructs.VolumeMount {
 
 // getNomadVolumes converts a list of Volumes to a list of Nomad Volumes.
 func getNomadVolumes(storage string) map[string]*nomadStructs.VolumeRequest {
-	if storage == "" {
+	if storage == "" || storage == "controller" || storage == "node" {
 		return nil
 	}
 

@@ -22,20 +22,25 @@ func GetGroup(j *App) *nomadStructs.TaskGroup {
 
 func GetTask(j *App) *nomadStructs.Task {
 	return &nomadStructs.Task{
-		Name:         j.Name,
-		Driver:       "docker",
-		Config:       getConfig(j),
-		Resources:    getResource(j.Shape),
-		Services:     getServices(j.Name, ExtractLabels(j.Ports)),
-		LogConfig:    nomadStructs.DefaultLogConfig(),
-		Env:          j.Env,
-		User:         j.User,
-		VolumeMounts: getMounts(j.Volumes),
-		Templates:    getTemplates(j.Templates),
+		Name:            j.Name,
+		Driver:          "docker",
+		Config:          getConfig(j),
+		Resources:       getResource(j.Shape),
+		Services:        getServices(j.Name, ExtractLabels(j.Ports)),
+		LogConfig:       nomadStructs.DefaultLogConfig(),
+		Env:             j.Env,
+		User:            j.User,
+		VolumeMounts:    getMounts(j.Volumes),
+		Templates:       getTemplates(j.Templates),
+		CSIPluginConfig: getCSIPluginConfig(j),
 	}
 }
 
 func GetService(taskName string, portLabel string) *nomadStructs.Service {
+	if taskName == "storage-controller" || taskName == "storage-node" {
+		return nil
+	}
+
 	return &nomadStructs.Service{
 		Name:      taskName,
 		PortLabel: portLabel,
@@ -76,7 +81,11 @@ func getTemplates(templates map[string]string) []*nomadStructs.Template {
 func getServices(taskName string, portLabels []string) []*nomadStructs.Service {
 	services := []*nomadStructs.Service{}
 	for _, pl := range portLabels {
-		services = append(services, GetService(taskName, pl))
+		srvc := GetService(taskName, pl)
+		if srvc == nil {
+			continue
+		}
+		services = append(services, srvc)
 	}
 	return services
 }
@@ -95,7 +104,24 @@ func getConfig(j *App) map[string]interface{} {
 		config["volumes"] = vols
 	}
 
+	if j.Storage == "controller" || j.Storage == "node" {
+		config["privileged"] = true
+		config["network_mode"] = "host"
+	}
+
 	return config
+}
+
+func getCSIPluginConfig(j *App) *nomadStructs.TaskCSIPluginConfig {
+	if j.Storage != "controller" && j.Storage != "node" {
+		return nil
+	}
+
+	return &nomadStructs.TaskCSIPluginConfig{
+		ID:       "nfs",
+		MountDir: "/csi",
+		Type:     nomadStructs.CSIPluginType(j.Storage),
+	}
 }
 
 func getNetworks(ports []*Port) []*nomadStructs.NetworkResource {

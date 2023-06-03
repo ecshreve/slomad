@@ -12,14 +12,14 @@ import (
 func main() {
 
 	services := []*slomad.App{
-		registry.LokiJob,
-		registry.WhoamiJob,
-		registry.SpeedtestJob,
-		registry.GrafanaJob,
-		registry.PrometheusJob,
-		registry.NodeExporterJob,
-		registry.PromtailJob,
-		// 		registry.ControllerJob,
+		// registry.LokiJob,
+		// registry.WhoamiJob,
+		// registry.SpeedtestJob,
+		// registry.GrafanaJob,
+		// registry.PrometheusJob,
+		// registry.NodeExporterJob,
+		// registry.PromtailJob,
+		registry.ControllerJob,
 		// 		registry.NodeJob,
 		// 		registry.JenkinsJob,
 		// 		registry.SemaphoreJob,
@@ -33,6 +33,7 @@ func main() {
 		switch args[0] {
 		case "confirm":
 			apply = true
+
 		default:
 			log.Warnf("unknown arg: %s", args[0])
 		}
