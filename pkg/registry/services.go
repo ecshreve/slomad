@@ -6,18 +6,6 @@ import (
 	"github.com/ecshreve/slomad/pkg/slomad"
 )
 
-var GrafanaJob = &slomad.Job{
-	Name:       "grafana",
-	Image:      getDockerImageString("grafana"),
-	CommonArgs: getCommonJobArgs("docker", "^worker-[0-9]$", 1, 50),
-	Ports:      []slomad.Port{{Label: "http", To: 3000}},
-	Env:        map[string]string{"GF_SERVER_HTTP_PORT": "${NOMAD_PORT_http}"},
-	User:       slomad.StringPtr("root"),
-	Mounts:     map[string]string{"grafana-vol": "/var/lib/grafana"},
-	Size:       map[string]int{"cpu": 1024, "mem": 512},
-	Storage:    slomad.StringPtr("grafana"),
-}
-
 //go:embed config/prometheus.yml
 var prometheusConfig string
 
@@ -63,14 +51,6 @@ var NodeExporterJob = &slomad.Job{
 	Size:    map[string]int{"cpu": 128, "mem": 128},
 }
 
-var SpeedtestJob = &slomad.Job{
-	Name:       "speedtest",
-	Image:      getDockerImageString("speedtest"),
-	CommonArgs: getCommonJobArgs("docker", "^worker-[0-9]+$", 1, 50),
-	Ports:      []slomad.Port{{Label: "http", To: 80}},
-	Size:       map[string]int{"cpu": 128, "mem": 128},
-}
-
 var JenkinsJob = &slomad.Job{
 	Name:       "jenkins",
 	Image:      getDockerImageString("jenkins"),
@@ -79,14 +59,6 @@ var JenkinsJob = &slomad.Job{
 	Size:       map[string]int{"cpu": 512, "mem": 1024},
 	Storage:    slomad.StringPtr("jenkins"),
 	Mounts:     map[string]string{"jenkins-vol": "/var/jenkins_home"},
-}
-
-var LokiJob = &slomad.Job{
-	Name:       "loki",
-	Image:      getDockerImageString("loki"),
-	CommonArgs: getCommonJobArgs("docker", "^worker-[0-9]+$", 1, 50),
-	Ports:      []slomad.Port{{Label: "http", To: 3100}},
-	Size:       map[string]int{"cpu": 128, "mem": 128},
 }
 
 //go:embed config/promtail.yml

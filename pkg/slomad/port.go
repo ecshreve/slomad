@@ -11,18 +11,12 @@ type Port struct {
 	Static bool
 }
 
-type PortParams struct {
-	Label string
-	To    int
-	From  int
-}
-
-func NewPort(p PortParams) *Port {
+func NewPort(l string, t, f int) *Port {
 	return &Port{
-		Label:  p.Label,
-		To:     p.To,
-		From:   p.From,
-		Static: p.To == p.From,
+		Label:  l,
+		To:     t,
+		From:   f,
+		Static: t == f,
 	}
 }
 
@@ -34,12 +28,17 @@ func ToNomadPort(p *Port) nomadStructs.Port {
 	}
 }
 
-func NewPorts(args []PortParams) []*Port {
-	ports := []*Port{}
-	for _, arg := range args {
-		ports = append(ports, NewPort(arg))
+func BasicPort(val int) *Port {
+	return &Port{
+		Label:  "http",
+		To:     val,
+		From:   0,
+		Static: false,
 	}
-	return ports
+}
+
+func BasicPorts(val int) []*Port {
+	return []*Port{BasicPort(val)}
 }
 
 func ToPortMap(ports []*Port) map[string][]*Port {

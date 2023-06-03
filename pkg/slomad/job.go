@@ -5,6 +5,7 @@ import (
 	"encoding/gob"
 	"fmt"
 
+	"github.com/google/uuid"
 	nomadApi "github.com/hashicorp/nomad/api"
 	nomadStructs "github.com/hashicorp/nomad/nomad/structs"
 	log "github.com/sirupsen/logrus"
@@ -49,7 +50,7 @@ type Job struct {
 // ++++++++++++
 
 // JJJob is a new type of job
-type JJJob struct {
+type App struct {
 	Name       string
 	Type       JobType
 	Shape      TaskResource
@@ -57,26 +58,43 @@ type JJJob struct {
 	Image      string
 	Args       []string
 	Ports      []*Port
+	Env        map[string]string
+	User       string
+	Storage    string
+	Volumes    []Volume
+}
+
+// GetConstraint returns a nomad constraint for a given job.
+func getConstraint(j *App) *nomadStructs.Constraint {
+	return &nomadStructs.Constraint{
+		LTarget: "${attr.unique.hostname}",
+		RTarget: j.Constraint,
+		Operand: "regexp",
+	}
 }
 
 // ToNomadJob converts a JJJob to a Nomad Job
-func (j *JJJob) ToNomadJob() (*nomadStructs.Job, *nomadApi.Job, error) {
+func (j *App) ToNomadJob(force bool) (*nomadStructs.Job, *nomadApi.Job, error) {
 	job := &nomadStructs.Job{
-		ID:          j.Name,
-		Name:        j.Name,
-		Region:      "global",
 		Priority:    50,
+		Namespace:   "default",
+		Region:      "global",
 		Datacenters: []string{"dcs"},
+
+		ID:   j.Name,
+		Name: j.Name,
+
 		Type:        j.Type.String(),
 		TaskGroups:  []*nomadStructs.TaskGroup{GetGroup(j)},
-		Namespace:   "default",
-		Constraints: []*nomadStructs.Constraint{
-			{
-				LTarget: "${attr.unique.hostname}",
-				RTarget: j.Constraint,
-				Operand: "regexp",
-			},
-		},
+		Constraints: []*nomadStructs.Constraint{getConstraint(j)},
+	}
+
+	// Writing a new uuid to this field ensures Nomad will create a new
+	// version of the job.
+	if force {
+		job.Meta = map[string]string{
+			"run_uuid": uuid.NewString(),
+		}
 	}
 
 	if err := job.Validate(); err != nil {
@@ -93,6 +111,7 @@ func (j *JJJob) ToNomadJob() (*nomadStructs.Job, *nomadApi.Job, error) {
 	return job, apiJob, nil
 }
 
+// convertJob converts a Nomad Job to a Nomad API Job.
 func convertJob(in *nomadStructs.Job) (*nomadApi.Job, error) {
 	gob.Register([]map[string]interface{}{})
 	gob.Register([]interface{}{})
@@ -113,22 +132,34 @@ type JobParams struct {
 	Name   string
 	Target DeployTarget
 	TaskConfigParams
+	StorageParams
+}
+
+type StorageParams struct {
+	Storage *string
+	Volumes []Volume
 }
 
 type TaskConfigParams struct {
 	Args  []string
-	Ports []PortParams
+	Ports []*Port
 	Shape TaskResource
+	Env   map[string]string
+	User  string
 }
 
-func NewServiceJob(params JobParams) *JJJob {
-	return &JJJob{
+func NewServiceJob(params JobParams) *App {
+	return &App{
 		Name:       params.Name,
 		Image:      fmt.Sprintf("reg.slab.lan:5000/%s", params.Name),
 		Args:       params.Args,
-		Ports:      NewPorts(params.Ports),
+		Ports:      params.Ports,
 		Type:       SERVICE,
 		Shape:      params.Shape,
 		Constraint: DeployTargetRegex[params.Target],
+		Env:        params.Env,
+		User:       params.User,
+		Volumes:    params.Volumes,
+		Storage:    StringValOr(params.Storage, ""),
 	}
 }

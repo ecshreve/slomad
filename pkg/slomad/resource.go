@@ -26,8 +26,8 @@ var (
 	SMALL_TASK   = TaskResource{CPU: SMALL, MEM: SMALL}
 	LARGE_TASK   = TaskResource{CPU: LARGE, MEM: LARGE}
 	XLARGE_TASK  = TaskResource{CPU: XLARGE, MEM: XLARGE}
-	MEM_TASK     = TaskResource{CPU: SMALL, MEM: XLARGE}
-	COMPUTE_TASK = TaskResource{CPU: XLARGE, MEM: SMALL}
+	MEM_TASK     = TaskResource{CPU: SMALL, MEM: LARGE}
+	COMPUTE_TASK = TaskResource{CPU: LARGE, MEM: SMALL}
 )
 
 // CustomTaskResource is a helper function to create a TaskResource with custom values.

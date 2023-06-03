@@ -241,18 +241,14 @@ func (j *Job) Plan(force bool) error {
 }
 
 // Plan creates a new API job and runs a plan on it.
-func (j *JJJob) PlanAndApplyJJJ(force bool) error {
-	_, aj, err := j.ToNomadJob()
+func (j *App) PlanApp(force bool) error {
+	_, aj, err := j.ToNomadJob(force)
 	if err != nil {
 		return oops.Wrapf(err, "error creating api job for job: %+v", j)
 	}
 
 	if err = planApiJob(aj); err != nil {
 		return oops.Wrapf(err, "error planning api job")
-	}
-
-	if err = submitApiJob(aj); err != nil {
-		return oops.Wrapf(err, "error submitting api job")
 	}
 
 	return nil
@@ -266,6 +262,19 @@ func (j *Job) Deploy(force bool) error {
 	}
 
 	if err = submitApiJob(apiJob); err != nil {
+		return oops.Wrapf(err, "error submitting api job")
+	}
+
+	return nil
+}
+
+func (j *App) DeployApp(force bool) error {
+	_, aj, err := j.ToNomadJob(force)
+	if err != nil {
+		return oops.Wrapf(err, "error creating api job for job: %+v", j)
+	}
+
+	if err = submitApiJob(aj); err != nil {
 		return oops.Wrapf(err, "error submitting api job")
 	}
 

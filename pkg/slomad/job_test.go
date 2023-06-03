@@ -25,7 +25,7 @@ func TestNewServiceJob(t *testing.T) {
 	jjj := slomad.NewServiceJob(p)
 	snapshotter.Snapshot("JJJob", jjj)
 
-	nj, aj, err := jjj.ToNomadJob()
+	nj, aj, err := jjj.ToNomadJob(false)
 	snapshotter.Snapshot("NomadJob", nj)
 	snapshotter.Snapshot("NomadApiJob", aj)
 	snapshotter.Snapshot("error", err)
