@@ -15,7 +15,7 @@ func TestNewServiceJob(t *testing.T) {
 		Name:   "whoami",
 		Target: slomad.WORKER,
 		TaskConfigParams: slomad.TaskConfigParams{
-			Ports: []slomad.PortParams{{Label: "http", To: 80}},
+			Ports: []*slomad.Port{{Label: "http", To: 80}},
 			Args:  []string{"--port", "${NOMAD_PORT_http}"},
 			Shape: slomad.TINY_TASK,
 		},

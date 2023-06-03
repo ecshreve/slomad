@@ -62,6 +62,7 @@ type App struct {
 	User       string
 	Storage    string
 	Volumes    []Volume
+	Templates  map[string]string
 }
 
 // GetConstraint returns a nomad constraint for a given job.
@@ -141,11 +142,12 @@ type StorageParams struct {
 }
 
 type TaskConfigParams struct {
-	Args  []string
-	Ports []*Port
-	Shape TaskResource
-	Env   map[string]string
-	User  string
+	Args      []string
+	Ports     []*Port
+	Shape     TaskResource
+	Env       map[string]string
+	User      string
+	Templates map[string]string
 }
 
 func NewServiceJob(params JobParams) *App {
@@ -161,5 +163,6 @@ func NewServiceJob(params JobParams) *App {
 		User:       params.User,
 		Volumes:    params.Volumes,
 		Storage:    StringValOr(params.Storage, ""),
+		Templates:  params.Templates,
 	}
 }

@@ -31,6 +31,7 @@ func GetTask(j *App) *nomadStructs.Task {
 		Env:          j.Env,
 		User:         j.User,
 		VolumeMounts: getMounts(j.Volumes),
+		Templates:    getTemplates(j.Templates),
 	}
 }
 
@@ -51,6 +52,24 @@ func GetService(taskName string, portLabel string) *nomadStructs.Service {
 		},
 		Provider: "consul",
 	}
+}
+
+func getTemplates(templates map[string]string) []*nomadStructs.Template {
+	if templates == nil {
+		return nil
+	}
+
+	nt := []*nomadStructs.Template{}
+	for tmplname, tmpl := range templates {
+		nt = append(nt, &nomadStructs.Template{
+			EmbeddedTmpl: tmpl,
+			DestPath:     fmt.Sprintf("local/config/%s", tmplname),
+			ChangeMode:   "signal",
+			ChangeSignal: "SIGHUP",
+		})
+	}
+
+	return nt
 }
 
 // getServices returns a list of services for a given job.

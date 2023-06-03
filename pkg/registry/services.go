@@ -6,20 +6,6 @@ import (
 	"github.com/ecshreve/slomad/pkg/slomad"
 )
 
-//go:embed config/prometheus.yml
-var prometheusConfig string
-
-var PrometheusJob = &slomad.Job{
-	Name:       "prometheus",
-	Image:      getDockerImageString("prometheus"),
-	CommonArgs: getCommonJobArgs("docker", "^worker-[0-9]+$", 1, 50),
-	Ports:      []slomad.Port{{Label: "http", To: 9090}},
-	Size:       map[string]int{"cpu": 512, "mem": 512},
-	Volumes:    map[string]string{"local/config": "/etc/prometheus"},
-	Templates:  map[string]string{"prometheus.yml": prometheusConfig},
-	Storage:    slomad.StringPtr("prometheus"),
-}
-
 var ProxmoxExporterJob = &slomad.Job{
 	Name:       "pve-exporter",
 	Image:      getDockerImageString("pve-exporter"),

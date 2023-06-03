@@ -14,7 +14,7 @@ func main() {
 		registry.WhoamiJob,
 		registry.SpeedtestJob,
 		registry.GrafanaJob,
-		// 		registry.PrometheusJob,
+		registry.PrometheusJob,
 		// 		registry.ProxmoxExporterJob,
 		// 		registry.PromtailJob,
 		// 		registry.NodeExporterJob,
@@ -29,6 +29,10 @@ func main() {
 	for _, srvc := range services {
 		if err := srvc.PlanApp(false); err != nil {
 			log.Fatalln(oops.Wrapf(err, "error planning api job"))
+		}
+
+		if err := srvc.DeployApp(false); err != nil {
+			log.Fatalln(oops.Wrapf(err, "error submitting api job"))
 		}
 	}
 	//something

@@ -1,6 +1,10 @@
 package registry
 
-import "github.com/ecshreve/slomad/pkg/slomad"
+import (
+	_ "embed"
+
+	"github.com/ecshreve/slomad/pkg/slomad"
+)
 
 var GrafanaJob = slomad.NewServiceJob(slomad.JobParams{
 	Name:   "grafana",
@@ -23,6 +27,23 @@ var LokiJob = slomad.NewServiceJob(slomad.JobParams{
 	TaskConfigParams: slomad.TaskConfigParams{
 		Ports: slomad.BasicPorts(3100),
 		Shape: slomad.TINY_TASK,
+	},
+})
+
+//go:embed config/prometheus.yml
+var prometheusConfig string
+
+var PrometheusJob = slomad.NewServiceJob(slomad.JobParams{
+	Name:   "prometheus",
+	Target: slomad.WORKER,
+	TaskConfigParams: slomad.TaskConfigParams{
+		Ports:     slomad.BasicPorts(9090),
+		Shape:     slomad.LARGE_TASK,
+		Templates: map[string]string{"prometheus.yml": prometheusConfig},
+	},
+	StorageParams: slomad.StorageParams{
+		Storage: slomad.StringPtr("prometheus"),
+		Volumes: []slomad.Volume{{Src: "local/config", Dst: "/etc/prometheus"}},
 	},
 })
 
