@@ -36,7 +36,7 @@ func CustomTaskResource(cpu ResourceValue, mem ResourceValue) TaskResource {
 }
 
 // ToNomadResource is a helper function to convert a TaskResource to a Nomad Resources struct.
-func (tr TaskResource) ToNomadResource() *nomadStructs.Resources {
+func getResource(tr TaskResource) *nomadStructs.Resources {
 	return &nomadStructs.Resources{
 		CPU:      int(tr.CPU),
 		MemoryMB: int(tr.MEM),

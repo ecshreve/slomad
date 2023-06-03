@@ -12,8 +12,8 @@ func GetGroup(j *App) *nomadStructs.TaskGroup {
 		Name:             j.Name,
 		Count:            1,
 		Tasks:            []*nomadStructs.Task{GetTask(j)},
-		RestartPolicy:    nomadStructs.NewRestartPolicy("service"),
-		ReschedulePolicy: &nomadStructs.DefaultServiceJobReschedulePolicy,
+		RestartPolicy:    nomadStructs.NewRestartPolicy(j.Type.String()),
+		ReschedulePolicy: getReschedulePolicy(j),
 		EphemeralDisk:    getDisk(),
 		Networks:         getNetworks(j.Ports),
 		Volumes:          getNomadVolumes(j.Storage),
@@ -25,7 +25,7 @@ func GetTask(j *App) *nomadStructs.Task {
 		Name:         j.Name,
 		Driver:       "docker",
 		Config:       getConfig(j),
-		Resources:    j.Shape.ToNomadResource(),
+		Resources:    getResource(j.Shape),
 		Services:     getServices(j.Name, ExtractLabels(j.Ports)),
 		LogConfig:    nomadStructs.DefaultLogConfig(),
 		Env:          j.Env,
@@ -112,4 +112,20 @@ func getDisk() *nomadStructs.EphemeralDisk {
 	return &nomadStructs.EphemeralDisk{
 		SizeMB: 500,
 	}
+}
+
+// GetConstraint returns a nomad constraint for a given job.
+func getConstraint(j *App) *nomadStructs.Constraint {
+	return &nomadStructs.Constraint{
+		LTarget: "${attr.unique.hostname}",
+		RTarget: j.Constraint,
+		Operand: "regexp",
+	}
+}
+
+func getReschedulePolicy(j *App) *nomadStructs.ReschedulePolicy {
+	if j.Type == SERVICE {
+		return &nomadStructs.DefaultServiceJobReschedulePolicy
+	}
+	return nil
 }

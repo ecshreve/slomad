@@ -22,7 +22,7 @@ func TestNewServiceJob(t *testing.T) {
 	}
 	snapshotter.Snapshot("jobParams", p)
 
-	jjj := slomad.NewServiceJob(p)
+	jjj := slomad.NewAppJob(p)
 	snapshotter.Snapshot("JJJob", jjj)
 
 	nj, aj, err := jjj.ToNomadJob(false)

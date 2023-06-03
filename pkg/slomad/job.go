@@ -65,15 +65,6 @@ type App struct {
 	Templates  map[string]string
 }
 
-// GetConstraint returns a nomad constraint for a given job.
-func getConstraint(j *App) *nomadStructs.Constraint {
-	return &nomadStructs.Constraint{
-		LTarget: "${attr.unique.hostname}",
-		RTarget: j.Constraint,
-		Operand: "regexp",
-	}
-}
-
 // ToNomadJob converts a JJJob to a Nomad Job
 func (j *App) ToNomadJob(force bool) (*nomadStructs.Job, *nomadApi.Job, error) {
 	job := &nomadStructs.Job{
@@ -131,6 +122,7 @@ func convertJob(in *nomadStructs.Job) (*nomadApi.Job, error) {
 
 type JobParams struct {
 	Name   string
+	Type   JobType
 	Target DeployTarget
 	TaskConfigParams
 	StorageParams
@@ -150,13 +142,13 @@ type TaskConfigParams struct {
 	Templates map[string]string
 }
 
-func NewServiceJob(params JobParams) *App {
+func NewAppJob(params JobParams) *App {
 	return &App{
 		Name:       params.Name,
 		Image:      fmt.Sprintf("reg.slab.lan:5000/%s", params.Name),
 		Args:       params.Args,
 		Ports:      params.Ports,
-		Type:       SERVICE,
+		Type:       params.Type,
 		Shape:      params.Shape,
 		Constraint: DeployTargetRegex[params.Target],
 		Env:        params.Env,

@@ -45,12 +45,12 @@ scrape_configs:
         action: replace
         target_label: "__address__"
 
-  - job_name: "nodeexp"
+  - job_name: "node-exporter"
     consul_sd_configs:
       - server: "10.35.220.50:8500"
         datacenter: "dcs"
         scheme: "http"
-        services: ["nodeexporter"]
+        services: ["node-exporter"]
     relabel_configs:
       - source_labels: ['__meta_consul_service']
         regex:         '(.*)'

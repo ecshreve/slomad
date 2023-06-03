@@ -6,21 +6,7 @@ import (
 	"github.com/ecshreve/slomad/pkg/slomad"
 )
 
-var ProxmoxExporterJob = &slomad.Job{
-	Name:       "pve-exporter",
-	Image:      getDockerImageString("pve-exporter"),
-	CommonArgs: getCommonJobArgs("docker", "^worker-[0-9]+$", 1, 50),
-	Ports:      []slomad.Port{{Label: "http", To: 9221}},
-	Size:       map[string]int{"cpu": 128, "mem": 128},
-	Env: map[string]string{
-		"PVE_USER":        "jenkins@pam",
-		"PVE_TOKEN_NAME":  "jenkins@pam!jenkins",
-		"PVE_TOKEN_VALUE": "5f355f17-f640-4807-bf5b-1a1aa6262506",
-		"PVE_VERIFY_SSL":  "false",
-	},
-}
-
-var NodeExporterJob = &slomad.Job{
+var NodeExporterJobOLD = &slomad.Job{
 	Name:       "nodeexporter",
 	Image:      getDockerImageString("node_exporter"),
 	JobType:    "system",
