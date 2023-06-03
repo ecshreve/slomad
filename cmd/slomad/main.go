@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/ecshreve/slomad/pkg/registry"
+	"github.com/ecshreve/slomad/internal/registry"
 	"github.com/ecshreve/slomad/pkg/slomad"
 	"github.com/samsarahq/go/oops"
 	log "github.com/sirupsen/logrus"

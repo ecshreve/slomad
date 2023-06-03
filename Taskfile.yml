@@ -3,6 +3,10 @@ version: "3"
 dotenv: ['.env', '{{.ENV}}/.env.', '{{.HOME}}/.env']
 
 tasks:
+  default:
+    cmds:
+      - task --list-all
+
   go:test:
     cmds:
       - go test github.com/ecshreve/slomad/...
@@ -25,6 +29,10 @@ tasks:
       - ./**/config/*.yml
     cmds:
       - go build -o bin/slomad github.com/ecshreve/slomad/cmd/slomad
+
+  go:doc:
+    cmds:
+      - godoc -http=:6060
 
   go:run:
     deps:
