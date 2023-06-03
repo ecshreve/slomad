@@ -26,7 +26,7 @@ func GetTask(j *Job) *nomadStructs.Task {
 		Driver:          "docker",
 		Config:          getConfig(j),
 		Resources:       getResource(j.Shape),
-		Services:        getServices(j.Name, ExtractLabels(j.Ports)),
+		Services:        getServices(j.Name, extractLabels(j.Ports)),
 		LogConfig:       nomadStructs.DefaultLogConfig(),
 		Env:             j.Env,
 		User:            j.User,
@@ -92,7 +92,7 @@ func getServices(taskName string, portLabels []string) []*nomadStructs.Service {
 
 // getConfig returns a nomad config struct for a given job.
 func getConfig(j *Job) map[string]interface{} {
-	portLabels := ExtractLabels(j.Ports)
+	portLabels := extractLabels(j.Ports)
 	config := map[string]interface{}{
 		"image": j.Image,
 		"args":  j.Args,

@@ -5,7 +5,6 @@ import (
 	"time"
 
 	nomadStructs "github.com/hashicorp/nomad/nomad/structs"
-	"github.com/samsarahq/go/oops"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -143,15 +142,15 @@ func DeployTraefikJob() error {
 		return err
 	}
 
-	apiJob, err := convertJob(job)
-	if err != nil {
-		log.Errorf("Failed to convert nomad job in api call. Error: %s\n", err)
-		return err
-	}
+	// apiJob, err := convertJob(job)
+	// if err != nil {
+	// 	log.Errorf("Failed to convert nomad job in api call. Error: %s\n", err)
+	// 	return err
+	// }
 
-	if err = submitApiJob(apiJob); err != nil {
-		return oops.Wrapf(err, "error submitting api job")
-	}
+	// if err = submitApiJob(apiJob); err != nil {
+	// 	return oops.Wrapf(err, "error submitting api job")
+	// }
 
 	return nil
 }
