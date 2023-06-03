@@ -206,7 +206,6 @@ func planApiJob(job *nomadApi.Job) error {
 	}
 
 	log.Infof("Sucessfully planned nomad job %s - %+v\n", *job.Name, planResp.Annotations.DesiredTGUpdates[*job.Name])
-	// pretty.Print(planResp.Diff)
 	return nil
 }
 

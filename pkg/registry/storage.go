@@ -10,32 +10,18 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// getStorageArgs returns the common args for the storage controller and node.
+//
+// TODO: input validation
 func getStorageArgs(storage string) []string {
 	common := []string{
 		"--node-id=${attr.unique.hostname}",
 		fmt.Sprintf("--nfs-server=%s", os.Getenv("SYNOLOGY_VAULT")),
 		"--mount-options=defaults",
+		fmt.Sprintf("--type=%s", storage),
 	}
 
-	switch storage {
-	case "controller":
-		return append(common, "--type=controller")
-	case "node":
-		return append(common, "--type=node")
-	default:
-		log.Fatalf("unknown storage type: %s", storage)
-		return nil
-	}
-}
-
-var ControllerJobOld = &slomad.Job{
-	Name:       "storage-controller",
-	Image:      getDockerImageString("csi-nfs-plugin"),
-	CommonArgs: getCommonJobArgs("docker", "^worker-0$", 1, 99),
-	Storage:    slomad.StringPtr("controller"),
-	Ports:      []slomad.Port{{Label: "http"}},
-	Args:       getStorageArgs("controller"),
-	Size:       map[string]int{"cpu": 512, "mem": 512},
+	return common
 }
 
 var ControllerJob = slomad.NewStorageJob(slomad.JobParams{
@@ -49,16 +35,15 @@ var ControllerJob = slomad.NewStorageJob(slomad.JobParams{
 	},
 })
 
-var NodeJob = &slomad.Job{
-	Name:       "storage-node",
-	Image:      getDockerImageString("csi-nfs-plugin"),
-	CommonArgs: getCommonJobArgs("docker", "^.*$", 1, 98),
-	JobType:    "system",
-	Storage:    slomad.StringPtr("node"),
-	Ports:      []slomad.Port{{Label: "http"}},
-	Args:       getStorageArgs("node"),
-	Size:       map[string]int{"cpu": 128, "mem": 128},
-}
+var NodeJob = slomad.NewStorageJob(slomad.JobParams{
+	Name: "storage-node",
+	Type: slomad.SYSTEM,
+	TaskConfigParams: slomad.TaskConfigParams{
+		Ports: slomad.BasicPorts(0),
+		Shape: slomad.TINY_TASK,
+		Args:  getStorageArgs("node"),
+	},
+})
 
 func CreateVolume(volName string) error {
 	nomadConfig := nomadApi.DefaultConfig()

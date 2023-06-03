@@ -12,15 +12,15 @@ import (
 func main() {
 
 	services := []*slomad.App{
-		// registry.LokiJob,
-		// registry.WhoamiJob,
-		// registry.SpeedtestJob,
-		// registry.GrafanaJob,
-		// registry.PrometheusJob,
-		// registry.NodeExporterJob,
-		// registry.PromtailJob,
+		registry.LokiJob,
+		registry.WhoamiJob,
+		registry.SpeedtestJob,
+		registry.GrafanaJob,
+		registry.PrometheusJob,
+		registry.NodeExporterJob,
+		registry.PromtailJob,
 		registry.ControllerJob,
-		// 		registry.NodeJob,
+		registry.NodeJob,
 		// 		registry.JenkinsJob,
 		// 		registry.SemaphoreJob,
 		// 		registry.GlancesJob,

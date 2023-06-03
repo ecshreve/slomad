@@ -37,7 +37,7 @@ func GetTask(j *App) *nomadStructs.Task {
 }
 
 func GetService(taskName string, portLabel string) *nomadStructs.Service {
-	if taskName == "storage-controller" || taskName == "storage-node" {
+	if taskName == "storage-controller" {
 		return nil
 	}
 
