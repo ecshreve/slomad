@@ -25,14 +25,19 @@ func planApiJob(job *nomadApi.Job) error {
 		return fmt.Errorf(fmt.Sprintf("Error planning job: %s", nomadErr))
 	}
 
-	log.Infof("Sucessfully planned nomad job %s - %+v\n", *job.Name, planResp.Annotations.DesiredTGUpdates[*job.Name])
+	desired := planResp.Annotations.DesiredTGUpdates[*job.Name]
+	logPayload := fmt.Sprintf("%+v", desired)
+	if desired.Ignore > 0 {
+		logPayload = "IGNORE"
+	}
+	log.Infof("Sucessfully planned nomad job %s - %s\n", *job.Name, logPayload)
 	return nil
 }
 
 // submitApiJob creates a nomad api client, and submits the job to nomad.
 //
 // TODO: move client creation to a helper function
-func submitApiJob(job *nomadApi.Job) error {
+func SubmitApiJob(job *nomadApi.Job) error {
 	nomadConfig := nomadApi.DefaultConfig()
 	nomadConfig.Address = os.Getenv("NOMAD_TARGET")
 	nomadClient, err := nomadApi.NewClient(nomadConfig)
@@ -70,7 +75,7 @@ func (j *Job) Deploy(force bool) error {
 		return oops.Wrapf(err, "error creating api job for job: %+v", j)
 	}
 
-	if err = submitApiJob(aj); err != nil {
+	if err = SubmitApiJob(aj); err != nil {
 		return oops.Wrapf(err, "error submitting api job")
 	}
 

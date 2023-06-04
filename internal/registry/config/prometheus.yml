@@ -10,9 +10,9 @@ scrape_configs:
     static_configs:
       - targets: ["localhost:9090"]
 
-  - job_name: "nomad_metrics"
+  - job_name: "nomad-metrics"
     consul_sd_configs:
-      - server: "10.35.220.50:8500"
+      - server: <CONSUL_TARGET>
         datacenter: "dcs"
         services: ["nomad-client", "nomad"]
     relabel_configs:
@@ -31,9 +31,9 @@ scrape_configs:
     params:
       format: ["prometheus"]
 
-  - job_name: "consul_metrics"
+  - job_name: "consul-metrics"
     consul_sd_configs:
-      - server: "10.35.220.50:8500"
+      - server: <CONSUL_TARGET>
     metrics_path: "/v1/agent/metrics"
     params:
       format: ["prometheus"]
@@ -47,7 +47,7 @@ scrape_configs:
 
   - job_name: "node-exporter"
     consul_sd_configs:
-      - server: "10.35.220.50:8500"
+      - server: <CONSUL_TARGET>
         datacenter: "dcs"
         scheme: "http"
         services: ["node-exporter"]

@@ -58,7 +58,7 @@ func (j *Job) ToNomadJob(force bool) (*nomadStructs.Job, *nomadApi.Job, error) {
 		return job, nil, err
 	}
 
-	apiJob, err := convertJob(job)
+	apiJob, err := ConvertJob(job)
 	if err != nil {
 		log.Errorf("Failed to convert nomad job in api call. Error: %s\n", err)
 		return job, apiJob, err
@@ -68,7 +68,7 @@ func (j *Job) ToNomadJob(force bool) (*nomadStructs.Job, *nomadApi.Job, error) {
 }
 
 // convertJob converts a Nomad Job to a Nomad API Job.
-func convertJob(in *nomadStructs.Job) (*nomadApi.Job, error) {
+func ConvertJob(in *nomadStructs.Job) (*nomadApi.Job, error) {
 	gob.Register([]map[string]interface{}{})
 	gob.Register([]interface{}{})
 

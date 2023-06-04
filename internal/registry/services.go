@@ -2,10 +2,17 @@ package registry
 
 import (
 	_ "embed"
+	"os"
+	"strings"
 
 	smd "github.com/ecshreve/slomad/pkg/slomad"
 	"github.com/ecshreve/slomad/pkg/utils"
 )
+
+func promConfigHelper(tmpl string) string {
+	s := strings.Replace(tmpl, "<CONSUL_TARGET>", os.Getenv("CONSUL_TARGET"), -1)
+	return s
+}
 
 //go:embed config/promtail.yml
 var promtailConfig string
@@ -21,7 +28,7 @@ var PromtailJob = smd.NewAppJob(smd.JobParams{
 			"-config.file=/local/config/promtail.yml",
 			"-server.http-listen-port=${NOMAD_PORT_http}",
 		},
-		Templates: map[string]string{"promtail.yml": promtailConfig},
+		Templates: map[string]string{"promtail.yml": promConfigHelper(promtailConfig)},
 	},
 	StorageParams: smd.StorageParams{
 		Volumes: []smd.Volume{
@@ -83,6 +90,7 @@ var LokiJob = smd.NewAppJob(smd.JobParams{
 //go:embed config/prometheus.yml
 var prometheusConfig string
 
+// PrometheusJob is a Job for the Prometheus service.
 var PrometheusJob = smd.NewAppJob(smd.JobParams{
 	Name:   "prometheus",
 	Type:   smd.SERVICE,
@@ -90,7 +98,7 @@ var PrometheusJob = smd.NewAppJob(smd.JobParams{
 	TaskConfigParams: smd.TaskConfigParams{
 		Ports:     smd.BasicPortConfig(9090),
 		Shape:     smd.LARGE_TASK,
-		Templates: map[string]string{"prometheus.yml": prometheusConfig},
+		Templates: map[string]string{"prometheus.yml": promConfigHelper(prometheusConfig)},
 	},
 	StorageParams: smd.StorageParams{
 		Storage: utils.StringPtr("prometheus"),

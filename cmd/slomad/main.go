@@ -12,16 +12,16 @@ import (
 func main() {
 
 	services := []*slomad.Job{
-		registry.LokiJob,
-		registry.WhoamiJob,
-		registry.SpeedtestJob,
-		registry.GrafanaJob,
-		registry.PrometheusJob,
-		registry.NodeExporterJob,
-		registry.PromtailJob,
-		registry.ControllerJob,
-		registry.NodeJob,
-		registry.InfluxDBJob,
+		// registry.LokiJob,
+		// registry.WhoamiJob,
+		// registry.SpeedtestJob,
+		// registry.GrafanaJob,
+		// registry.PrometheusJob,
+		// registry.NodeExporterJob,
+		// registry.PromtailJob,
+		// registry.ControllerJob,
+		// registry.NodeJob,
+		// registry.InfluxDBJob,
 	}
 
 	args := os.Args[1:]
@@ -51,11 +51,10 @@ func main() {
 			log.Debugf("skipping deploy %s", srvc.Name)
 		}
 	}
-	//something
 
-	// 	if err := registry.DeployTraefikJob(); err != nil {
-	// 		log.Panic(err)
-	// 	}
+	if err := registry.DeployTraefikJob(confirm); err != nil {
+		log.Panic(err)
+	}
 
 	// 	for _, x := range services {
 	// 		if err := registry.CreateVolume(x.Name); err != nil {
