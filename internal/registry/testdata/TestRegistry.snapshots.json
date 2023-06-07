@@ -1,0 +1,203 @@
+[
+  {
+    "Name": "loki",
+    "Values": [
+      {
+        "Args": null,
+        "Env": null,
+        "Name": "loki",
+        "Ports": [
+          {
+            "From": 0,
+            "Label": "http",
+            "Static": false,
+            "To": 3100
+          }
+        ],
+        "Shape": {
+          "CPU": 128,
+          "MEM": 128
+        },
+        "Target": 3,
+        "Templates": null,
+        "Type": 1,
+        "User": "",
+        "Volumes": null
+      }
+    ]
+  },
+  {
+    "Name": "whoami",
+    "Values": [
+      {
+        "Args": [
+          "--port",
+          "${NOMAD_PORT_http}"
+        ],
+        "Env": null,
+        "Name": "whoami",
+        "Ports": [
+          {
+            "From": 0,
+            "Label": "http",
+            "Static": false,
+            "To": 80
+          }
+        ],
+        "Shape": {
+          "CPU": 128,
+          "MEM": 128
+        },
+        "Target": 3,
+        "Templates": null,
+        "Type": 1,
+        "User": "",
+        "Volumes": null
+      }
+    ]
+  },
+  {
+    "Name": "speedtest",
+    "Values": [
+      {
+        "Args": null,
+        "Env": null,
+        "Name": "speedtest",
+        "Ports": [
+          {
+            "From": 0,
+            "Label": "http",
+            "Static": false,
+            "To": 80
+          }
+        ],
+        "Shape": {
+          "CPU": 128,
+          "MEM": 128
+        },
+        "Target": 3,
+        "Templates": null,
+        "Type": 1,
+        "User": "",
+        "Volumes": null
+      }
+    ]
+  },
+  {
+    "Name": "grafana",
+    "Values": [
+      {
+        "Args": null,
+        "Env": {
+          "GF_SERVER_HTTP_PORT": "${NOMAD_PORT_http}"
+        },
+        "Name": "grafana",
+        "Ports": [
+          {
+            "From": 0,
+            "Label": "http",
+            "Static": false,
+            "To": 3000
+          }
+        ],
+        "Shape": {
+          "CPU": 1024,
+          "MEM": 1024
+        },
+        "Target": 3,
+        "Templates": null,
+        "Type": 1,
+        "User": "root",
+        "Volumes": [
+          {
+            "Dst": "/var/lib/grafana",
+            "Mount": true,
+            "Src": "grafana-vol"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "node-exporter",
+    "Values": [
+      {
+        "Args": [
+          "--web.listen-address=:${NOMAD_PORT_http}",
+          "--path.procfs=/host/proc",
+          "--path.sysfs=/host/sys",
+          "--collector.filesystem.ignored-mount-points",
+          "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
+        ],
+        "Env": null,
+        "Name": "node-exporter",
+        "Ports": [
+          {
+            "From": 0,
+            "Label": "http",
+            "Static": false,
+            "To": 9100
+          }
+        ],
+        "Shape": {
+          "CPU": 128,
+          "MEM": 128
+        },
+        "Target": 0,
+        "Templates": null,
+        "Type": 2,
+        "User": "",
+        "Volumes": [
+          {
+            "Dst": "/host/proc",
+            "Mount": false,
+            "Src": "/proc"
+          },
+          {
+            "Dst": "/host/sys",
+            "Mount": false,
+            "Src": "/sys"
+          },
+          {
+            "Dst": "/rootfs",
+            "Mount": false,
+            "Src": "/"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Name": "influxdb",
+    "Values": [
+      {
+        "Args": null,
+        "Env": null,
+        "Name": "influxdb",
+        "Ports": [
+          {
+            "From": 0,
+            "Label": "http",
+            "Static": false,
+            "To": 8086
+          }
+        ],
+        "Shape": {
+          "CPU": 1024,
+          "MEM": 1024
+        },
+        "Target": 3,
+        "Templates": null,
+        "Type": 1,
+        "User": "",
+        "Volumes": [
+          {
+            "Dst": "/var/lib/influxdb",
+            "Mount": false,
+            "Src": "influx_data"
+          }
+        ]
+      }
+    ]
+  }
+]

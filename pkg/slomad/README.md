@@ -30,17 +30,13 @@ import "github.com/ecshreve/slomad/pkg/slomad"
 - [func toNomadPortMap(ports []*Port) map[string][]nomadStructs.Port](<#func-tonomadportmap>)
 - [type DeployTarget](<#type-deploytarget>)
 - [type Job](<#type-job>)
-  - [func NewJob(params JobParams) *Job](<#func-newjob>)
   - [func (j *Job) GetNomadApiJob(force bool) (*nomadApi.Job, error)](<#func-job-getnomadapijob>)
-- [type JobParams](<#type-jobparams>)
 - [type JobType](<#type-jobtype>)
   - [func (jt JobType) String() string](<#func-jobtype-string>)
 - [type Port](<#type-port>)
   - [func BasicPortConfig(val int) []*Port](<#func-basicportconfig>)
   - [func basicPort(val int) *Port](<#func-basicport>)
 - [type ResourceValue](<#type-resourcevalue>)
-- [type StorageParams](<#type-storageparams>)
-- [type TaskConfigParams](<#type-taskconfigparams>)
 - [type TaskResource](<#type-taskresource>)
 - [type Volume](<#type-volume>)
 
@@ -259,14 +255,6 @@ type Job struct {
 }
 ```
 
-### func NewJob
-
-```go
-func NewJob(params JobParams) *Job
-```
-
-NewAppJob creates a new Job for an application.
-
 ### func \(\*Job\) GetNomadApiJob
 
 ```go
@@ -274,20 +262,6 @@ func (j *Job) GetNomadApiJob(force bool) (*nomadApi.Job, error)
 ```
 
 GetNomadApiJob returns a nomadApi Job for the given slomad.Job.
-
-## type JobParams
-
-JobParams is a struct that represents the parameters for creating a Job.
-
-```go
-type JobParams struct {
-    Name   string
-    Type   JobType
-    Target DeployTarget
-    TaskConfigParams
-    StorageParams
-}
-```
 
 ## type JobType
 
@@ -359,31 +333,6 @@ const (
     LARGE   ResourceValue = 1024
     XLARGE  ResourceValue = 2048
 )
-```
-
-## type StorageParams
-
-StorageParams is a struct that represents the parameters for creating a storage associated with a Job.
-
-```go
-type StorageParams struct {
-    Volumes []Volume
-}
-```
-
-## type TaskConfigParams
-
-TaskConfigParams is a struct that represents the parameters for creating a TaskConfig associated with a Job.
-
-```go
-type TaskConfigParams struct {
-    Args      []string
-    Ports     []*Port
-    Shape     TaskResource
-    Env       map[string]string
-    User      string
-    Templates map[string]string
-}
 ```
 
 ## type TaskResource

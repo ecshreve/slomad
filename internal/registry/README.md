@@ -16,154 +16,124 @@ import "github.com/ecshreve/slomad/internal/registry"
 ## Variables
 
 ```go
-var ControllerJob = smd.NewJob(smd.JobParams{
+var ControllerJob = smd.Job{
     Name:   "storage-controller",
     Type:   smd.STORAGE_CONTROLLER,
     Target: smd.WORKER,
-    TaskConfigParams: smd.TaskConfigParams{
-        Ports: smd.BasicPortConfig(0),
-        Shape: smd.DEFAULT_TASK,
-        Args:  getStorageArgs("controller"),
-    },
-})
+    Ports:  smd.BasicPortConfig(0),
+    Shape:  smd.DEFAULT_TASK,
+    Args:   getStorageArgs("controller"),
+}
 ```
 
 ```go
-var GrafanaJob = smd.NewJob(smd.JobParams{
-    Name:   "grafana",
-    Type:   smd.SERVICE,
-    Target: smd.WORKER,
-    TaskConfigParams: smd.TaskConfigParams{
-        Ports: smd.BasicPortConfig(3000),
-        Shape: smd.LARGE_TASK,
-        User:  "root",
-        Env:   map[string]string{"GF_SERVER_HTTP_PORT": "${NOMAD_PORT_http}"},
-    },
-    StorageParams: smd.StorageParams{
-        Volumes: []smd.Volume{{Src: "grafana-vol", Dst: "/var/lib/grafana", Mount: true}},
-    },
-})
+var GrafanaJob = smd.Job{
+    Name:    "grafana",
+    Type:    smd.SERVICE,
+    Target:  smd.WORKER,
+    Ports:   smd.BasicPortConfig(3000),
+    Shape:   smd.LARGE_TASK,
+    User:    "root",
+    Env:     map[string]string{"GF_SERVER_HTTP_PORT": "${NOMAD_PORT_http}"},
+    Volumes: []smd.Volume{{Src: "grafana-vol", Dst: "/var/lib/grafana", Mount: true}},
+}
 ```
 
 TODO: mount nomad volume and persist data
 
 ```go
-var InfluxDBJob = smd.NewJob(smd.JobParams{
-    Name:   "influxdb",
-    Type:   smd.SERVICE,
-    Target: smd.WORKER,
-    TaskConfigParams: smd.TaskConfigParams{
-        Ports: smd.BasicPortConfig(8086),
-        Shape: smd.LARGE_TASK,
-    },
-    StorageParams: smd.StorageParams{
-        Volumes: []smd.Volume{
-            {Src: "influx_data", Dst: "/var/lib/influxdb"},
-        },
-    },
-})
+var InfluxDBJob = smd.Job{
+    Name:    "influxdb",
+    Type:    smd.SERVICE,
+    Target:  smd.WORKER,
+    Ports:   smd.BasicPortConfig(8086),
+    Shape:   smd.LARGE_TASK,
+    Volumes: []smd.Volume{{Src: "influx_data", Dst: "/var/lib/influxdb"}},
+}
 ```
 
 ```go
-var LokiJob = smd.NewJob(smd.JobParams{
+var LokiJob = smd.Job{
     Name:   "loki",
     Type:   smd.SERVICE,
     Target: smd.WORKER,
-    TaskConfigParams: smd.TaskConfigParams{
-        Ports: smd.BasicPortConfig(3100),
-        Shape: smd.TINY_TASK,
-    },
-})
+    Ports:  smd.BasicPortConfig(3100),
+    Shape:  smd.TINY_TASK,
+}
 ```
 
 ```go
-var NodeExporterJob = smd.NewJob(smd.JobParams{
-    Name: "node-exporter",
-    Type: smd.SYSTEM,
-    TaskConfigParams: smd.TaskConfigParams{
-        Ports: smd.BasicPortConfig(9100),
-        Shape: smd.TINY_TASK,
-        Args: []string{
-            "--web.listen-address=:${NOMAD_PORT_http}",
-            "--path.procfs=/host/proc",
-            "--path.sysfs=/host/sys",
-            "--collector.filesystem.ignored-mount-points",
-            "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)",
-        },
+var NodeExporterJob = smd.Job{
+    Name:  "node-exporter",
+    Type:  smd.SYSTEM,
+    Ports: smd.BasicPortConfig(9100),
+    Shape: smd.TINY_TASK,
+    Args: []string{
+        "--web.listen-address=:${NOMAD_PORT_http}",
+        "--path.procfs=/host/proc",
+        "--path.sysfs=/host/sys",
+        "--collector.filesystem.ignored-mount-points",
+        "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)",
     },
-    StorageParams: smd.StorageParams{
-        Volumes: []smd.Volume{
-            {Src: "/proc", Dst: "/host/proc"},
-            {Src: "/sys", Dst: "/host/sys"},
-            {Src: "/", Dst: "/rootfs"},
-        },
+    Volumes: []smd.Volume{
+        {Src: "/proc", Dst: "/host/proc"},
+        {Src: "/sys", Dst: "/host/sys"},
+        {Src: "/", Dst: "/rootfs"},
     },
-})
+}
 ```
 
 ```go
-var NodeJob = smd.NewJob(smd.JobParams{
-    Name: "storage-node",
-    Type: smd.STORAGE_NODE,
-    TaskConfigParams: smd.TaskConfigParams{
-        Ports: smd.BasicPortConfig(0),
-        Shape: smd.TINY_TASK,
-        Args:  getStorageArgs("node"),
-    },
-})
+var NodeJob = smd.Job{
+    Name:  "storage-node",
+    Type:  smd.STORAGE_NODE,
+    Ports: smd.BasicPortConfig(0),
+    Shape: smd.TINY_TASK,
+    Args:  getStorageArgs("node"),
+}
 ```
 
 PrometheusJob is a Job for the Prometheus service.
 
 ```go
-var PrometheusJob = smd.NewJob(smd.JobParams{
-    Name:   "prometheus",
-    Type:   smd.SERVICE,
-    Target: smd.WORKER,
-    TaskConfigParams: smd.TaskConfigParams{
-        Ports:     smd.BasicPortConfig(9090),
-        Shape:     smd.LARGE_TASK,
-        Templates: map[string]string{"prometheus.yml": promConfigHelper(prometheusConfig)},
-    },
-    StorageParams: smd.StorageParams{
-        Volumes: []smd.Volume{{Src: "local/config", Dst: "/etc/prometheus"}},
-    },
-})
+var PrometheusJob = smd.Job{
+    Name:      "prometheus",
+    Type:      smd.SERVICE,
+    Target:    smd.WORKER,
+    Ports:     smd.BasicPortConfig(9090),
+    Shape:     smd.LARGE_TASK,
+    Templates: map[string]string{"prometheus.yml": promConfigHelper(prometheusConfig)},
+    Volumes:   []smd.Volume{{Src: "local/config", Dst: "/etc/prometheus"}},
+}
 ```
 
 ```go
-var PromtailJob = smd.NewJob(smd.JobParams{
-    Name: "promtail",
-    Type: smd.SYSTEM,
-    TaskConfigParams: smd.TaskConfigParams{
-        Ports: smd.BasicPortConfig(3200),
-        Shape: smd.TINY_TASK,
-        Env:   map[string]string{"HOSTNAME": "${attr.unique.hostname}"},
-        Args: []string{
-            "-config.file=/local/config/promtail.yml",
-            "-server.http-listen-port=${NOMAD_PORT_http}",
-        },
-        Templates: map[string]string{"promtail.yml": promConfigHelper(promtailConfig)},
+var PromtailJob = smd.Job{
+    Name:  "promtail",
+    Type:  smd.SYSTEM,
+    Ports: smd.BasicPortConfig(3200),
+    Shape: smd.TINY_TASK,
+    Env:   map[string]string{"HOSTNAME": "${attr.unique.hostname}"},
+    Args: []string{
+        "-config.file=/local/config/promtail.yml",
+        "-server.http-listen-port=${NOMAD_PORT_http}",
     },
-    StorageParams: smd.StorageParams{
-        Volumes: []smd.Volume{
-            {Src: "/opt/nomad/data/", Dst: "/nomad/"},
-            {Src: "/data/promtail", Dst: "/data"},
-        },
+    Templates: map[string]string{"promtail.yml": promConfigHelper(promtailConfig)},
+    Volumes: []smd.Volume{
+        {Src: "/opt/nomad/data/", Dst: "/nomad/"},
+        {Src: "/data/promtail", Dst: "/data"},
     },
-})
+}
 ```
 
 ```go
-var SpeedtestJob = smd.NewJob(smd.JobParams{
+var SpeedtestJob = smd.Job{
     Name:   "speedtest",
     Type:   smd.SERVICE,
     Target: smd.WORKER,
-    TaskConfigParams: smd.TaskConfigParams{
-        Ports: smd.BasicPortConfig(80),
-        Shape: smd.TINY_TASK,
-    },
-})
+    Ports:  smd.BasicPortConfig(80),
+    Shape:  smd.TINY_TASK,
+}
 ```
 
 ```go
@@ -295,16 +265,14 @@ var TraefikJob = nomadStructs.Job{
 ```
 
 ```go
-var WhoamiJob = smd.NewJob(smd.JobParams{
+var WhoamiJob = smd.Job{
     Name:   "whoami",
     Type:   smd.SERVICE,
     Target: smd.WORKER,
-    TaskConfigParams: smd.TaskConfigParams{
-        Shape: smd.TINY_TASK,
-        Args:  []string{"--port", "${NOMAD_PORT_http}"},
-        Ports: smd.BasicPortConfig(80),
-    },
-})
+    Shape:  smd.TINY_TASK,
+    Args:   []string{"--port", "${NOMAD_PORT_http}"},
+    Ports:  smd.BasicPortConfig(80),
+}
 ```
 
 ```go

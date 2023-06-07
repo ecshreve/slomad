@@ -11,7 +11,7 @@ import (
 
 func main() {
 
-	services := []*slomad.Job{
+	services := []slomad.Job{
 		registry.LokiJob,
 		registry.WhoamiJob,
 		registry.SpeedtestJob,
@@ -37,7 +37,7 @@ func main() {
 	}
 
 	for _, srvc := range services {
-		if err := RunDeploy(srvc, confirm, false, false); err != nil {
+		if err := RunDeploy(&srvc, confirm, false, false); err != nil {
 			log.Fatalln(oops.Wrapf(err, "error deploying job"))
 		}
 	}

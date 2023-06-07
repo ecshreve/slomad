@@ -7,26 +7,22 @@ import (
 	smd "github.com/ecshreve/slomad/pkg/slomad"
 )
 
-var ControllerJob = smd.NewJob(smd.JobParams{
+var ControllerJob = smd.Job{
 	Name:   "storage-controller",
 	Type:   smd.STORAGE_CONTROLLER,
 	Target: smd.WORKER,
-	TaskConfigParams: smd.TaskConfigParams{
-		Ports: smd.BasicPortConfig(0),
-		Shape: smd.DEFAULT_TASK,
-		Args:  getStorageArgs("controller"),
-	},
-})
+	Ports:  smd.BasicPortConfig(0),
+	Shape:  smd.DEFAULT_TASK,
+	Args:   getStorageArgs("controller"),
+}
 
-var NodeJob = smd.NewJob(smd.JobParams{
-	Name: "storage-node",
-	Type: smd.STORAGE_NODE,
-	TaskConfigParams: smd.TaskConfigParams{
-		Ports: smd.BasicPortConfig(0),
-		Shape: smd.TINY_TASK,
-		Args:  getStorageArgs("node"),
-	},
-})
+var NodeJob = smd.Job{
+	Name:  "storage-node",
+	Type:  smd.STORAGE_NODE,
+	Ports: smd.BasicPortConfig(0),
+	Shape: smd.TINY_TASK,
+	Args:  getStorageArgs("node"),
+}
 
 // getStorageArgs returns the common args for the storage controller and node.
 //

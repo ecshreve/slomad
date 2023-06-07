@@ -12,16 +12,14 @@ func TestSlomad(t *testing.T) {
 	snap := snapshotter.New(t)
 	defer snap.Verify()
 
-	testJob := slomad.NewJob(slomad.JobParams{
+	testJob := slomad.Job{
 		Name:   "test-job",
 		Type:   slomad.SERVICE,
 		Target: slomad.WORKER,
-		TaskConfigParams: slomad.TaskConfigParams{
-			Args:  []string{"echo hello"},
-			Ports: []*slomad.Port{{Label: "http", To: 8080, From: 0, Static: false}},
-			Shape: slomad.DEFAULT_TASK,
-		},
-	})
+		Args:   []string{"echo hello"},
+		Ports:  []*slomad.Port{{Label: "http", To: 8080, From: 0, Static: false}},
+		Shape:  slomad.DEFAULT_TASK,
+	}
 
 	snap.Snapshot("test-job", testJob)
 
@@ -36,20 +34,16 @@ func TestSlomadRegistryJob(t *testing.T) {
 	snap := snapshotter.New(t)
 	defer snap.Verify()
 
-	var GrafanaJob = slomad.NewJob(slomad.JobParams{
-		Name:   "grafana",
-		Type:   slomad.SERVICE,
-		Target: slomad.WORKER,
-		TaskConfigParams: slomad.TaskConfigParams{
-			Ports: slomad.BasicPortConfig(3000),
-			Shape: slomad.LARGE_TASK,
-			User:  "root",
-			Env:   map[string]string{"GF_SERVER_HTTP_PORT": "${NOMAD_PORT_http}"},
-		},
-		StorageParams: slomad.StorageParams{
-			Volumes: []slomad.Volume{{Src: "grafana-vol", Dst: "/var/lib/grafana", Mount: true}},
-		},
-	})
+	var GrafanaJob = slomad.Job{
+		Name:    "grafana",
+		Type:    slomad.SERVICE,
+		Target:  slomad.WORKER,
+		Ports:   slomad.BasicPortConfig(3000),
+		Shape:   slomad.LARGE_TASK,
+		User:    "root",
+		Env:     map[string]string{"GF_SERVER_HTTP_PORT": "${NOMAD_PORT_http}"},
+		Volumes: []slomad.Volume{{Src: "grafana-vol", Dst: "/var/lib/grafana", Mount: true}},
+	}
 
 	snap.Snapshot("grafana-job", GrafanaJob)
 
