@@ -33,3 +33,10 @@ jobs:
 
     - name: Test
       run: task go:test
+
+    - name: Test with coverage
+      run: task go:test:cover
+
+    - name: Codecov
+      uses: codecov/codecov-action@v3.1.4
+
