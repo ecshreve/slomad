@@ -7,7 +7,6 @@
           "echo hello"
         ],
         "Env": null,
-        "Image": "reg.slab.lan:5000/test-job",
         "Name": "test-job",
         "Ports": [
           {

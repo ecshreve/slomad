@@ -26,7 +26,7 @@ func getTask(j *Job) *nomadStructs.Task {
 	return &nomadStructs.Task{
 		Name:            j.Name,
 		Driver:          "docker",
-		Config:          getConfig(j.Image, j.Type, j.Args, j.Ports, j.Volumes),
+		Config:          getConfig(j.Name, j.Type, j.Args, j.Ports, j.Volumes),
 		Resources:       getResource(j.Shape),
 		Services:        getServices(j.Name, extractLabels(j.Ports)),
 		LogConfig:       nomadStructs.DefaultLogConfig(),
@@ -94,9 +94,9 @@ func getServices(taskName string, portLabels []string) []*nomadStructs.Service {
 }
 
 // getConfig returns a nomad config struct for a given job.
-func getConfig(img string, jt JobType, args []string, ports []*Port, vols []Volume) map[string]interface{} {
+func getConfig(name string, jt JobType, args []string, ports []*Port, vols []Volume) map[string]interface{} {
 	config := map[string]interface{}{
-		"image": img,
+		"image": fmt.Sprintf("reg.slab.lan:5000/%s", name),
 		"args":  args,
 		"ports": extractLabels(ports),
 	}
@@ -109,6 +109,7 @@ func getConfig(img string, jt JobType, args []string, ports []*Port, vols []Volu
 	if jt == STORAGE_CONTROLLER || jt == STORAGE_NODE {
 		config["privileged"] = true
 		config["network_mode"] = "host"
+		config["image"] = "reg.slab.lan:5000/csi-nfs-plugin"
 	}
 
 	return config

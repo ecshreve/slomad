@@ -7,7 +7,6 @@
         "Env": {
           "GF_SERVER_HTTP_PORT": "${NOMAD_PORT_http}"
         },
-        "Image": "reg.slab.lan:5000/grafana",
         "Name": "grafana",
         "Ports": [
           {

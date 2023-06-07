@@ -3,7 +3,6 @@ package slomad
 import (
 	"bytes"
 	"encoding/gob"
-	"fmt"
 
 	"github.com/google/uuid"
 	nomadApi "github.com/hashicorp/nomad/api"
@@ -17,7 +16,6 @@ type Job struct {
 	Type      JobType
 	Shape     TaskResource
 	Target    DeployTarget
-	Image     string
 	Args      []string
 	Ports     []*Port
 	Env       map[string]string
@@ -111,24 +109,6 @@ type TaskConfigParams struct {
 func NewAppJob(params JobParams) *Job {
 	return &Job{
 		Name:      params.Name,
-		Image:     fmt.Sprintf("reg.slab.lan:5000/%s", params.Name),
-		Args:      params.Args,
-		Ports:     params.Ports,
-		Type:      params.Type,
-		Target:    params.Target,
-		Shape:     params.Shape,
-		Env:       params.Env,
-		User:      params.User,
-		Volumes:   params.Volumes,
-		Templates: params.Templates,
-	}
-}
-
-// NewStorageJob creates a new Job for a storage controller or node.
-func NewStorageJob(params JobParams) *Job {
-	return &Job{
-		Name:      params.Name,
-		Image:     "reg.slab.lan:5000/csi-nfs-plugin",
 		Args:      params.Args,
 		Ports:     params.Ports,
 		Type:      params.Type,
