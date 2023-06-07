@@ -9,34 +9,29 @@ import "github.com/ecshreve/slomad/pkg/slomad"
 ## Index
 
 - [Variables](<#variables>)
-- [func ConvertJob(in *nomadStructs.Job) (*nomadApi.Job, error)](<#func-convertjob>)
-- [func SubmitApiJob(job *nomadApi.Job) error](<#func-submitapijob>)
+- [func convertJob(in *nomadStructs.Job) (*nomadApi.Job, error)](<#func-convertjob>)
 - [func extractLabels(ports []*Port) []string](<#func-extractlabels>)
 - [func getCSIPluginConfig(j *Job) *nomadStructs.TaskCSIPluginConfig](<#func-getcsipluginconfig>)
-- [func getConfig(j *Job) map[string]interface{}](<#func-getconfig>)
-- [func getConstraint(j *Job) *nomadStructs.Constraint](<#func-getconstraint>)
+- [func getConfig(name string, jt JobType, args []string, ports []*Port, vols []Volume) map[string]interface{}](<#func-getconfig>)
+- [func getConstraint(dt DeployTarget) *nomadStructs.Constraint](<#func-getconstraint>)
 - [func getDisk() *nomadStructs.EphemeralDisk](<#func-getdisk>)
 - [func getGroup(j *Job) *nomadStructs.TaskGroup](<#func-getgroup>)
 - [func getMounts(vols []Volume) []*nomadStructs.VolumeMount](<#func-getmounts>)
 - [func getNetworks(ports []*Port) []*nomadStructs.NetworkResource](<#func-getnetworks>)
-- [func getNomadVolumes(storage string) map[string]*nomadStructs.VolumeRequest](<#func-getnomadvolumes>)
-- [func getReschedulePolicy(j *Job) *nomadStructs.ReschedulePolicy](<#func-getreschedulepolicy>)
+- [func getNomadVolumeReq(vols []Volume) map[string]*nomadStructs.VolumeRequest](<#func-getnomadvolumereq>)
+- [func getReschedulePolicy(jt JobType) *nomadStructs.ReschedulePolicy](<#func-getreschedulepolicy>)
 - [func getResource(tr TaskResource) *nomadStructs.Resources](<#func-getresource>)
 - [func getService(taskName string, portLabel string) *nomadStructs.Service](<#func-getservice>)
 - [func getServices(taskName string, portLabels []string) []*nomadStructs.Service](<#func-getservices>)
 - [func getTask(j *Job) *nomadStructs.Task](<#func-gettask>)
 - [func getTemplates(templates map[string]string) []*nomadStructs.Template](<#func-gettemplates>)
 - [func getVolumeStrings(vols []Volume) []string](<#func-getvolumestrings>)
-- [func planApiJob(job *nomadApi.Job) error](<#func-planapijob>)
 - [func toNomadPort(p *Port) nomadStructs.Port](<#func-tonomadport>)
 - [func toNomadPortMap(ports []*Port) map[string][]nomadStructs.Port](<#func-tonomadportmap>)
 - [type DeployTarget](<#type-deploytarget>)
 - [type Job](<#type-job>)
-  - [func NewAppJob(params JobParams) *Job](<#func-newappjob>)
-  - [func NewStorageJob(params JobParams) *Job](<#func-newstoragejob>)
-  - [func (j *Job) Deploy(force bool) error](<#func-job-deploy>)
-  - [func (j *Job) Plan(force bool) error](<#func-job-plan>)
-  - [func (j *Job) ToNomadJob(force bool) (*nomadStructs.Job, *nomadApi.Job, error)](<#func-job-tonomadjob>)
+  - [func NewJob(params JobParams) *Job](<#func-newjob>)
+  - [func (j *Job) GetNomadApiJob(force bool) (*nomadApi.Job, error)](<#func-job-getnomadapijob>)
 - [type JobParams](<#type-jobparams>)
 - [type JobType](<#type-jobtype>)
   - [func (jt JobType) String() string](<#func-jobtype-string>)
@@ -76,23 +71,13 @@ var DeployTargetRegex = map[DeployTarget]string{
 }
 ```
 
-## func ConvertJob
+## func convertJob
 
 ```go
-func ConvertJob(in *nomadStructs.Job) (*nomadApi.Job, error)
+func convertJob(in *nomadStructs.Job) (*nomadApi.Job, error)
 ```
 
 convertJob converts a Nomad Job to a Nomad API Job.
-
-## func SubmitApiJob
-
-```go
-func SubmitApiJob(job *nomadApi.Job) error
-```
-
-submitApiJob creates a nomad api client, and submits the job to nomad.
-
-TODO: move client creation to a helper function
 
 ## func extractLabels
 
@@ -113,7 +98,7 @@ getCSIPluginConfig returns a CSIPluginConfig for a given job.
 ## func getConfig
 
 ```go
-func getConfig(j *Job) map[string]interface{}
+func getConfig(name string, jt JobType, args []string, ports []*Port, vols []Volume) map[string]interface{}
 ```
 
 getConfig returns a nomad config struct for a given job.
@@ -121,10 +106,10 @@ getConfig returns a nomad config struct for a given job.
 ## func getConstraint
 
 ```go
-func getConstraint(j *Job) *nomadStructs.Constraint
+func getConstraint(dt DeployTarget) *nomadStructs.Constraint
 ```
 
-getConstraint returns a nomad constraint for a given job.
+getConstraint returns a nomad constraint for a given deploy target.
 
 ## func getDisk
 
@@ -158,18 +143,20 @@ func getNetworks(ports []*Port) []*nomadStructs.NetworkResource
 
 getNetworks converts a list of Ports to a list of Nomad NetworkResources.
 
-## func getNomadVolumes
+## func getNomadVolumeReq
 
 ```go
-func getNomadVolumes(storage string) map[string]*nomadStructs.VolumeRequest
+func getNomadVolumeReq(vols []Volume) map[string]*nomadStructs.VolumeRequest
 ```
 
-getNomadVolumes converts a list of Volumes to a list of Nomad Volumes.
+getNomadVolumeReq converts a slice of Volumes to map of nomad VolumeRequest.
+
+TODO: validation
 
 ## func getReschedulePolicy
 
 ```go
-func getReschedulePolicy(j *Job) *nomadStructs.ReschedulePolicy
+func getReschedulePolicy(jt JobType) *nomadStructs.ReschedulePolicy
 ```
 
 getReschedulePolicy returns a nomad reschedule policy for a given job.
@@ -220,14 +207,6 @@ func getVolumeStrings(vols []Volume) []string
 
 getVolumeString converts a list of Volumes to a list of Volume strings. These are meant to be passed to the docker driver.
 
-## func planApiJob
-
-```go
-func planApiJob(job *nomadApi.Job) error
-```
-
-planApiJob creates a nomad api client, and runs a plan for the given job, printing the output diff.
-
 ## func toNomadPort
 
 ```go
@@ -267,60 +246,34 @@ Job is a struct that represents a Nomad Job.
 
 ```go
 type Job struct {
-    Name       string
-    Type       JobType
-    Shape      TaskResource
-    Constraint string
-    Image      string
-    Args       []string
-    Ports      []*Port
-    Env        map[string]string
-    User       string
-    Storage    string
-    Volumes    []Volume
-    Templates  map[string]string
+    Name      string
+    Type      JobType
+    Shape     TaskResource
+    Target    DeployTarget
+    Args      []string
+    Ports     []*Port
+    Env       map[string]string
+    User      string
+    Volumes   []Volume
+    Templates map[string]string
 }
 ```
 
-### func NewAppJob
+### func NewJob
 
 ```go
-func NewAppJob(params JobParams) *Job
+func NewJob(params JobParams) *Job
 ```
 
 NewAppJob creates a new Job for an application.
 
-### func NewStorageJob
+### func \(\*Job\) GetNomadApiJob
 
 ```go
-func NewStorageJob(params JobParams) *Job
+func (j *Job) GetNomadApiJob(force bool) (*nomadApi.Job, error)
 ```
 
-NewStorageJob creates a new Job for a storage controller or node.
-
-### func \(\*Job\) Deploy
-
-```go
-func (j *Job) Deploy(force bool) error
-```
-
-Deploy creates a new API job and submits it to Nomad.
-
-### func \(\*Job\) Plan
-
-```go
-func (j *Job) Plan(force bool) error
-```
-
-Plan creates a new API job and runs a plan on it.
-
-### func \(\*Job\) ToNomadJob
-
-```go
-func (j *Job) ToNomadJob(force bool) (*nomadStructs.Job, *nomadApi.Job, error)
-```
-
-ToNomadJob converts a Job to a it's Nomad representations.
+GetNomadApiJob returns a nomadApi Job for the given slomad.Job.
 
 ## type JobParams
 
@@ -350,6 +303,8 @@ const (
     SERVICE
     SYSTEM
     BATCH
+    STORAGE_CONTROLLER
+    STORAGE_NODE
 )
 ```
 
@@ -412,7 +367,6 @@ StorageParams is a struct that represents the parameters for creating a storage 
 
 ```go
 type StorageParams struct {
-    Storage *string
     Volumes []Volume
 }
 ```

@@ -1,13 +1,41 @@
-package slomad
+package main
 
 import (
 	"fmt"
 	"os"
 
+	"github.com/ecshreve/slomad/pkg/slomad"
 	nomadApi "github.com/hashicorp/nomad/api"
 	"github.com/samsarahq/go/oops"
 	log "github.com/sirupsen/logrus"
 )
+
+// RunDeploy runs a deploy for the given job.
+func RunDeploy(j *slomad.Job, confirm, force, verbose bool) error {
+	aj, err := j.GetNomadApiJob(force)
+	if err != nil {
+		return oops.Wrapf(err, "error creating api job for slomad job: %+v", j)
+	}
+
+	cl, err := newNomadClient()
+	if err != nil {
+		return oops.Wrapf(err, "error creating nomad api client")
+	}
+
+	if err = planApiJob(cl, aj); err != nil {
+		return oops.Wrapf(err, "error planning api job")
+	}
+
+	if confirm {
+		if err = submitApiJob(cl, aj); err != nil {
+			return oops.Wrapf(err, "error submitting api job")
+		}
+	} else {
+		log.Infof("Skipping job submission")
+	}
+
+	return nil
+}
 
 func newNomadClient() (*nomadApi.Client, error) {
 	nomadConfig := nomadApi.DefaultConfig()
@@ -47,44 +75,5 @@ func submitApiJob(nomadClient *nomadApi.Client, job *nomadApi.Job) error {
 	}
 
 	log.Infof("Sucessfully submitted nomad job %s\n", *job.Name)
-	return nil
-}
-
-func SubmitApiJobSpecial(job *nomadApi.Job) error {
-	cl, err := newNomadClient()
-	if err != nil {
-		return oops.Wrapf(err, "error creating nomad api client")
-	}
-
-	if err = submitApiJob(cl, job); err != nil {
-		return oops.Wrapf(err, "error submitting api job")
-	}
-
-	return nil
-}
-
-func RunDeploy(j *Job, confirm, force, verbose bool) error {
-	cl, err := newNomadClient()
-	if err != nil {
-		return oops.Wrapf(err, "error creating nomad api client")
-	}
-
-	_, aj, err := j.ToNomadJob(force)
-	if err != nil {
-		return oops.Wrapf(err, "error creating api job for job: %+v", j)
-	}
-
-	if err = planApiJob(cl, aj); err != nil {
-		return oops.Wrapf(err, "error planning api job")
-	}
-
-	if confirm {
-		if err = submitApiJob(cl, aj); err != nil {
-			return oops.Wrapf(err, "error submitting api job")
-		}
-	} else {
-		log.Infof("Skipping job submission")
-	}
-
 	return nil
 }

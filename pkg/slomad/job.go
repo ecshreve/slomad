@@ -24,17 +24,16 @@ type Job struct {
 	Templates map[string]string
 }
 
-// ToNomadJob converts a Job to a it's Nomad representations.
-func (j *Job) ToNomadJob(force bool) (*nomadStructs.Job, *nomadApi.Job, error) {
+// GetNomadApiJob returns a nomadApi Job for the given slomad.Job.
+func (j *Job) GetNomadApiJob(force bool) (*nomadApi.Job, error) {
 	job := &nomadStructs.Job{
 		Priority:    50,
 		Namespace:   "default",
 		Region:      "global",
 		Datacenters: []string{"dcs"},
 
-		ID:   j.Name,
-		Name: j.Name,
-
+		ID:          j.Name,
+		Name:        j.Name,
 		Type:        j.Type.String(),
 		TaskGroups:  []*nomadStructs.TaskGroup{getGroup(j)},
 		Constraints: []*nomadStructs.Constraint{getConstraint(j.Target)},
@@ -48,20 +47,15 @@ func (j *Job) ToNomadJob(force bool) (*nomadStructs.Job, *nomadApi.Job, error) {
 		}
 	}
 
-	apiJob, err := convertJob(job)
-	if err != nil {
-		return nil, nil, oops.Wrapf(err, "Failed to convert nomad job for api call")
+	if err := job.Validate(); err != nil {
+		return nil, oops.Wrapf(err, "Nomad job validation failed")
 	}
 
-	return job, apiJob, nil
+	return convertJob(job)
 }
 
 // convertJob converts a Nomad Job to a Nomad API Job.
 func convertJob(in *nomadStructs.Job) (*nomadApi.Job, error) {
-	if err := in.Validate(); err != nil {
-		return nil, oops.Wrapf(err, "Nomad job validation failed")
-	}
-
 	gob.Register([]map[string]interface{}{})
 	gob.Register([]interface{}{})
 

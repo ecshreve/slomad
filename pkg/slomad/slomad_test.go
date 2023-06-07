@@ -5,6 +5,7 @@ import (
 
 	"github.com/ecshreve/slomad/pkg/slomad"
 	"github.com/samsarahq/go/snapshotter"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSlomad(t *testing.T) {
@@ -24,9 +25,11 @@ func TestSlomad(t *testing.T) {
 
 	snap.Snapshot("test-job", testJob)
 
-	nj, aj, _ := testJob.ToNomadJob(false)
-	snap.Snapshot("nomad-job", nj)
+	aj, _ := testJob.GetNomadApiJob(false)
 	snap.Snapshot("api-job", aj)
+
+	aj2, _ := testJob.GetNomadApiJob(true)
+	assert.NotEqual(t, aj.Meta["run_uuid"], aj2.Meta["run_uuid"])
 }
 
 func TestSlomadRegistryJob(t *testing.T) {
@@ -50,8 +53,7 @@ func TestSlomadRegistryJob(t *testing.T) {
 
 	snap.Snapshot("grafana-job", GrafanaJob)
 
-	nj, aj, _ := GrafanaJob.ToNomadJob(false)
-	snap.Snapshot("nomad-job", nj)
+	aj, _ := GrafanaJob.GetNomadApiJob(false)
 	snap.Snapshot("api-job", aj)
 
 }

@@ -37,7 +37,7 @@ func main() {
 	}
 
 	for _, srvc := range services {
-		if err := slomad.RunDeploy(srvc, confirm, false, false); err != nil {
+		if err := RunDeploy(srvc, confirm, false, false); err != nil {
 			log.Fatalln(oops.Wrapf(err, "error deploying job"))
 		}
 	}

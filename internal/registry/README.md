@@ -9,7 +9,6 @@ import "github.com/ecshreve/slomad/internal/registry"
 ## Index
 
 - [Variables](<#variables>)
-- [func DeployTraefikJob(confirm bool) error](<#func-deploytraefikjob>)
 - [func getStorageArgs(storage string) []string](<#func-getstorageargs>)
 - [func promConfigHelper(tmpl string) string](<#func-promconfighelper>)
 
@@ -17,9 +16,9 @@ import "github.com/ecshreve/slomad/internal/registry"
 ## Variables
 
 ```go
-var ControllerJob = smd.NewStorageJob(smd.JobParams{
+var ControllerJob = smd.NewJob(smd.JobParams{
     Name:   "storage-controller",
-    Type:   smd.SERVICE,
+    Type:   smd.STORAGE_CONTROLLER,
     Target: smd.WORKER,
     TaskConfigParams: smd.TaskConfigParams{
         Ports: smd.BasicPortConfig(0),
@@ -30,7 +29,7 @@ var ControllerJob = smd.NewStorageJob(smd.JobParams{
 ```
 
 ```go
-var GrafanaJob = smd.NewAppJob(smd.JobParams{
+var GrafanaJob = smd.NewJob(smd.JobParams{
     Name:   "grafana",
     Type:   smd.SERVICE,
     Target: smd.WORKER,
@@ -41,7 +40,6 @@ var GrafanaJob = smd.NewAppJob(smd.JobParams{
         Env:   map[string]string{"GF_SERVER_HTTP_PORT": "${NOMAD_PORT_http}"},
     },
     StorageParams: smd.StorageParams{
-        Storage: utils.StringPtr("grafana"),
         Volumes: []smd.Volume{{Src: "grafana-vol", Dst: "/var/lib/grafana", Mount: true}},
     },
 })
@@ -50,7 +48,7 @@ var GrafanaJob = smd.NewAppJob(smd.JobParams{
 TODO: mount nomad volume and persist data
 
 ```go
-var InfluxDBJob = smd.NewAppJob(smd.JobParams{
+var InfluxDBJob = smd.NewJob(smd.JobParams{
     Name:   "influxdb",
     Type:   smd.SERVICE,
     Target: smd.WORKER,
@@ -67,7 +65,7 @@ var InfluxDBJob = smd.NewAppJob(smd.JobParams{
 ```
 
 ```go
-var LokiJob = smd.NewAppJob(smd.JobParams{
+var LokiJob = smd.NewJob(smd.JobParams{
     Name:   "loki",
     Type:   smd.SERVICE,
     Target: smd.WORKER,
@@ -79,7 +77,7 @@ var LokiJob = smd.NewAppJob(smd.JobParams{
 ```
 
 ```go
-var NodeExporterJob = smd.NewAppJob(smd.JobParams{
+var NodeExporterJob = smd.NewJob(smd.JobParams{
     Name: "node-exporter",
     Type: smd.SYSTEM,
     TaskConfigParams: smd.TaskConfigParams{
@@ -104,9 +102,9 @@ var NodeExporterJob = smd.NewAppJob(smd.JobParams{
 ```
 
 ```go
-var NodeJob = smd.NewStorageJob(smd.JobParams{
+var NodeJob = smd.NewJob(smd.JobParams{
     Name: "storage-node",
-    Type: smd.SYSTEM,
+    Type: smd.STORAGE_NODE,
     TaskConfigParams: smd.TaskConfigParams{
         Ports: smd.BasicPortConfig(0),
         Shape: smd.TINY_TASK,
@@ -118,7 +116,7 @@ var NodeJob = smd.NewStorageJob(smd.JobParams{
 PrometheusJob is a Job for the Prometheus service.
 
 ```go
-var PrometheusJob = smd.NewAppJob(smd.JobParams{
+var PrometheusJob = smd.NewJob(smd.JobParams{
     Name:   "prometheus",
     Type:   smd.SERVICE,
     Target: smd.WORKER,
@@ -128,14 +126,13 @@ var PrometheusJob = smd.NewAppJob(smd.JobParams{
         Templates: map[string]string{"prometheus.yml": promConfigHelper(prometheusConfig)},
     },
     StorageParams: smd.StorageParams{
-        Storage: utils.StringPtr("prometheus"),
         Volumes: []smd.Volume{{Src: "local/config", Dst: "/etc/prometheus"}},
     },
 })
 ```
 
 ```go
-var PromtailJob = smd.NewAppJob(smd.JobParams{
+var PromtailJob = smd.NewJob(smd.JobParams{
     Name: "promtail",
     Type: smd.SYSTEM,
     TaskConfigParams: smd.TaskConfigParams{
@@ -158,7 +155,7 @@ var PromtailJob = smd.NewAppJob(smd.JobParams{
 ```
 
 ```go
-var SpeedtestJob = smd.NewAppJob(smd.JobParams{
+var SpeedtestJob = smd.NewJob(smd.JobParams{
     Name:   "speedtest",
     Type:   smd.SERVICE,
     Target: smd.WORKER,
@@ -298,7 +295,7 @@ var TraefikJob = nomadStructs.Job{
 ```
 
 ```go
-var WhoamiJob = smd.NewAppJob(smd.JobParams{
+var WhoamiJob = smd.NewJob(smd.JobParams{
     Name:   "whoami",
     Type:   smd.SERVICE,
     Target: smd.WORKER,
@@ -317,14 +314,6 @@ var prometheusConfig string
 ```go
 var promtailConfig string
 ```
-
-## func DeployTraefikJob
-
-```go
-func DeployTraefikJob(confirm bool) error
-```
-
-DeployTraefikJob deploys the Traefik job to Nomad.
 
 ## func getStorageArgs
 

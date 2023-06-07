@@ -8,14 +8,48 @@ import "github.com/ecshreve/slomad/cmd/slomad"
 
 ## Index
 
+- [func RunDeploy(j *slomad.Job, confirm, force, verbose bool) error](<#func-rundeploy>)
 - [func main()](<#func-main>)
+- [func newNomadClient() (*nomadApi.Client, error)](<#func-newnomadclient>)
+- [func planApiJob(nomadClient *nomadApi.Client, job *nomadApi.Job) error](<#func-planapijob>)
+- [func submitApiJob(nomadClient *nomadApi.Client, job *nomadApi.Job) error](<#func-submitapijob>)
 
+
+## func RunDeploy
+
+```go
+func RunDeploy(j *slomad.Job, confirm, force, verbose bool) error
+```
+
+RunDeploy runs a deploy for the given job.
 
 ## func main
 
 ```go
 func main()
 ```
+
+## func newNomadClient
+
+```go
+func newNomadClient() (*nomadApi.Client, error)
+```
+
+## func planApiJob
+
+```go
+func planApiJob(nomadClient *nomadApi.Client, job *nomadApi.Job) error
+```
+
+planApiJob creates a nomad api client, and runs a plan for the given job, printing the output diff.
+
+## func submitApiJob
+
+```go
+func submitApiJob(nomadClient *nomadApi.Client, job *nomadApi.Job) error
+```
+
+submitApiJob creates a nomad api client, and submits the job to nomad.
 
 
 
