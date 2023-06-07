@@ -17,7 +17,7 @@ tasks:
 
   go:test:cover:
     cmds:
-      - go test -race -coverprofile=reports/cover.out -covermode=atomic github.com/ecshreve/slomad/...
+      - go test -race -covermode=atomic github.com/ecshreve/slomad/...
   
   go:test:cover:serve:
     deps:

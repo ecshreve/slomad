@@ -13,17 +13,17 @@ import (
 
 // Job is a struct that represents a Nomad Job.
 type Job struct {
-	Name       string
-	Type       JobType
-	Shape      TaskResource
-	Constraint string
-	Image      string
-	Args       []string
-	Ports      []*Port
-	Env        map[string]string
-	User       string
-	Volumes    []Volume
-	Templates  map[string]string
+	Name      string
+	Type      JobType
+	Shape     TaskResource
+	Target    DeployTarget
+	Image     string
+	Args      []string
+	Ports     []*Port
+	Env       map[string]string
+	User      string
+	Volumes   []Volume
+	Templates map[string]string
 }
 
 // ToNomadJob converts a Job to a it's Nomad representations.
@@ -39,7 +39,7 @@ func (j *Job) ToNomadJob(force bool) (*nomadStructs.Job, *nomadApi.Job, error) {
 
 		Type:        j.Type.String(),
 		TaskGroups:  []*nomadStructs.TaskGroup{getGroup(j)},
-		Constraints: []*nomadStructs.Constraint{getConstraint(j)},
+		Constraints: []*nomadStructs.Constraint{getConstraint(j.Target)},
 	}
 
 	// Writing a new uuid to this field ensures Nomad will create a new
@@ -110,33 +110,33 @@ type TaskConfigParams struct {
 // NewAppJob creates a new Job for an application.
 func NewAppJob(params JobParams) *Job {
 	return &Job{
-		Name:       params.Name,
-		Image:      fmt.Sprintf("reg.slab.lan:5000/%s", params.Name),
-		Args:       params.Args,
-		Ports:      params.Ports,
-		Type:       params.Type,
-		Shape:      params.Shape,
-		Constraint: DeployTargetRegex[params.Target],
-		Env:        params.Env,
-		User:       params.User,
-		Volumes:    params.Volumes,
-		Templates:  params.Templates,
+		Name:      params.Name,
+		Image:     fmt.Sprintf("reg.slab.lan:5000/%s", params.Name),
+		Args:      params.Args,
+		Ports:     params.Ports,
+		Type:      params.Type,
+		Target:    params.Target,
+		Shape:     params.Shape,
+		Env:       params.Env,
+		User:      params.User,
+		Volumes:   params.Volumes,
+		Templates: params.Templates,
 	}
 }
 
 // NewStorageJob creates a new Job for a storage controller or node.
 func NewStorageJob(params JobParams) *Job {
 	return &Job{
-		Name:       params.Name,
-		Image:      "reg.slab.lan:5000/csi-nfs-plugin",
-		Args:       params.Args,
-		Ports:      params.Ports,
-		Type:       params.Type,
-		Shape:      params.Shape,
-		Constraint: DeployTargetRegex[params.Target],
-		Env:        params.Env,
-		User:       params.User,
-		Volumes:    params.Volumes,
-		Templates:  params.Templates,
+		Name:      params.Name,
+		Image:     "reg.slab.lan:5000/csi-nfs-plugin",
+		Args:      params.Args,
+		Ports:     params.Ports,
+		Type:      params.Type,
+		Target:    params.Target,
+		Shape:     params.Shape,
+		Env:       params.Env,
+		User:      params.User,
+		Volumes:   params.Volumes,
+		Templates: params.Templates,
 	}
 }

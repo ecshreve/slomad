@@ -15,7 +15,7 @@ func getGroup(j *Job) *nomadStructs.TaskGroup {
 		Count:            1,
 		Tasks:            []*nomadStructs.Task{getTask(j)},
 		RestartPolicy:    nomadStructs.NewRestartPolicy(j.Type.String()),
-		ReschedulePolicy: getReschedulePolicy(j),
+		ReschedulePolicy: getReschedulePolicy(j.Type),
 		EphemeralDisk:    getDisk(),
 		Networks:         getNetworks(j.Ports),
 		Volumes:          getNomadVolumeReq(j.Volumes),
@@ -123,18 +123,18 @@ func getDisk() *nomadStructs.EphemeralDisk {
 	}
 }
 
-// getConstraint returns a nomad constraint for a given job.
-func getConstraint(j *Job) *nomadStructs.Constraint {
+// getConstraint returns a nomad constraint for a given deploy target.
+func getConstraint(dt DeployTarget) *nomadStructs.Constraint {
 	return &nomadStructs.Constraint{
 		LTarget: "${attr.unique.hostname}",
-		RTarget: j.Constraint,
+		RTarget: DeployTargetRegex[dt],
 		Operand: "regexp",
 	}
 }
 
 // getReschedulePolicy returns a nomad reschedule policy for a given job.
-func getReschedulePolicy(j *Job) *nomadStructs.ReschedulePolicy {
-	if j.Type == SERVICE || j.Type == STORAGE_CONTROLLER {
+func getReschedulePolicy(jt JobType) *nomadStructs.ReschedulePolicy {
+	if jt == SERVICE || jt == STORAGE_CONTROLLER {
 		return &nomadStructs.DefaultServiceJobReschedulePolicy
 	}
 	return nil

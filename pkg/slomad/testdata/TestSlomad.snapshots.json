@@ -6,7 +6,6 @@
         "Args": [
           "echo hello"
         ],
-        "Constraint": "^worker-[0-9]+$",
         "Env": null,
         "Image": "reg.slab.lan:5000/test-job",
         "Name": "test-job",
@@ -22,6 +21,7 @@
           "CPU": 512,
           "MEM": 512
         },
+        "Target": 3,
         "Templates": null,
         "Type": 1,
         "User": "",
