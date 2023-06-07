@@ -1,0 +1,59 @@
+[
+  {
+    "Name": "storage-controller",
+    "Values": [
+      null
+    ]
+  },
+  {
+    "Name": "basic",
+    "Values": [
+      {
+        "Address": "",
+        "AddressMode": "",
+        "CanaryMeta": null,
+        "CanaryTags": null,
+        "Checks": [
+          {
+            "AddressMode": "",
+            "Args": null,
+            "Body": "",
+            "CheckRestart": null,
+            "Command": "",
+            "Expose": false,
+            "FailuresBeforeCritical": 0,
+            "GRPCService": "",
+            "GRPCUseTLS": false,
+            "Header": null,
+            "InitialStatus": "passing",
+            "Interval": 10000000000,
+            "Method": "",
+            "Name": "basic -- http = tcp check",
+            "OnUpdate": "",
+            "Path": "",
+            "PortLabel": "",
+            "Protocol": "",
+            "SuccessBeforePassing": 0,
+            "TLSSkipVerify": false,
+            "TaskName": "",
+            "Timeout": 2000000000,
+            "Type": "tcp"
+          }
+        ],
+        "Connect": null,
+        "EnableTagOverride": false,
+        "Meta": null,
+        "Name": "basic",
+        "Namespace": "",
+        "OnUpdate": "",
+        "PortLabel": "http",
+        "Provider": "consul",
+        "TaggedAddresses": null,
+        "Tags": [
+          "traefik.enable=true"
+        ],
+        "TaskName": "basic"
+      }
+    ]
+  }
+]

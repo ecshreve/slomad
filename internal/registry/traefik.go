@@ -152,7 +152,7 @@ func DeployTraefikJob(confirm bool) error {
 
 	if confirm {
 		log.Infof("deploying %s", job.Name)
-		if err = slomad.SubmitApiJob(apiJob); err != nil {
+		if err = slomad.SubmitApiJobSpecial(apiJob); err != nil {
 			return oops.Wrapf(err, "error submitting api job")
 		}
 	} else {

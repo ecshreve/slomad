@@ -5,21 +5,24 @@ import (
 	"os"
 
 	nomadApi "github.com/hashicorp/nomad/api"
-	"github.com/kylelemons/godebug/pretty"
 	"github.com/samsarahq/go/oops"
 	log "github.com/sirupsen/logrus"
 )
 
-// planApiJob creates a nomad api client, and runs a plan
-// for the given job, printing the output diff.
-func planApiJob(job *nomadApi.Job) error {
+func newNomadClient() (*nomadApi.Client, error) {
 	nomadConfig := nomadApi.DefaultConfig()
 	nomadConfig.Address = os.Getenv("NOMAD_TARGET")
 	nomadClient, err := nomadApi.NewClient(nomadConfig)
 	if err != nil {
-		return oops.Wrapf(err, "unable to create nomad api client")
+		return nil, oops.Wrapf(err, "unable to create nomad api client")
 	}
 
+	return nomadClient, nil
+}
+
+// planApiJob creates a nomad api client, and runs a plan
+// for the given job, printing the output diff.
+func planApiJob(nomadClient *nomadApi.Client, job *nomadApi.Job) error {
 	planResp, _, nomadErr := nomadClient.Jobs().Plan(job, true, nil)
 	if nomadErr != nil {
 		log.Errorf("Error planning job: %s", nomadErr)
@@ -31,26 +34,15 @@ func planApiJob(job *nomadApi.Job) error {
 	if desired.Ignore > 0 {
 		logPayload = "IGNORE"
 	}
+
 	log.Infof("Sucessfully planned nomad job %s - %s\n", *job.Name, logPayload)
-	if logPayload != "IGNORE" {
-		pretty.Print(planResp.Diff)
-	}
 	return nil
 }
 
 // submitApiJob creates a nomad api client, and submits the job to nomad.
-//
-// TODO: move client creation to a helper function
-func SubmitApiJob(job *nomadApi.Job) error {
-	nomadConfig := nomadApi.DefaultConfig()
-	nomadConfig.Address = os.Getenv("NOMAD_TARGET")
-	nomadClient, err := nomadApi.NewClient(nomadConfig)
+func submitApiJob(nomadClient *nomadApi.Client, job *nomadApi.Job) error {
+	_, _, err := nomadClient.Jobs().Register(job, nil)
 	if err != nil {
-		return oops.Wrapf(err, "unable to create nomad api client")
-	}
-
-	_, _, nomadErr := nomadClient.Jobs().Register(job, nil)
-	if nomadErr != nil {
 		return oops.Wrapf(err, "error submitting job: %+v", job)
 	}
 
@@ -58,29 +50,40 @@ func SubmitApiJob(job *nomadApi.Job) error {
 	return nil
 }
 
-// Plan creates a new API job and runs a plan on it.
-func (j *Job) Plan(force bool) error {
-	_, aj, err := j.ToNomadJob(force)
+func SubmitApiJobSpecial(job *nomadApi.Job) error {
+	cl, err := newNomadClient()
 	if err != nil {
-		return oops.Wrapf(err, "error creating api job for job: %+v", j)
+		return oops.Wrapf(err, "error creating nomad api client")
 	}
 
-	if err = planApiJob(aj); err != nil {
-		return oops.Wrapf(err, "error planning api job")
+	if err = submitApiJob(cl, job); err != nil {
+		return oops.Wrapf(err, "error submitting api job")
 	}
 
 	return nil
 }
 
-// Deploy creates a new API job and submits it to Nomad.
-func (j *Job) Deploy(force bool) error {
+func RunDeploy(j *Job, confirm, force, verbose bool) error {
+	cl, err := newNomadClient()
+	if err != nil {
+		return oops.Wrapf(err, "error creating nomad api client")
+	}
+
 	_, aj, err := j.ToNomadJob(force)
 	if err != nil {
 		return oops.Wrapf(err, "error creating api job for job: %+v", j)
 	}
 
-	if err = SubmitApiJob(aj); err != nil {
-		return oops.Wrapf(err, "error submitting api job")
+	if err = planApiJob(cl, aj); err != nil {
+		return oops.Wrapf(err, "error planning api job")
+	}
+
+	if confirm {
+		if err = submitApiJob(cl, aj); err != nil {
+			return oops.Wrapf(err, "error submitting api job")
+		}
+	} else {
+		log.Infof("Skipping job submission")
 	}
 
 	return nil

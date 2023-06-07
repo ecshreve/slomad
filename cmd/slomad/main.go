@@ -37,18 +37,8 @@ func main() {
 	}
 
 	for _, srvc := range services {
-		if err := srvc.Plan(false); err != nil {
-			log.Fatalln(oops.Wrapf(err, "error planning api job"))
-		}
-
-		// TODO: move deploy code out of the slomad package
-		if confirm {
-			log.Infof("deploying %s", srvc.Name)
-			if err := srvc.Deploy(false); err != nil {
-				log.Fatalln(oops.Wrapf(err, "error submitting api job"))
-			}
-		} else {
-			log.Debugf("skipping deploy %s", srvc.Name)
+		if err := slomad.RunDeploy(srvc, confirm, false, false); err != nil {
+			log.Fatalln(oops.Wrapf(err, "error deploying job"))
 		}
 	}
 

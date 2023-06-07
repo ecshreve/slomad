@@ -4,8 +4,120 @@ import (
 	"testing"
 
 	nomadStructs "github.com/hashicorp/nomad/nomad/structs"
+	"github.com/samsarahq/go/snapshotter"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestGetService(t *testing.T) {
+	snap := snapshotter.New(t)
+	defer snap.Verify()
+
+	storageSrv := getService("storage-controller", "http")
+	snap.Snapshot("storage-controller", storageSrv)
+
+	basicSrv := getService("basic", "http")
+	snap.Snapshot("basic", basicSrv)
+}
+
+func TestGetTemplates(t *testing.T) {
+	testcases := []struct {
+		desc     string
+		inp      map[string]string
+		expected []*nomadStructs.Template
+	}{
+		{
+			desc:     "empty template",
+			inp:      map[string]string{},
+			expected: nil,
+		},
+		{
+			desc: "basic template",
+			inp: map[string]string{
+				"test": "test",
+			},
+			expected: []*nomadStructs.Template{
+				{
+					EmbeddedTmpl: "test",
+					DestPath:     "local/config/test",
+					ChangeMode:   "signal",
+					ChangeSignal: "SIGHUP",
+				},
+			},
+		},
+	}
+
+	for _, tc := range testcases {
+		t.Run(tc.desc, func(t *testing.T) {
+			assert.Equal(t, tc.expected, getTemplates(tc.inp))
+		})
+	}
+}
+
+func TestGetConfig(t *testing.T) {
+	testcases := []struct {
+		desc     string
+		img      string
+		jt       JobType
+		args     []string
+		ports    []*Port
+		vols     []Volume
+		expected map[string]interface{}
+	}{
+		{
+			desc:  "basic config",
+			img:   "test-image",
+			jt:    SERVICE,
+			args:  []string{"echo hello"},
+			ports: []*Port{{Label: "http", To: 8080, From: 0, Static: false}},
+			vols:  []Volume{{Src: "/tmp", Dst: "/tmp", Mount: false}},
+			expected: map[string]interface{}{
+				"image":   "test-image",
+				"args":    []string{"echo hello"},
+				"ports":   []string{"http"},
+				"volumes": []string{"/tmp:/tmp"},
+			},
+		},
+		{
+			desc:  "storage controller config",
+			img:   "storage-image",
+			jt:    STORAGE_CONTROLLER,
+			args:  []string{"echo hello"},
+			ports: []*Port{{Label: "http", To: 8080, From: 0, Static: false}},
+			vols:  []Volume{{Src: "/tmp", Dst: "/tmp", Mount: false}},
+			expected: map[string]interface{}{
+				"image":        "storage-image",
+				"args":         []string{"echo hello"},
+				"ports":        []string{"http"},
+				"volumes":      []string{"/tmp:/tmp"},
+				"privileged":   true,
+				"network_mode": "host",
+			},
+		},
+		{
+			desc:  "storage node config",
+			img:   "storage-image",
+			jt:    STORAGE_NODE,
+			args:  []string{"echo hello"},
+			ports: []*Port{{Label: "http", To: 8080, From: 0, Static: false}},
+			vols:  []Volume{{Src: "/tmp", Dst: "/tmp", Mount: false}},
+			expected: map[string]interface{}{
+				"image":        "storage-image",
+				"args":         []string{"echo hello"},
+				"ports":        []string{"http"},
+				"volumes":      []string{"/tmp:/tmp"},
+				"privileged":   true,
+				"network_mode": "host",
+			},
+		},
+	}
+
+	for _, tc := range testcases {
+		t.Run(tc.desc, func(t *testing.T) {
+			actual := getConfig(tc.img, tc.jt, tc.args, tc.ports, tc.vols)
+			assert.EqualValues(t, tc.expected, actual)
+		})
+	}
+}
 
 func TestGetDisk(t *testing.T) {
 	expected := &nomadStructs.EphemeralDisk{

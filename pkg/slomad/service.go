@@ -9,7 +9,6 @@ import (
 
 // getGroup returns a nomad task group struct for a given job.
 func getGroup(j *Job) *nomadStructs.TaskGroup {
-
 	return &nomadStructs.TaskGroup{
 		Name:             j.Name,
 		Count:            1,
@@ -27,7 +26,7 @@ func getTask(j *Job) *nomadStructs.Task {
 	return &nomadStructs.Task{
 		Name:            j.Name,
 		Driver:          "docker",
-		Config:          getConfig(j),
+		Config:          getConfig(j.Image, j.Type, j.Args, j.Ports, j.Volumes),
 		Resources:       getResource(j.Shape),
 		Services:        getServices(j.Name, extractLabels(j.Ports)),
 		LogConfig:       nomadStructs.DefaultLogConfig(),
@@ -64,7 +63,7 @@ func getService(taskName string, portLabel string) *nomadStructs.Service {
 }
 
 func getTemplates(templates map[string]string) []*nomadStructs.Template {
-	if templates == nil {
+	if templates == nil || len(templates) == 0 {
 		return nil
 	}
 
@@ -95,20 +94,19 @@ func getServices(taskName string, portLabels []string) []*nomadStructs.Service {
 }
 
 // getConfig returns a nomad config struct for a given job.
-func getConfig(j *Job) map[string]interface{} {
-	portLabels := extractLabels(j.Ports)
+func getConfig(img string, jt JobType, args []string, ports []*Port, vols []Volume) map[string]interface{} {
 	config := map[string]interface{}{
-		"image": j.Image,
-		"args":  j.Args,
-		"ports": portLabels,
+		"image": img,
+		"args":  args,
+		"ports": extractLabels(ports),
 	}
 
-	vols := getVolumeStrings(j.Volumes)
-	if len(vols) > 0 {
-		config["volumes"] = vols
+	volStrings := getVolumeStrings(vols)
+	if len(volStrings) > 0 {
+		config["volumes"] = volStrings
 	}
 
-	if j.Type == STORAGE_CONTROLLER || j.Type == STORAGE_NODE {
+	if jt == STORAGE_CONTROLLER || jt == STORAGE_NODE {
 		config["privileged"] = true
 		config["network_mode"] = "host"
 	}
