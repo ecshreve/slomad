@@ -31,9 +31,6 @@ jobs:
     - name: Build
       run: task go:build
 
-    - name: Test
-      run: task go:test
-
     - name: Test with coverage
       run: task go:test:cover
 
@@ -41,6 +38,5 @@ jobs:
       uses: codecov/codecov-action@v3
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        files: reports/cover.out
         verbose: true
 
