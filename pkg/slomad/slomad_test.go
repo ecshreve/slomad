@@ -11,7 +11,7 @@ func TestSlomad(t *testing.T) {
 	snap := snapshotter.New(t)
 	defer snap.Verify()
 
-	testJob := slomad.NewAppJob(slomad.JobParams{
+	testJob := slomad.NewJob(slomad.JobParams{
 		Name:   "test-job",
 		Type:   slomad.SERVICE,
 		Target: slomad.WORKER,
@@ -33,7 +33,7 @@ func TestSlomadRegistryJob(t *testing.T) {
 	snap := snapshotter.New(t)
 	defer snap.Verify()
 
-	var GrafanaJob = slomad.NewAppJob(slomad.JobParams{
+	var GrafanaJob = slomad.NewJob(slomad.JobParams{
 		Name:   "grafana",
 		Type:   slomad.SERVICE,
 		Target: slomad.WORKER,

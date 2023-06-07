@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 	nomadApi "github.com/hashicorp/nomad/api"
 	nomadStructs "github.com/hashicorp/nomad/nomad/structs"
-	log "github.com/sirupsen/logrus"
+	"github.com/samsarahq/go/oops"
 )
 
 // Job is a struct that represents a Nomad Job.
@@ -48,22 +48,20 @@ func (j *Job) ToNomadJob(force bool) (*nomadStructs.Job, *nomadApi.Job, error) {
 		}
 	}
 
-	if err := job.Validate(); err != nil {
-		log.Errorf("Nomad job validation failed. Error: %s\n", err)
-		return job, nil, err
-	}
-
-	apiJob, err := ConvertJob(job)
+	apiJob, err := convertJob(job)
 	if err != nil {
-		log.Errorf("Failed to convert nomad job in api call. Error: %s\n", err)
-		return job, apiJob, err
+		return nil, nil, oops.Wrapf(err, "Failed to convert nomad job for api call")
 	}
 
 	return job, apiJob, nil
 }
 
 // convertJob converts a Nomad Job to a Nomad API Job.
-func ConvertJob(in *nomadStructs.Job) (*nomadApi.Job, error) {
+func convertJob(in *nomadStructs.Job) (*nomadApi.Job, error) {
+	if err := in.Validate(); err != nil {
+		return nil, oops.Wrapf(err, "Nomad job validation failed")
+	}
+
 	gob.Register([]map[string]interface{}{})
 	gob.Register([]interface{}{})
 
@@ -106,7 +104,7 @@ type TaskConfigParams struct {
 }
 
 // NewAppJob creates a new Job for an application.
-func NewAppJob(params JobParams) *Job {
+func NewJob(params JobParams) *Job {
 	return &Job{
 		Name:      params.Name,
 		Args:      params.Args,

@@ -4,10 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ecshreve/slomad/pkg/slomad"
 	nomadStructs "github.com/hashicorp/nomad/nomad/structs"
-	"github.com/samsarahq/go/oops"
-	log "github.com/sirupsen/logrus"
 )
 
 var TraefikJob = nomadStructs.Job{
@@ -134,30 +131,4 @@ var TraefikJob = nomadStructs.Job{
 			Operand: "regexp",
 		},
 	},
-}
-
-// DeployTraefikJob deploys the Traefik job to Nomad.
-func DeployTraefikJob(confirm bool) error {
-	job := &TraefikJob
-	if err := job.Validate(); err != nil {
-		log.Errorf("Nomad job validation failed. Error: %s\n", err)
-		return err
-	}
-
-	apiJob, err := slomad.ConvertJob(job)
-	if err != nil {
-		log.Errorf("Failed to convert nomad job in api call. Error: %s\n", err)
-		return err
-	}
-
-	if confirm {
-		log.Infof("deploying %s", job.Name)
-		if err = slomad.SubmitApiJobSpecial(apiJob); err != nil {
-			return oops.Wrapf(err, "error submitting api job")
-		}
-	} else {
-		log.Debugf("skipping deploy %s", job.Name)
-	}
-
-	return nil
 }

@@ -7,7 +7,7 @@ import (
 	smd "github.com/ecshreve/slomad/pkg/slomad"
 )
 
-var ControllerJob = smd.NewAppJob(smd.JobParams{
+var ControllerJob = smd.NewJob(smd.JobParams{
 	Name:   "storage-controller",
 	Type:   smd.STORAGE_CONTROLLER,
 	Target: smd.WORKER,
@@ -18,7 +18,7 @@ var ControllerJob = smd.NewAppJob(smd.JobParams{
 	},
 })
 
-var NodeJob = smd.NewAppJob(smd.JobParams{
+var NodeJob = smd.NewJob(smd.JobParams{
 	Name: "storage-node",
 	Type: smd.STORAGE_NODE,
 	TaskConfigParams: smd.TaskConfigParams{

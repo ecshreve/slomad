@@ -16,7 +16,7 @@ func promConfigHelper(tmpl string) string {
 //go:embed config/promtail.yml
 var promtailConfig string
 
-var PromtailJob = smd.NewAppJob(smd.JobParams{
+var PromtailJob = smd.NewJob(smd.JobParams{
 	Name: "promtail",
 	Type: smd.SYSTEM,
 	TaskConfigParams: smd.TaskConfigParams{
@@ -37,7 +37,7 @@ var PromtailJob = smd.NewAppJob(smd.JobParams{
 	},
 })
 
-var NodeExporterJob = smd.NewAppJob(smd.JobParams{
+var NodeExporterJob = smd.NewJob(smd.JobParams{
 	Name: "node-exporter",
 	Type: smd.SYSTEM,
 	TaskConfigParams: smd.TaskConfigParams{
@@ -60,7 +60,7 @@ var NodeExporterJob = smd.NewAppJob(smd.JobParams{
 	},
 })
 
-var GrafanaJob = smd.NewAppJob(smd.JobParams{
+var GrafanaJob = smd.NewJob(smd.JobParams{
 	Name:   "grafana",
 	Type:   smd.SERVICE,
 	Target: smd.WORKER,
@@ -75,7 +75,7 @@ var GrafanaJob = smd.NewAppJob(smd.JobParams{
 	},
 })
 
-var LokiJob = smd.NewAppJob(smd.JobParams{
+var LokiJob = smd.NewJob(smd.JobParams{
 	Name:   "loki",
 	Type:   smd.SERVICE,
 	Target: smd.WORKER,
@@ -89,7 +89,7 @@ var LokiJob = smd.NewAppJob(smd.JobParams{
 var prometheusConfig string
 
 // PrometheusJob is a Job for the Prometheus service.
-var PrometheusJob = smd.NewAppJob(smd.JobParams{
+var PrometheusJob = smd.NewJob(smd.JobParams{
 	Name:   "prometheus",
 	Type:   smd.SERVICE,
 	Target: smd.WORKER,
@@ -103,7 +103,7 @@ var PrometheusJob = smd.NewAppJob(smd.JobParams{
 	},
 })
 
-var SpeedtestJob = smd.NewAppJob(smd.JobParams{
+var SpeedtestJob = smd.NewJob(smd.JobParams{
 	Name:   "speedtest",
 	Type:   smd.SERVICE,
 	Target: smd.WORKER,
@@ -113,7 +113,7 @@ var SpeedtestJob = smd.NewAppJob(smd.JobParams{
 	},
 })
 
-var WhoamiJob = smd.NewAppJob(smd.JobParams{
+var WhoamiJob = smd.NewJob(smd.JobParams{
 	Name:   "whoami",
 	Type:   smd.SERVICE,
 	Target: smd.WORKER,
@@ -125,7 +125,7 @@ var WhoamiJob = smd.NewAppJob(smd.JobParams{
 })
 
 // TODO: mount nomad volume and persist data
-var InfluxDBJob = smd.NewAppJob(smd.JobParams{
+var InfluxDBJob = smd.NewJob(smd.JobParams{
 	Name:   "influxdb",
 	Type:   smd.SERVICE,
 	Target: smd.WORKER,
