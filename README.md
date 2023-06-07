@@ -19,5 +19,8 @@ contains service definitions
 
 contains the slomad package which provides a minimal interface to the nomad api
 
-<!-- gomarkdoc:embed -->
+## devcontainer
+
+pre-built with devcontainer-cli, image based on ubuntu 22.04, includes hashi tools, docker, and
+my dotfile setup all baked in
 

@@ -1,9 +1,5 @@
 {
-	"name": "toolbox",
-	"image": "ecshreve/devbox",
-	"features": {
-		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
-	},
-	"runArgs": ["--hostname", "toolbox"],
-	"remoteUser": "eric"
+	"image": "ecshreve/devcon-base",
+	"name": "slo-box",
+	"runArgs": ["--hostname", "slo-box", "--name", "slo-box"]
 }
