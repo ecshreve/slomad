@@ -37,6 +37,10 @@ jobs:
     - name: Test with coverage
       run: task go:test:cover
 
-    - name: Codecov
-      uses: codecov/codecov-action@v3.1.4
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: reports/cover.out
+        verbose: true
 
