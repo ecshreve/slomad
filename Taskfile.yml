@@ -30,9 +30,18 @@ tasks:
     cmds:
       - go build -o bin/slomad github.com/ecshreve/slomad/cmd/slomad
 
-  go:doc:
+  go:doc:serve:
     cmds:
       - godoc -http=:6060
+
+  go:doc:gen:
+    cmds:
+      - gomarkdoc -u ./...
+    sources:
+      - ./**/*.go
+      - ./**/config/*.yml
+    generates:
+      - ./**/*.md
 
   go:run:
     deps:

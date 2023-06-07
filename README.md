@@ -18,4 +18,5 @@ contains service definitions
 
 contains the slomad package which provides a minimal interface to the nomad api
 
+<!-- gomarkdoc:embed -->
 

@@ -1,3 +1,4 @@
+// package utils provides general utility functions.
 package utils
 
 // StringPtr returns a pointer to the given string.
