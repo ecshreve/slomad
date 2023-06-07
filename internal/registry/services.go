@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	smd "github.com/ecshreve/slomad/pkg/slomad"
-	"github.com/ecshreve/slomad/pkg/utils"
 )
 
 func promConfigHelper(tmpl string) string {
@@ -72,7 +71,6 @@ var GrafanaJob = smd.NewAppJob(smd.JobParams{
 		Env:   map[string]string{"GF_SERVER_HTTP_PORT": "${NOMAD_PORT_http}"},
 	},
 	StorageParams: smd.StorageParams{
-		Storage: utils.StringPtr("grafana"),
 		Volumes: []smd.Volume{{Src: "grafana-vol", Dst: "/var/lib/grafana", Mount: true}},
 	},
 })
@@ -101,7 +99,6 @@ var PrometheusJob = smd.NewAppJob(smd.JobParams{
 		Templates: map[string]string{"prometheus.yml": promConfigHelper(prometheusConfig)},
 	},
 	StorageParams: smd.StorageParams{
-		Storage: utils.StringPtr("prometheus"),
 		Volumes: []smd.Volume{{Src: "local/config", Dst: "/etc/prometheus"}},
 	},
 })
@@ -140,26 +137,5 @@ var InfluxDBJob = smd.NewAppJob(smd.JobParams{
 		Volumes: []smd.Volume{
 			{Src: "influx_data", Dst: "/var/lib/influxdb"},
 		},
-	},
-})
-
-var ControllerJob = smd.NewStorageJob(smd.JobParams{
-	Name:   "storage-controller",
-	Type:   smd.SERVICE,
-	Target: smd.WORKER,
-	TaskConfigParams: smd.TaskConfigParams{
-		Ports: smd.BasicPortConfig(0),
-		Shape: smd.DEFAULT_TASK,
-		Args:  getStorageArgs("controller"),
-	},
-})
-
-var NodeJob = smd.NewStorageJob(smd.JobParams{
-	Name: "storage-node",
-	Type: smd.SYSTEM,
-	TaskConfigParams: smd.TaskConfigParams{
-		Ports: smd.BasicPortConfig(0),
-		Shape: smd.TINY_TASK,
-		Args:  getStorageArgs("node"),
 	},
 })

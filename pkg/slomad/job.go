@@ -4,9 +4,7 @@ import (
 	"bytes"
 	"encoding/gob"
 	"fmt"
-	"strings"
 
-	"github.com/ecshreve/slomad/pkg/utils"
 	"github.com/google/uuid"
 	nomadApi "github.com/hashicorp/nomad/api"
 	nomadStructs "github.com/hashicorp/nomad/nomad/structs"
@@ -24,7 +22,6 @@ type Job struct {
 	Ports      []*Port
 	Env        map[string]string
 	User       string
-	Storage    string
 	Volumes    []Volume
 	Templates  map[string]string
 }
@@ -96,7 +93,6 @@ type JobParams struct {
 // StorageParams is a struct that represents the parameters for creating a
 // storage associated with a Job.
 type StorageParams struct {
-	Storage *string
 	Volumes []Volume
 }
 
@@ -124,7 +120,6 @@ func NewAppJob(params JobParams) *Job {
 		Env:        params.Env,
 		User:       params.User,
 		Volumes:    params.Volumes,
-		Storage:    utils.StringValOr(params.Storage, ""),
 		Templates:  params.Templates,
 	}
 }
@@ -142,7 +137,6 @@ func NewStorageJob(params JobParams) *Job {
 		Env:        params.Env,
 		User:       params.User,
 		Volumes:    params.Volumes,
-		Storage:    strings.Split(params.Name, "-")[1],
 		Templates:  params.Templates,
 	}
 }

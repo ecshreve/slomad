@@ -22,7 +22,6 @@
           "CPU": 512,
           "MEM": 512
         },
-        "Storage": "",
         "Templates": null,
         "Type": 1,
         "User": "",
@@ -223,7 +222,7 @@
               }
             ],
             "Update": null,
-            "Volumes": null
+            "Volumes": {}
           }
         ],
         "Type": "service",
@@ -438,7 +437,7 @@
               }
             ],
             "Update": null,
-            "Volumes": null
+            "Volumes": {}
           }
         ],
         "Type": "service",

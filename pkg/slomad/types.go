@@ -30,9 +30,11 @@ const (
 	SERVICE
 	SYSTEM
 	BATCH
+	STORAGE_CONTROLLER
+	STORAGE_NODE
 )
 
 // String implements the Stringer interface for JobType.
 func (jt JobType) String() string {
-	return [...]string{"UNKNOWN", "service", "system", "batch"}[jt]
+	return [...]string{"UNKNOWN", "service", "system", "batch", "service", "system"}[jt]
 }

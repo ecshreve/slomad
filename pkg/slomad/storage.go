@@ -3,6 +3,7 @@ package slomad
 import (
 	"fmt"
 	"sort"
+	"strings"
 
 	nomadStructs "github.com/hashicorp/nomad/nomad/structs"
 )
@@ -30,27 +31,6 @@ func getMounts(vols []Volume) []*nomadStructs.VolumeMount {
 	return volMounts
 }
 
-// getNomadVolumes converts a list of Volumes to a list of Nomad Volumes.
-func getNomadVolumes(storage string) map[string]*nomadStructs.VolumeRequest {
-	if storage == "" || storage == "controller" || storage == "node" {
-		return nil
-	}
-
-	csiVols := map[string]*nomadStructs.VolumeRequest{}
-	volName := fmt.Sprintf("%s-vol", storage)
-	csiVols[volName] = &nomadStructs.VolumeRequest{
-		Name:   volName,
-		Source: volName,
-
-		Type:           "csi",
-		ReadOnly:       false,
-		AccessMode:     "single-node-writer",
-		AttachmentMode: "file-system",
-	}
-
-	return csiVols
-}
-
 // getVolumeString converts a list of Volumes to a list of Volume strings.
 // These are meant to be passed to the docker driver.
 func getVolumeStrings(vols []Volume) []string {
@@ -67,15 +47,41 @@ func getVolumeStrings(vols []Volume) []string {
 	return volStrings
 }
 
+// getNomadVolumeReq converts a slice of Volumes to map of nomad VolumeRequest.
+//
+// TODO: validation
+func getNomadVolumeReq(vols []Volume) map[string]*nomadStructs.VolumeRequest {
+	csiVols := map[string]*nomadStructs.VolumeRequest{}
+	for _, v := range vols {
+		if !v.Mount {
+			continue
+		}
+
+		volName := v.Src
+		csiVols[volName] = &nomadStructs.VolumeRequest{
+			Name:   volName,
+			Source: volName,
+
+			Type:           "csi",
+			ReadOnly:       false,
+			AccessMode:     "single-node-writer",
+			AttachmentMode: "file-system",
+		}
+	}
+
+	return csiVols
+}
+
 // getCSIPluginConfig returns a CSIPluginConfig for a given job.
 func getCSIPluginConfig(j *Job) *nomadStructs.TaskCSIPluginConfig {
-	if j.Storage != "controller" && j.Storage != "node" {
+	if j.Type != STORAGE_CONTROLLER && j.Type != STORAGE_NODE {
 		return nil
 	}
 
+	storageType := strings.Split(j.Name, "-")[1]
 	return &nomadStructs.TaskCSIPluginConfig{
 		ID:       "nfs",
 		MountDir: "/csi",
-		Type:     nomadStructs.CSIPluginType(j.Storage),
+		Type:     nomadStructs.CSIPluginType(storageType),
 	}
 }

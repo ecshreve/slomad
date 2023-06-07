@@ -9,6 +9,7 @@ import (
 
 // getGroup returns a nomad task group struct for a given job.
 func getGroup(j *Job) *nomadStructs.TaskGroup {
+
 	return &nomadStructs.TaskGroup{
 		Name:             j.Name,
 		Count:            1,
@@ -17,7 +18,7 @@ func getGroup(j *Job) *nomadStructs.TaskGroup {
 		ReschedulePolicy: getReschedulePolicy(j),
 		EphemeralDisk:    getDisk(),
 		Networks:         getNetworks(j.Ports),
-		Volumes:          getNomadVolumes(j.Storage),
+		Volumes:          getNomadVolumeReq(j.Volumes),
 	}
 }
 
@@ -107,7 +108,7 @@ func getConfig(j *Job) map[string]interface{} {
 		config["volumes"] = vols
 	}
 
-	if j.Storage == "controller" || j.Storage == "node" {
+	if j.Type == STORAGE_CONTROLLER || j.Type == STORAGE_NODE {
 		config["privileged"] = true
 		config["network_mode"] = "host"
 	}
@@ -133,7 +134,7 @@ func getConstraint(j *Job) *nomadStructs.Constraint {
 
 // getReschedulePolicy returns a nomad reschedule policy for a given job.
 func getReschedulePolicy(j *Job) *nomadStructs.ReschedulePolicy {
-	if j.Type == SERVICE {
+	if j.Type == SERVICE || j.Type == STORAGE_CONTROLLER {
 		return &nomadStructs.DefaultServiceJobReschedulePolicy
 	}
 	return nil

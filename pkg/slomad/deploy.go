@@ -5,6 +5,7 @@ import (
 	"os"
 
 	nomadApi "github.com/hashicorp/nomad/api"
+	"github.com/kylelemons/godebug/pretty"
 	"github.com/samsarahq/go/oops"
 	log "github.com/sirupsen/logrus"
 )
@@ -31,6 +32,9 @@ func planApiJob(job *nomadApi.Job) error {
 		logPayload = "IGNORE"
 	}
 	log.Infof("Sucessfully planned nomad job %s - %s\n", *job.Name, logPayload)
+	if logPayload != "IGNORE" {
+		pretty.Print(planResp.Diff)
+	}
 	return nil
 }
 
