@@ -1,13 +1,16 @@
 package registry
 
 import (
+	"bytes"
+	"encoding/gob"
 	"fmt"
 	"time"
 
+	nomadApi "github.com/hashicorp/nomad/api"
 	nomadStructs "github.com/hashicorp/nomad/nomad/structs"
 )
 
-var TraefikJob = nomadStructs.Job{
+var traefikJob = nomadStructs.Job{
 	ID:          "traefik",
 	Name:        "traefik",
 	Region:      "global",
@@ -51,14 +54,17 @@ var TraefikJob = nomadStructs.Job{
 							"--api=true",
 							"--api.dashboard=true",
 							"--api.insecure=true",
+							"--metrics=true",
+							"--metrics.prometheus=true",
+							"--metrics.prometheus.addEntryPointsLabels=true",
 							"--ping=true",
 							"--ping.entryPoint=admin",
 							"--providers.consulcatalog=true",
-							"--providers.consulcatalog.endpoint.address=10.35.220.50:8500",
+							"--providers.consulcatalog.endpoint.address=127.0.0.1:8500",
 							"--providers.consulcatalog.prefix=traefik",
 							"--providers.consulcatalog.refreshInterval=30s",
 							"--providers.consulcatalog.exposedByDefault=false",
-							"--providers.consulcatalog.defaultrule=Host(`{{ .Name }}.slabstaging.lan`)",
+							"--providers.consulcatalog.defaultrule=Host(`{{ .Name }}.slab.lan`)",
 							"--providers.consulcatalog.endpoint.tls.insecureskipverify=true",
 						},
 					},
@@ -73,7 +79,7 @@ var TraefikJob = nomadStructs.Job{
 							PortLabel: "websecure",
 							Tags: []string{
 								"traefik.enable=true",
-								"traefik.http.routers.api.rule=Host(`traefik.slabstaging.lan`)",
+								"traefik.http.routers.api.rule=Host(`traefik.slab.lan`)",
 								"traefik.http.routers.api.service=api@internal",
 							},
 							TaskName: "traefik",
@@ -131,4 +137,28 @@ var TraefikJob = nomadStructs.Job{
 			Operand: "regexp",
 		},
 	},
+}
+
+// convertJob converts a Nomad Job to a Nomad API Job.
+func convertJob(in *nomadStructs.Job) (*nomadApi.Job, error) {
+	gob.Register([]map[string]interface{}{})
+	gob.Register([]interface{}{})
+
+	var apiJob *nomadApi.Job
+	buf := new(bytes.Buffer)
+	if err := gob.NewEncoder(buf).Encode(in); err != nil {
+		return nil, err
+	}
+	if err := gob.NewDecoder(buf).Decode(&apiJob); err != nil {
+		return nil, err
+	}
+
+	return apiJob, nil
+}
+
+func GetTraefikJob() (*nomadApi.Job, error) {
+	if err := traefikJob.Validate(); err != nil {
+		return nil, err
+	}
+	return convertJob(&traefikJob)
 }

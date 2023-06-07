@@ -10,6 +10,21 @@ import (
 )
 
 func main() {
+	args := os.Args[1:]
+	confirm := false
+	if len(args) > 0 {
+		switch args[0] {
+		case "confirm":
+			confirm = true
+
+		default:
+			log.Warnf("unknown arg: %s", args[0])
+		}
+	}
+
+	if err := RunTraefikDeploy(confirm); err != nil {
+		log.Fatalln(oops.Wrapf(err, "error deploying traefik job"))
+	}
 
 	services := []slomad.Job{
 		registry.LokiJob,
@@ -22,18 +37,6 @@ func main() {
 		registry.ControllerJob,
 		registry.NodeJob,
 		registry.InfluxDBJob,
-	}
-
-	args := os.Args[1:]
-	confirm := false
-	if len(args) > 0 {
-		switch args[0] {
-		case "confirm":
-			confirm = true
-
-		default:
-			log.Warnf("unknown arg: %s", args[0])
-		}
 	}
 
 	for _, srvc := range services {

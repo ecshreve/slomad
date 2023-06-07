@@ -40,7 +40,7 @@ func getTask(j *Job) *nomadStructs.Task {
 
 // getService returns a nomad service struct for a given task.
 func getService(taskName string, portLabel string) *nomadStructs.Service {
-	if taskName == "storage-controller" {
+	if taskName == "storage-controller" || taskName == "storage-node" {
 		return nil
 	}
 
