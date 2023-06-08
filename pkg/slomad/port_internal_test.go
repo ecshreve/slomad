@@ -118,6 +118,6 @@ func TestGetNetworks(t *testing.T) {
 		{Label: "ssh", To: 22, From: 22, Static: true},
 	}
 
-	actual := getNetworks(ports)
+	actual := getNetworks(ports, "")
 	snap.Snapshot("networks", actual)
 }

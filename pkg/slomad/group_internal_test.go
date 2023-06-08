@@ -12,7 +12,7 @@ func TestGetDisk(t *testing.T) {
 		SizeMB: 500,
 	}
 
-	actual := getDisk()
+	actual := getDisk(500)
 	assert.Equal(t, expected, actual)
 }
 

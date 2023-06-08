@@ -43,3 +43,17 @@ func getServices(taskName string, portLabels []string) []*nomadStructs.Service {
 	}
 	return services
 }
+
+func getServiceWithTags(taskName, portLabel string, tags []string) *nomadStructs.Service {
+	srvc := getService(taskName, portLabel)
+
+	srvc.Tags = tags
+	return srvc
+}
+
+func getGroupService(name, portLabel string) *nomadStructs.Service {
+	srvc := getService(name, portLabel)
+	srvc.Tags = nil
+	srvc.TaskName = ""
+	return srvc
+}

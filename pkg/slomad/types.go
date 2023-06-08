@@ -11,6 +11,7 @@ const (
 	CODERBOX
 	DEVBOX
 	PLEXBOX
+	WORKER_0
 )
 
 // DeployTargetRegex is a map of DeployTarget to a regex string that matches
@@ -22,6 +23,7 @@ var DeployTargetRegex = map[DeployTarget]string{
 	CODERBOX: "^coderbox$",
 	DEVBOX:   "^devbox$",
 	PLEXBOX:  "^plexbox$",
+	WORKER_0: "^worker-0$",
 }
 
 // JobType is an enum that represents the type of a job.

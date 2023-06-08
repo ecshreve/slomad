@@ -24,22 +24,36 @@ func main() {
 		}
 	}
 
-	if err := RunTraefikDeploy(confirm); err != nil {
-		log.Fatalln(oops.Wrapf(err, "error deploying traefik job"))
-	}
+	// tt := slomad.NewTTJob()
+	// ttApi, _ := tt.GetNomadApiJob(false)
+	// exp, _ := registry.GetTraefikJob()
+
+	// diffs := pretty.Diff(ttApi, exp)
+	// for _, d := range diffs {
+	// 	fmt.Println(d)
+	// }
+
+	// if err := RunDeploy(tt, true, false, false); err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// if err := RunTraefikDeploy(confirm); err != nil {
+	// 	log.Fatalln(oops.Wrapf(err, "error deploying traefik job"))
+	// }
 
 	services := []slomad.Job{
-		registry.LokiJob,
-		registry.WhoamiJob,
-		registry.SpeedtestJob,
-		registry.GrafanaJob,
-		registry.PrometheusJob,
-		registry.NodeExporterJob,
-		registry.PromtailJob,
-		registry.ControllerJob,
-		registry.NodeJob,
-		registry.InfluxDBJob,
-		registry.PlexJob,
+		// registry.LokiJob,
+		// registry.WhoamiJob,
+		// registry.SpeedtestJob,
+		// registry.GrafanaJob,
+		// registry.PrometheusJob,
+		// registry.NodeExporterJob,
+		// registry.PromtailJob,
+		// registry.ControllerJob,
+		// registry.NodeJob,
+		// registry.InfluxDBJob,
+		// registry.PlexJob,
+		registry.TraefikJob,
 	}
 
 	for _, srvc := range services {
@@ -47,24 +61,4 @@ func main() {
 			log.Fatalln(oops.Wrapf(err, "error deploying job"))
 		}
 	}
-
-	// if err := registry.DeployTraefikJob(confirm); err != nil {
-	// 	log.Panic(err)
-	// }
-
-	// 	for _, x := range services {
-	// 		if err := registry.CreateVolume(x.Name); err != nil {
-	// 			log.Panic(err)
-	// 		}
-
-	// 		if err := x.Plan(false); err != nil {
-	// 			log.Panic(err)
-	// 		}
-
-	//		if err := x.Deploy(false); err != nil {
-	//			log.Panic(err)
-	//		}
-	//	}
-	//
-	// log.Info("done!")
 }

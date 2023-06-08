@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ecshreve/slomad/internal/registry"
 	"github.com/ecshreve/slomad/pkg/slomad"
 	nomadApi "github.com/hashicorp/nomad/api"
 	"github.com/kylelemons/godebug/pretty"
@@ -37,32 +36,6 @@ func RunDeploy(j *slomad.Job, confirm, force, verbose bool) error {
 	if confirm {
 		if err = submitApiJob(cl, aj); err != nil {
 			return oops.Wrapf(err, "error submitting api job")
-		}
-	}
-
-	return nil
-}
-
-// RunTraefikDeploy runs a deploy for the traefik job.
-func RunTraefikDeploy(confirm bool) error {
-	cl, err := newNomadClient()
-	if err != nil {
-		return oops.Wrapf(err, "error creating nomad api client")
-	}
-
-	aj, err := registry.GetTraefikJob()
-	if err != nil {
-		return oops.Wrapf(err, "error getting traefik job")
-	}
-
-	_, err = planApiJob(cl, aj, false)
-	if err != nil {
-		return oops.Wrapf(err, "error planning api job")
-	}
-
-	if confirm {
-		if err = submitApiJob(cl, aj); err != nil {
-			return oops.Wrapf(err, "error submitting traefik job")
 		}
 	}
 

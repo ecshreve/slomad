@@ -8,12 +8,25 @@ import (
 
 // getTask returns a nomad task struct for a given job.
 func getTask(j *Job) *nomadStructs.Task {
+	labels := extractLabels(j.Ports)
+	srvcs := getServices(j.Name, labels)
+
+	if j.Name == "traefik" {
+		tags := []string{
+			"traefik.enable=true",
+			"traefik.http.routers.api.rule=Host(`traefik.slab.lan`)",
+			"traefik.http.routers.api.service=api@internal",
+		}
+		srvc := getServiceWithTags(j.Name, "websecure", tags)
+		srvcs = []*nomadStructs.Service{srvc}
+	}
+
 	return &nomadStructs.Task{
 		Name:            j.Name,
 		Driver:          "docker",
 		Config:          getConfig(j.Name, j.Type, j.Args, j.Ports, j.Volumes),
 		Resources:       getResource(j.Shape),
-		Services:        getServices(j.Name, extractLabels(j.Ports)),
+		Services:        srvcs,
 		LogConfig:       nomadStructs.DefaultLogConfig(),
 		Env:             j.Env,
 		User:            j.User,
@@ -72,5 +85,9 @@ func getConfig(name string, jt JobType, args []string, ports []*Port, vols []Vol
 		config["network_mode"] = "host"
 	}
 
+	if name == "traefik" {
+		config["network_mode"] = "host"
+		delete(config, "ports")
+	}
 	return config
 }
