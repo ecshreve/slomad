@@ -12,16 +12,17 @@ var ControllerJob = smd.Job{
 	Type:   smd.STORAGE_CONTROLLER,
 	Target: smd.WORKER,
 	Ports:  smd.BasicPortConfig(0),
-	Shape:  smd.DEFAULT_TASK,
+	Shape:  smd.TINY_TASK,
 	Args:   getStorageArgs("controller"),
 }
 
 var NodeJob = smd.Job{
-	Name:  "storage-node",
-	Type:  smd.STORAGE_NODE,
-	Ports: smd.BasicPortConfig(0),
-	Shape: smd.TINY_TASK,
-	Args:  getStorageArgs("node"),
+	Name:   "storage-node",
+	Type:   smd.STORAGE_NODE,
+	Target: smd.ALL,
+	Ports:  smd.BasicPortConfig(0),
+	Shape:  smd.TINY_TASK,
+	Args:   getStorageArgs("node"),
 }
 
 // getStorageArgs returns the common args for the storage controller and node.

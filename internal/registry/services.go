@@ -20,7 +20,7 @@ var PromtailJob = smd.Job{
 	Name:  "promtail",
 	Type:  smd.SYSTEM,
 	Ports: smd.BasicPortConfig(3200),
-	Shape: smd.TINY_TASK,
+	Shape: smd.XTINY_TASK,
 	Env:   map[string]string{"HOSTNAME": "${attr.unique.hostname}"},
 	Args: []string{
 		"-config.file=/local/config/promtail.yml",
@@ -37,7 +37,7 @@ var NodeExporterJob = smd.Job{
 	Name:  "node-exporter",
 	Type:  smd.SYSTEM,
 	Ports: smd.BasicPortConfig(9100),
-	Shape: smd.TINY_TASK,
+	Shape: smd.XTINY_TASK,
 	Args: []string{
 		"--web.listen-address=:${NOMAD_PORT_http}",
 		"--path.procfs=/host/proc",
@@ -90,14 +90,14 @@ var SpeedtestJob = smd.Job{
 	Type:   smd.SERVICE,
 	Target: smd.WORKER,
 	Ports:  smd.BasicPortConfig(80),
-	Shape:  smd.TINY_TASK,
+	Shape:  smd.XTINY_TASK,
 }
 
 var WhoamiJob = smd.Job{
 	Name:   "whoami",
 	Type:   smd.SERVICE,
 	Target: smd.WORKER,
-	Shape:  smd.TINY_TASK,
+	Shape:  smd.XXTINY_TASK,
 	Args:   []string{"--port", "${NOMAD_PORT_http}"},
 	Ports:  smd.BasicPortConfig(80),
 }
@@ -117,7 +117,7 @@ var PlexJob = smd.Job{
 	Type:   smd.SERVICE,
 	Target: smd.PLEXBOX,
 	Ports:  []*smd.Port{{Label: "http", To: 32400, From: 32400, Static: true}},
-	Shape:  smd.LARGE_TASK,
+	Shape:  smd.PLEX_TASK,
 	User:   "root",
 	Env: map[string]string{
 		"TZ":           "America/Los_Angeles",

@@ -7,6 +7,7 @@ import (
 	"github.com/ecshreve/slomad/internal/registry"
 	"github.com/ecshreve/slomad/pkg/slomad"
 	nomadApi "github.com/hashicorp/nomad/api"
+	"github.com/kylelemons/godebug/pretty"
 	"github.com/samsarahq/go/oops"
 	log "github.com/sirupsen/logrus"
 )
@@ -23,8 +24,14 @@ func RunDeploy(j *slomad.Job, confirm, force, verbose bool) error {
 		return oops.Wrapf(err, "error creating nomad api client")
 	}
 
-	if err = planApiJob(cl, aj); err != nil {
+	ignore, err := planApiJob(cl, aj, verbose)
+	if err != nil {
 		return oops.Wrapf(err, "error planning api job")
+	}
+
+	if ignore {
+		log.Infof("skipping submit for job: %s", *aj.Name)
+		return nil
 	}
 
 	if confirm {
@@ -36,6 +43,7 @@ func RunDeploy(j *slomad.Job, confirm, force, verbose bool) error {
 	return nil
 }
 
+// RunTraefikDeploy runs a deploy for the traefik job.
 func RunTraefikDeploy(confirm bool) error {
 	cl, err := newNomadClient()
 	if err != nil {
@@ -47,7 +55,8 @@ func RunTraefikDeploy(confirm bool) error {
 		return oops.Wrapf(err, "error getting traefik job")
 	}
 
-	if err = planApiJob(cl, aj); err != nil {
+	_, err = planApiJob(cl, aj, false)
+	if err != nil {
 		return oops.Wrapf(err, "error planning api job")
 	}
 
@@ -60,6 +69,7 @@ func RunTraefikDeploy(confirm bool) error {
 	return nil
 }
 
+// newNomadClient returns a default nomad api client.
 func newNomadClient() (*nomadApi.Client, error) {
 	nomadConfig := nomadApi.DefaultConfig()
 	nomadConfig.Address = os.Getenv("NOMAD_TARGET")
@@ -71,32 +81,36 @@ func newNomadClient() (*nomadApi.Client, error) {
 	return nomadClient, nil
 }
 
-// planApiJob creates a nomad api client, and runs a plan
-// for the given job, printing the output diff.
-func planApiJob(nomadClient *nomadApi.Client, job *nomadApi.Job) error {
+// planApiJob runs a plan for the given job, and returns whether or not the job
+// can be ignored, and any errors encountered.
+func planApiJob(nomadClient *nomadApi.Client, job *nomadApi.Job, diff bool) (bool, error) {
 	planResp, _, nomadErr := nomadClient.Jobs().Plan(job, true, nil)
 	if nomadErr != nil {
 		log.Errorf("Error planning job: %s", nomadErr)
-		return fmt.Errorf(fmt.Sprintf("Error planning job: %s", nomadErr))
+		return false, fmt.Errorf(fmt.Sprintf("Error planning job: %s", nomadErr))
 	}
 
 	desired := planResp.Annotations.DesiredTGUpdates[*job.Name]
 	logPayload := fmt.Sprintf("%+v", desired)
 	if desired.Ignore > 0 {
 		logPayload = "IGNORE"
+	} else if diff {
+		log.Infof("Plan diff for nomad job %s:\n", *job.Name)
+		pretty.Print(planResp.Diff)
 	}
 
-	log.Infof("Sucessfully planned nomad job %s - %s\n", *job.Name, logPayload)
-	return nil
+	log.Infof("Successfully planned nomad job %s - %s\n", *job.Name, logPayload)
+
+	return desired.Ignore > 0, nil
 }
 
-// submitApiJob creates a nomad api client, and submits the job to nomad.
+// submitApiJob submits the given job to the nomad cluster.
 func submitApiJob(nomadClient *nomadApi.Client, job *nomadApi.Job) error {
 	_, _, err := nomadClient.Jobs().Register(job, nil)
 	if err != nil {
 		return oops.Wrapf(err, "error submitting job: %+v", job)
 	}
 
-	log.Infof("Sucessfully submitted nomad job %s\n", *job.Name)
+	log.Infof("Successfully submitted nomad job %s\n", *job.Name)
 	return nil
 }

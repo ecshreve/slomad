@@ -12,11 +12,13 @@ import (
 func main() {
 	args := os.Args[1:]
 	confirm := false
+	diff := false
 	if len(args) > 0 {
 		switch args[0] {
 		case "confirm":
 			confirm = true
-
+		case "diff":
+			diff = true
 		default:
 			log.Warnf("unknown arg: %s", args[0])
 		}
@@ -41,7 +43,7 @@ func main() {
 	}
 
 	for _, srvc := range services {
-		if err := RunDeploy(&srvc, confirm, false, false); err != nil {
+		if err := RunDeploy(&srvc, confirm, false, diff); err != nil {
 			log.Fatalln(oops.Wrapf(err, "error deploying job"))
 		}
 	}
