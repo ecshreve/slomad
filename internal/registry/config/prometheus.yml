@@ -30,6 +30,11 @@ scrape_configs:
         target_label: __meta_consul_service_address
         replacement: $1
         action: replace
+      - source_labels: [__meta_consul_node]
+        regex: (.*)
+        target_label: node
+        replacement: $1
+        action: replace
     scrape_interval: 5s
     metrics_path: /v1/metrics
     params:
