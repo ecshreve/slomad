@@ -7,11 +7,13 @@ import (
 type ResourceValue int
 
 const (
-	TINY    ResourceValue = 128
-	SMALL   ResourceValue = 256
-	DEFAULT ResourceValue = 512
-	LARGE   ResourceValue = 1024
-	XLARGE  ResourceValue = 2048
+	TINY     ResourceValue = 128
+	SMALL    ResourceValue = 256
+	DEFAULT  ResourceValue = 512
+	LARGE    ResourceValue = 1024
+	XLARGE   ResourceValue = 2048
+	XXLARGE  ResourceValue = 4096
+	XXXLARGE ResourceValue = 8192
 )
 
 // TaskResource is a struct that represents the CPU and MEM resources for a task.
@@ -28,6 +30,7 @@ var (
 	XLARGE_TASK  = TaskResource{CPU: XLARGE, MEM: XLARGE}
 	MEM_TASK     = TaskResource{CPU: SMALL, MEM: LARGE}
 	COMPUTE_TASK = TaskResource{CPU: LARGE, MEM: SMALL}
+	PLEX_TASK    = TaskResource{CPU: LARGE, MEM: XXLARGE}
 )
 
 // TODO: remove this function?

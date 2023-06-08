@@ -37,6 +37,7 @@ func main() {
 		registry.ControllerJob,
 		registry.NodeJob,
 		registry.InfluxDBJob,
+		registry.PlexJob,
 	}
 
 	for _, srvc := range services {

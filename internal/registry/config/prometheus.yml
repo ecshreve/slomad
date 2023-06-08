@@ -10,6 +10,10 @@ scrape_configs:
     static_configs:
       - targets: ["localhost:9090"]
 
+  - job_name: "docker-coderbox"
+    static_configs:
+      - targets: ["10.35.220.99:9323"]
+
   - job_name: "nomad-metrics"
     consul_sd_configs:
       - server: <CONSUL_TARGET>
