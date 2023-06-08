@@ -9,8 +9,6 @@ import "github.com/ecshreve/slomad/internal/registry"
 ## Index
 
 - [Variables](<#variables>)
-- [func GetTraefikJob() (*nomadApi.Job, error)](<#func-gettraefikjob>)
-- [func convertJob(in *nomadStructs.Job) (*nomadApi.Job, error)](<#func-convertjob>)
 - [func getStorageArgs(storage string) []string](<#func-getstorageargs>)
 - [func promConfigHelper(tmpl string) string](<#func-promconfighelper>)
 
@@ -23,7 +21,7 @@ var ControllerJob = smd.Job{
     Type:   smd.STORAGE_CONTROLLER,
     Target: smd.WORKER,
     Ports:  smd.BasicPortConfig(0),
-    Shape:  smd.DEFAULT_TASK,
+    Shape:  smd.TINY_TASK,
     Args:   getStorageArgs("controller"),
 }
 ```
@@ -69,7 +67,7 @@ var NodeExporterJob = smd.Job{
     Name:  "node-exporter",
     Type:  smd.SYSTEM,
     Ports: smd.BasicPortConfig(9100),
-    Shape: smd.TINY_TASK,
+    Shape: smd.XTINY_TASK,
     Args: []string{
         "--web.listen-address=:${NOMAD_PORT_http}",
         "--path.procfs=/host/proc",
@@ -87,11 +85,12 @@ var NodeExporterJob = smd.Job{
 
 ```go
 var NodeJob = smd.Job{
-    Name:  "storage-node",
-    Type:  smd.STORAGE_NODE,
-    Ports: smd.BasicPortConfig(0),
-    Shape: smd.TINY_TASK,
-    Args:  getStorageArgs("node"),
+    Name:   "storage-node",
+    Type:   smd.STORAGE_NODE,
+    Target: smd.ALL,
+    Ports:  smd.BasicPortConfig(0),
+    Shape:  smd.TINY_TASK,
+    Args:   getStorageArgs("node"),
 }
 ```
 
@@ -101,7 +100,7 @@ var PlexJob = smd.Job{
     Type:   smd.SERVICE,
     Target: smd.PLEXBOX,
     Ports:  []*smd.Port{{Label: "http", To: 32400, From: 32400, Static: true}},
-    Shape:  smd.LARGE_TASK,
+    Shape:  smd.PLEX_TASK,
     User:   "root",
     Env: map[string]string{
         "TZ":           "America/Los_Angeles",
@@ -139,7 +138,7 @@ var PromtailJob = smd.Job{
     Name:  "promtail",
     Type:  smd.SYSTEM,
     Ports: smd.BasicPortConfig(3200),
-    Shape: smd.TINY_TASK,
+    Shape: smd.XTINY_TASK,
     Env:   map[string]string{"HOSTNAME": "${attr.unique.hostname}"},
     Args: []string{
         "-config.file=/local/config/promtail.yml",
@@ -159,7 +158,50 @@ var SpeedtestJob = smd.Job{
     Type:   smd.SERVICE,
     Target: smd.WORKER,
     Ports:  smd.BasicPortConfig(80),
-    Shape:  smd.TINY_TASK,
+    Shape:  smd.XTINY_TASK,
+}
+```
+
+```go
+var TraefikJob = slomad.Job{
+    Name:   "traefik",
+    Type:   slomad.SERVICE,
+    Target: slomad.WORKER_0,
+    Shape:  slomad.DEFAULT_TASK,
+    Ports: []*slomad.Port{
+        {Label: "web", To: 0, From: 80, Static: true},
+        {Label: "websecure", To: 0, From: 443, Static: true},
+        {Label: "admin", To: 0, From: 8081, Static: true},
+    },
+    Args: []string{
+        "--entryPoints.web.address=:80",
+        "--entryPoints.websecure.address=:443",
+        "--entryPoints.admin.address=:8081",
+        "--entrypoints.websecure.http.redirections.entryPoint.to=web",
+        "--entrypoints.websecure.http.redirections.entryPoint.scheme=http",
+        "--accesslog=true",
+        "--api=true",
+        "--api.dashboard=true",
+        "--api.insecure=true",
+        "--metrics=true",
+        "--metrics.prometheus=true",
+        "--metrics.prometheus.addEntryPointsLabels=true",
+        "--ping=true",
+        "--ping.entryPoint=admin",
+        "--providers.consulcatalog=true",
+        "--providers.consulcatalog.endpoint.address=127.0.0.1:8500",
+        "--providers.consulcatalog.prefix=traefik",
+        "--providers.consulcatalog.refreshInterval=30s",
+        "--providers.consulcatalog.exposedByDefault=false",
+        "--providers.consulcatalog.defaultrule=Host(`{{ .Name }}.slab.lan`)",
+        "--providers.consulcatalog.endpoint.tls.insecureskipverify=true",
+    },
+    GroupServices: map[string]string{"traefik-web": "web"},
+    TaskServiceTags: map[string][]string{"traefik": {
+        "traefik.enable=true",
+        "traefik.http.routers.api.rule=Host(`traefik.slab.lan`)",
+        "traefik.http.routers.api.service=api@internal",
+    }},
 }
 ```
 
@@ -168,7 +210,7 @@ var WhoamiJob = smd.Job{
     Name:   "whoami",
     Type:   smd.SERVICE,
     Target: smd.WORKER,
-    Shape:  smd.TINY_TASK,
+    Shape:  smd.XXTINY_TASK,
     Args:   []string{"--port", "${NOMAD_PORT_http}"},
     Ports:  smd.BasicPortConfig(80),
 }
@@ -182,152 +224,7 @@ var prometheusConfig string
 var promtailConfig string
 ```
 
-```go
-var traefikJob = nomadStructs.Job{
-    ID:          "traefik",
-    Name:        "traefik",
-    Region:      "global",
-    Priority:    92,
-    Datacenters: []string{"dcs"},
-    Type:        "service",
-    TaskGroups: []*nomadStructs.TaskGroup{
-        {
-            Services: []*nomadStructs.Service{
-                {
-                    Name:      "traefik-web",
-                    PortLabel: "web",
-                    Checks: []*nomadStructs.ServiceCheck{
-                        {
-                            Name:          fmt.Sprintf("%s = tcp check", "traefik-web"),
-                            Type:          nomadStructs.ServiceCheckTCP,
-                            Interval:      10 * time.Second,
-                            Timeout:       2 * time.Second,
-                            InitialStatus: "passing",
-                        },
-                    },
-                    Provider: "consul",
-                },
-            },
-            Name:  "traefik",
-            Count: 1,
-            Tasks: []*nomadStructs.Task{
-                {
-                    Name:   "traefik",
-                    Driver: "docker",
-                    Config: map[string]interface{}{
-                        "image":        "reg.slab.lan:5000/traefik:latest",
-                        "network_mode": "host",
-                        "args": []string{
-                            "--entryPoints.web.address=:80",
-                            "--entryPoints.websecure.address=:443",
-                            "--entryPoints.admin.address=:8081",
-                            "--entrypoints.websecure.http.redirections.entryPoint.to=web",
-                            "--entrypoints.websecure.http.redirections.entryPoint.scheme=http",
-                            "--accesslog=true",
-                            "--api=true",
-                            "--api.dashboard=true",
-                            "--api.insecure=true",
-                            "--metrics=true",
-                            "--metrics.prometheus=true",
-                            "--metrics.prometheus.addEntryPointsLabels=true",
-                            "--ping=true",
-                            "--ping.entryPoint=admin",
-                            "--providers.consulcatalog=true",
-                            "--providers.consulcatalog.endpoint.address=127.0.0.1:8500",
-                            "--providers.consulcatalog.prefix=traefik",
-                            "--providers.consulcatalog.refreshInterval=30s",
-                            "--providers.consulcatalog.exposedByDefault=false",
-                            "--providers.consulcatalog.defaultrule=Host(`{{ .Name }}.slab.lan`)",
-                            "--providers.consulcatalog.endpoint.tls.insecureskipverify=true",
-                        },
-                    },
-                    Resources: &nomadStructs.Resources{
-                        CPU:      512,
-                        MemoryMB: 512,
-                    },
-                    LogConfig: nomadStructs.DefaultLogConfig(),
-                    Services: []*nomadStructs.Service{
-                        {
-                            Name:      "traefik",
-                            PortLabel: "websecure",
-                            Tags: []string{
-                                "traefik.enable=true",
-                                "traefik.http.routers.api.rule=Host(`traefik.slab.lan`)",
-                                "traefik.http.routers.api.service=api@internal",
-                            },
-                            TaskName: "traefik",
-                            Checks: []*nomadStructs.ServiceCheck{
-                                {
-                                    Name:          fmt.Sprintf("%s = http check", "traefik"),
-                                    Type:          nomadStructs.ServiceCheckHTTP,
-                                    Interval:      10 * time.Second,
-                                    Timeout:       2 * time.Second,
-                                    InitialStatus: "passing",
-                                    Path:          "/ping",
-                                    PortLabel:     "admin",
-                                    TaskName:      "traefik",
-                                },
-                            },
-                            Provider: "consul",
-                        },
-                    },
-                },
-            },
-            RestartPolicy:    nomadStructs.NewRestartPolicy("service"),
-            ReschedulePolicy: &nomadStructs.DefaultServiceJobReschedulePolicy,
-            EphemeralDisk: &nomadStructs.EphemeralDisk{
-                SizeMB: 256,
-            },
-            Networks: []*nomadStructs.NetworkResource{
-                {
-                    Mode: "host",
-                    ReservedPorts: []nomadStructs.Port{
-                        {
-                            Label: "web",
-                            Value: 80,
-                            To:    0,
-                        },
-                        {
-                            Label: "websecure",
-                            Value: 443,
-                            To:    0,
-                        },
-                        {
-                            Label: "admin",
-                            Value: 8081,
-                            To:    0,
-                        },
-                    },
-                },
-            },
-        },
-    },
-    Namespace: "default",
-    Constraints: []*nomadStructs.Constraint{
-        {
-            LTarget: "${attr.unique.hostname}",
-            RTarget: "worker-0",
-            Operand: "regexp",
-        },
-    },
-}
-```
-
-## func [GetTraefikJob](<https://github.com/ecshreve/slomad/blob/main/internal/registry/traefik.go#L159>)
-
-```go
-func GetTraefikJob() (*nomadApi.Job, error)
-```
-
-## func [convertJob](<https://github.com/ecshreve/slomad/blob/main/internal/registry/traefik.go#L143>)
-
-```go
-func convertJob(in *nomadStructs.Job) (*nomadApi.Job, error)
-```
-
-convertJob converts a Nomad Job to a Nomad API Job.
-
-## func [getStorageArgs](<https://github.com/ecshreve/slomad/blob/main/internal/registry/storage.go#L30>)
+## func [getStorageArgs](<https://github.com/ecshreve/slomad/blob/main/internal/registry/storage.go#L31>)
 
 ```go
 func getStorageArgs(storage string) []string

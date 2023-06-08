@@ -57,3 +57,17 @@ func getGroupService(name, portLabel string) *nomadStructs.Service {
 	srvc.TaskName = ""
 	return srvc
 }
+
+func getGroupServices(srvcs map[string]string) []*nomadStructs.Service {
+	services := []*nomadStructs.Service{}
+	if srvcs == nil {
+		return services
+	}
+
+	for name, portLabel := range srvcs {
+		srvc := getGroupService(name, portLabel)
+		services = append(services, srvc)
+	}
+
+	return services
+}

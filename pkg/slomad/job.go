@@ -12,16 +12,19 @@ import (
 
 // Job is a struct that represents a Nomad Job.
 type Job struct {
-	Name      string
-	Type      JobType
-	Shape     TaskResource
-	Target    DeployTarget
-	Ports     []*Port
-	Volumes   []Volume
-	Args      []string
-	Env       map[string]string
-	User      string
-	Templates map[string]string
+	Name            string
+	Type            JobType
+	Shape           TaskResource
+	Target          DeployTarget
+	Priv            bool
+	Ports           []*Port
+	Volumes         []Volume
+	Args            []string
+	Env             map[string]string
+	User            string
+	Templates       map[string]string
+	GroupServices   map[string]string
+	TaskServiceTags map[string][]string
 }
 
 // GetNomadApiJob returns a nomadApi Job for the given slomad.Job.
