@@ -11,14 +11,12 @@ func getTask(j *Job) *nomadStructs.Task {
 	labels := extractLabels(j.Ports)
 	srvcs := getServices(j.Name, labels)
 
-	if j.Name == "traefik" {
-		tags := []string{
-			"traefik.enable=true",
-			"traefik.http.routers.api.rule=Host(`traefik.slab.lan`)",
-			"traefik.http.routers.api.service=api@internal",
+	tags := []string{}
+	if j.TaskServiceTags != nil {
+		tags = j.TaskServiceTags[j.Name]
+		for _, srvc := range srvcs {
+			srvc.Tags = tags
 		}
-		srvc := getServiceWithTags(j.Name, "websecure", tags)
-		srvcs = []*nomadStructs.Service{srvc}
 	}
 
 	return &nomadStructs.Task{

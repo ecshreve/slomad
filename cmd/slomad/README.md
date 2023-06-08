@@ -9,10 +9,9 @@ import "github.com/ecshreve/slomad/cmd/slomad"
 ## Index
 
 - [func RunDeploy(j *slomad.Job, confirm, force, verbose bool) error](<#func-rundeploy>)
-- [func RunTraefikDeploy(confirm bool) error](<#func-runtraefikdeploy>)
 - [func main()](<#func-main>)
 - [func newNomadClient() (*nomadApi.Client, error)](<#func-newnomadclient>)
-- [func planApiJob(nomadClient *nomadApi.Client, job *nomadApi.Job) error](<#func-planapijob>)
+- [func planApiJob(nomadClient *nomadApi.Client, job *nomadApi.Job, diff bool) (bool, error)](<#func-planapijob>)
 - [func submitApiJob(nomadClient *nomadApi.Client, job *nomadApi.Job) error](<#func-submitapijob>)
 
 
@@ -24,39 +23,35 @@ func RunDeploy(j *slomad.Job, confirm, force, verbose bool) error
 
 RunDeploy runs a deploy for the given job.
 
-## func [RunTraefikDeploy](<https://github.com/ecshreve/slomad/blob/main/cmd/slomad/deploy.go#L39>)
-
-```go
-func RunTraefikDeploy(confirm bool) error
-```
-
 ## func [main](<https://github.com/ecshreve/slomad/blob/main/cmd/slomad/main.go#L12>)
 
 ```go
 func main()
 ```
 
-## func [newNomadClient](<https://github.com/ecshreve/slomad/blob/main/cmd/slomad/deploy.go#L63>)
+## func [newNomadClient](<https://github.com/ecshreve/slomad/blob/main/cmd/slomad/deploy.go#L46>)
 
 ```go
 func newNomadClient() (*nomadApi.Client, error)
 ```
 
-## func [planApiJob](<https://github.com/ecshreve/slomad/blob/main/cmd/slomad/deploy.go#L76>)
+newNomadClient returns a default nomad api client.
+
+## func [planApiJob](<https://github.com/ecshreve/slomad/blob/main/cmd/slomad/deploy.go#L59>)
 
 ```go
-func planApiJob(nomadClient *nomadApi.Client, job *nomadApi.Job) error
+func planApiJob(nomadClient *nomadApi.Client, job *nomadApi.Job, diff bool) (bool, error)
 ```
 
-planApiJob creates a nomad api client, and runs a plan for the given job, printing the output diff.
+planApiJob runs a plan for the given job, and returns whether or not the job can be ignored, and any errors encountered.
 
-## func [submitApiJob](<https://github.com/ecshreve/slomad/blob/main/cmd/slomad/deploy.go#L94>)
+## func [submitApiJob](<https://github.com/ecshreve/slomad/blob/main/cmd/slomad/deploy.go#L81>)
 
 ```go
 func submitApiJob(nomadClient *nomadApi.Client, job *nomadApi.Job) error
 ```
 
-submitApiJob creates a nomad api client, and submits the job to nomad.
+submitApiJob submits the given job to the nomad cluster.
 
 
 

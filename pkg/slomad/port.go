@@ -67,7 +67,12 @@ func extractLabels(ports []*Port) []string {
 }
 
 // getNetworks converts a list of Ports to a list of Nomad NetworkResources.
-func getNetworks(ports []*Port, mode string) []*nomadStructs.NetworkResource {
+func getNetworks(ports []*Port, priv bool) []*nomadStructs.NetworkResource {
+	mode := ""
+	if priv {
+		mode = "host"
+	}
+
 	portMap := toNomadPortMap(ports)
 	return []*nomadStructs.NetworkResource{
 		{
