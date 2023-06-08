@@ -52,6 +52,7 @@ var (
     XLARGE_TASK  = TaskResource{CPU: XLARGE, MEM: XLARGE}
     MEM_TASK     = TaskResource{CPU: SMALL, MEM: LARGE}
     COMPUTE_TASK = TaskResource{CPU: LARGE, MEM: SMALL}
+    PLEX_TASK    = TaskResource{CPU: LARGE, MEM: XXLARGE}
 )
 ```
 
@@ -64,10 +65,11 @@ var DeployTargetRegex = map[DeployTarget]string{
     WORKER:   "^worker-[0-9]+$",
     CODERBOX: "^coderbox$",
     DEVBOX:   "^devbox$",
+    PLEXBOX:  "^plexbox$",
 }
 ```
 
-## func convertJob
+## func [convertJob](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/job.go#L58>)
 
 ```go
 func convertJob(in *nomadStructs.Job) (*nomadApi.Job, error)
@@ -75,7 +77,7 @@ func convertJob(in *nomadStructs.Job) (*nomadApi.Job, error)
 
 convertJob converts a Nomad Job to a Nomad API Job.
 
-## func extractLabels
+## func [extractLabels](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/port.go#L61>)
 
 ```go
 func extractLabels(ports []*Port) []string
@@ -83,7 +85,7 @@ func extractLabels(ports []*Port) []string
 
 extractLabels returns a list of labels from a list of Ports.
 
-## func getCSIPluginConfig
+## func [getCSIPluginConfig](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/storage.go#L76>)
 
 ```go
 func getCSIPluginConfig(j *Job) *nomadStructs.TaskCSIPluginConfig
@@ -91,7 +93,7 @@ func getCSIPluginConfig(j *Job) *nomadStructs.TaskCSIPluginConfig
 
 getCSIPluginConfig returns a CSIPluginConfig for a given job.
 
-## func getConfig
+## func [getConfig](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/task.go#L53>)
 
 ```go
 func getConfig(name string, jt JobType, args []string, ports []*Port, vols []Volume) map[string]interface{}
@@ -99,7 +101,7 @@ func getConfig(name string, jt JobType, args []string, ports []*Port, vols []Vol
 
 getConfig returns a nomad config struct for a given job.
 
-## func getConstraint
+## func [getConstraint](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/job.go#L75>)
 
 ```go
 func getConstraint(dt DeployTarget) *nomadStructs.Constraint
@@ -107,7 +109,7 @@ func getConstraint(dt DeployTarget) *nomadStructs.Constraint
 
 getConstraint returns a nomad constraint for a given deploy target.
 
-## func getDisk
+## func [getDisk](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/group.go#L30>)
 
 ```go
 func getDisk() *nomadStructs.EphemeralDisk
@@ -115,7 +117,7 @@ func getDisk() *nomadStructs.EphemeralDisk
 
 getDisk returns a nomad disk struct with a default size for a given job.
 
-## func getGroup
+## func [getGroup](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/group.go#L8>)
 
 ```go
 func getGroup(j *Job) *nomadStructs.TaskGroup
@@ -123,7 +125,7 @@ func getGroup(j *Job) *nomadStructs.TaskGroup
 
 getGroup returns a nomad task group struct for a given job.
 
-## func getMounts
+## func [getMounts](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/storage.go#L18>)
 
 ```go
 func getMounts(vols []Volume) []*nomadStructs.VolumeMount
@@ -131,7 +133,7 @@ func getMounts(vols []Volume) []*nomadStructs.VolumeMount
 
 getMounts converts a list of Volumes to a list of Nomad VolumeMounts.
 
-## func getNetworks
+## func [getNetworks](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/port.go#L70>)
 
 ```go
 func getNetworks(ports []*Port) []*nomadStructs.NetworkResource
@@ -139,7 +141,7 @@ func getNetworks(ports []*Port) []*nomadStructs.NetworkResource
 
 getNetworks converts a list of Ports to a list of Nomad NetworkResources.
 
-## func getNomadVolumeReq
+## func [getNomadVolumeReq](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/storage.go#L53>)
 
 ```go
 func getNomadVolumeReq(vols []Volume) map[string]*nomadStructs.VolumeRequest
@@ -149,7 +151,7 @@ getNomadVolumeReq converts a slice of Volumes to map of nomad VolumeRequest.
 
 TODO: validation
 
-## func getReschedulePolicy
+## func [getReschedulePolicy](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/group.go#L22>)
 
 ```go
 func getReschedulePolicy(jt JobType) *nomadStructs.ReschedulePolicy
@@ -157,7 +159,7 @@ func getReschedulePolicy(jt JobType) *nomadStructs.ReschedulePolicy
 
 getReschedulePolicy returns a nomad reschedule policy for a given job.
 
-## func getResource
+## func [getResource](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/task.go#L27>)
 
 ```go
 func getResource(tr TaskResource) *nomadStructs.Resources
@@ -165,7 +167,7 @@ func getResource(tr TaskResource) *nomadStructs.Resources
 
 getResource is a helper function to convert a TaskResource to a Nomad Resources struct.
 
-## func getService
+## func [getService](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/service.go#L11>)
 
 ```go
 func getService(taskName string, portLabel string) *nomadStructs.Service
@@ -173,7 +175,7 @@ func getService(taskName string, portLabel string) *nomadStructs.Service
 
 getService returns a nomad service struct for a given task.
 
-## func getServices
+## func [getServices](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/service.go#L35>)
 
 ```go
 func getServices(taskName string, portLabels []string) []*nomadStructs.Service
@@ -181,7 +183,7 @@ func getServices(taskName string, portLabels []string) []*nomadStructs.Service
 
 getServices returns a list of services for a given job.
 
-## func getTask
+## func [getTask](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/task.go#L10>)
 
 ```go
 func getTask(j *Job) *nomadStructs.Task
@@ -189,13 +191,13 @@ func getTask(j *Job) *nomadStructs.Task
 
 getTask returns a nomad task struct for a given job.
 
-## func getTemplates
+## func [getTemplates](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/task.go#L34>)
 
 ```go
 func getTemplates(templates map[string]string) []*nomadStructs.Template
 ```
 
-## func getVolumeStrings
+## func [getVolumeStrings](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/storage.go#L36>)
 
 ```go
 func getVolumeStrings(vols []Volume) []string
@@ -203,13 +205,13 @@ func getVolumeStrings(vols []Volume) []string
 
 getVolumeString converts a list of Volumes to a list of Volume strings. These are meant to be passed to the docker driver.
 
-## func toNomadPort
+## func [toNomadPort](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/port.go#L15>)
 
 ```go
 func toNomadPort(p *Port) nomadStructs.Port
 ```
 
-## func toNomadPortMap
+## func [toNomadPortMap](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/port.go#L39>)
 
 ```go
 func toNomadPortMap(ports []*Port) map[string][]nomadStructs.Port
@@ -217,7 +219,7 @@ func toNomadPortMap(ports []*Port) map[string][]nomadStructs.Port
 
 toNomadPortMap converts a list of Ports to a map of static and dynamic ports.
 
-## type DeployTarget
+## type [DeployTarget](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/types.go#L4>)
 
 DeployTarget is an enum that represents the target of a job.
 
@@ -233,10 +235,11 @@ const (
     WORKER
     CODERBOX
     DEVBOX
+    PLEXBOX
 )
 ```
 
-## type Job
+## type [Job](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/job.go#L14-L25>)
 
 Job is a struct that represents a Nomad Job.
 
@@ -246,16 +249,16 @@ type Job struct {
     Type      JobType
     Shape     TaskResource
     Target    DeployTarget
-    Args      []string
     Ports     []*Port
+    Volumes   []Volume
+    Args      []string
     Env       map[string]string
     User      string
-    Volumes   []Volume
     Templates map[string]string
 }
 ```
 
-### func \(\*Job\) GetNomadApiJob
+### func \(\*Job\) [GetNomadApiJob](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/job.go#L28>)
 
 ```go
 func (j *Job) GetNomadApiJob(force bool) (*nomadApi.Job, error)
@@ -263,7 +266,7 @@ func (j *Job) GetNomadApiJob(force bool) (*nomadApi.Job, error)
 
 GetNomadApiJob returns a nomadApi Job for the given slomad.Job.
 
-## type JobType
+## type [JobType](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/types.go#L28>)
 
 JobType is an enum that represents the type of a job.
 
@@ -282,7 +285,7 @@ const (
 )
 ```
 
-### func \(JobType\) String
+### func \(JobType\) [String](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/types.go#L40>)
 
 ```go
 func (jt JobType) String() string
@@ -290,7 +293,7 @@ func (jt JobType) String() string
 
 String implements the Stringer interface for JobType.
 
-## type Port
+## type [Port](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/port.go#L8-L13>)
 
 Port is a struct that represents a network port for a task.
 
@@ -303,7 +306,7 @@ type Port struct {
 }
 ```
 
-### func BasicPortConfig
+### func [BasicPortConfig](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/port.go#L34>)
 
 ```go
 func BasicPortConfig(val int) []*Port
@@ -311,7 +314,7 @@ func BasicPortConfig(val int) []*Port
 
 BasicPortConfig returns a list with a single Port element with a default label.
 
-### func basicPort
+### func [basicPort](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/port.go#L24>)
 
 ```go
 func basicPort(val int) *Port
@@ -319,7 +322,7 @@ func basicPort(val int) *Port
 
 basicPort returns a basic port struct with a default label.
 
-## type ResourceValue
+## type [ResourceValue](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/types.go#L44>)
 
 ```go
 type ResourceValue int
@@ -332,10 +335,11 @@ const (
     DEFAULT ResourceValue = 512
     LARGE   ResourceValue = 1024
     XLARGE  ResourceValue = 2048
+    XXLARGE ResourceValue = 4096
 )
 ```
 
-## type TaskResource
+## type [TaskResource](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/types.go#L56-L59>)
 
 TaskResource is a struct that represents the CPU and MEM resources for a task.
 
@@ -346,7 +350,7 @@ type TaskResource struct {
 }
 ```
 
-## type Volume
+## type [Volume](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/storage.go#L11-L15>)
 
 ```go
 type Volume struct {

@@ -9,6 +9,8 @@ import "github.com/ecshreve/slomad/internal/registry"
 ## Index
 
 - [Variables](<#variables>)
+- [func GetTraefikJob() (*nomadApi.Job, error)](<#func-gettraefikjob>)
+- [func convertJob(in *nomadStructs.Job) (*nomadApi.Job, error)](<#func-convertjob>)
 - [func getStorageArgs(storage string) []string](<#func-getstorageargs>)
 - [func promConfigHelper(tmpl string) string](<#func-promconfighelper>)
 
@@ -93,6 +95,31 @@ var NodeJob = smd.Job{
 }
 ```
 
+```go
+var PlexJob = smd.Job{
+    Name:   "plex",
+    Type:   smd.SERVICE,
+    Target: smd.PLEXBOX,
+    Ports:  []*smd.Port{{Label: "http", To: 32400, From: 32400, Static: true}},
+    Shape:  smd.LARGE_TASK,
+    User:   "root",
+    Env: map[string]string{
+        "TZ":           "America/Los_Angeles",
+        "VERSION":      "docker",
+        "ADVERTISE_IP": "http://plex.slab.lan:80",
+        "PGID":         "100",
+        "PUID":         "1027",
+    },
+    Volumes: []smd.Volume{
+        {Src: "/mnt/nfs/config/plex", Dst: "/config"},
+        {Src: "/mnt/nfs/media/music", Dst: "/music"},
+        {Src: "/mnt/nfs/media/tv", Dst: "/tv"},
+        {Src: "/mnt/nfs/media/movies", Dst: "/movies"},
+        {Src: "/dev/shm", Dst: "/transcode"},
+    },
+}
+```
+
 PrometheusJob is a Job for the Prometheus service.
 
 ```go
@@ -137,7 +164,26 @@ var SpeedtestJob = smd.Job{
 ```
 
 ```go
-var TraefikJob = nomadStructs.Job{
+var WhoamiJob = smd.Job{
+    Name:   "whoami",
+    Type:   smd.SERVICE,
+    Target: smd.WORKER,
+    Shape:  smd.TINY_TASK,
+    Args:   []string{"--port", "${NOMAD_PORT_http}"},
+    Ports:  smd.BasicPortConfig(80),
+}
+```
+
+```go
+var prometheusConfig string
+```
+
+```go
+var promtailConfig string
+```
+
+```go
+var traefikJob = nomadStructs.Job{
     ID:          "traefik",
     Name:        "traefik",
     Region:      "global",
@@ -181,14 +227,17 @@ var TraefikJob = nomadStructs.Job{
                             "--api=true",
                             "--api.dashboard=true",
                             "--api.insecure=true",
+                            "--metrics=true",
+                            "--metrics.prometheus=true",
+                            "--metrics.prometheus.addEntryPointsLabels=true",
                             "--ping=true",
                             "--ping.entryPoint=admin",
                             "--providers.consulcatalog=true",
-                            "--providers.consulcatalog.endpoint.address=10.35.220.50:8500",
+                            "--providers.consulcatalog.endpoint.address=127.0.0.1:8500",
                             "--providers.consulcatalog.prefix=traefik",
                             "--providers.consulcatalog.refreshInterval=30s",
                             "--providers.consulcatalog.exposedByDefault=false",
-                            "--providers.consulcatalog.defaultrule=Host(`{{ .Name }}.slabstaging.lan`)",
+                            "--providers.consulcatalog.defaultrule=Host(`{{ .Name }}.slab.lan`)",
                             "--providers.consulcatalog.endpoint.tls.insecureskipverify=true",
                         },
                     },
@@ -203,7 +252,7 @@ var TraefikJob = nomadStructs.Job{
                             PortLabel: "websecure",
                             Tags: []string{
                                 "traefik.enable=true",
-                                "traefik.http.routers.api.rule=Host(`traefik.slabstaging.lan`)",
+                                "traefik.http.routers.api.rule=Host(`traefik.slab.lan`)",
                                 "traefik.http.routers.api.service=api@internal",
                             },
                             TaskName: "traefik",
@@ -264,26 +313,21 @@ var TraefikJob = nomadStructs.Job{
 }
 ```
 
-```go
-var WhoamiJob = smd.Job{
-    Name:   "whoami",
-    Type:   smd.SERVICE,
-    Target: smd.WORKER,
-    Shape:  smd.TINY_TASK,
-    Args:   []string{"--port", "${NOMAD_PORT_http}"},
-    Ports:  smd.BasicPortConfig(80),
-}
-```
+## func [GetTraefikJob](<https://github.com/ecshreve/slomad/blob/main/internal/registry/traefik.go#L159>)
 
 ```go
-var prometheusConfig string
+func GetTraefikJob() (*nomadApi.Job, error)
 ```
+
+## func [convertJob](<https://github.com/ecshreve/slomad/blob/main/internal/registry/traefik.go#L143>)
 
 ```go
-var promtailConfig string
+func convertJob(in *nomadStructs.Job) (*nomadApi.Job, error)
 ```
 
-## func getStorageArgs
+convertJob converts a Nomad Job to a Nomad API Job.
+
+## func [getStorageArgs](<https://github.com/ecshreve/slomad/blob/main/internal/registry/storage.go#L30>)
 
 ```go
 func getStorageArgs(storage string) []string
@@ -293,7 +337,7 @@ getStorageArgs returns the common args for the storage controller and node.
 
 TODO: input validation
 
-## func promConfigHelper
+## func [promConfigHelper](<https://github.com/ecshreve/slomad/blob/main/internal/registry/services.go#L11>)
 
 ```go
 func promConfigHelper(tmpl string) string

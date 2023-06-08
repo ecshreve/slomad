@@ -16,11 +16,11 @@ type Job struct {
 	Type      JobType
 	Shape     TaskResource
 	Target    DeployTarget
-	Args      []string
 	Ports     []*Port
+	Volumes   []Volume
+	Args      []string
 	Env       map[string]string
 	User      string
-	Volumes   []Volume
 	Templates map[string]string
 }
 
@@ -69,4 +69,13 @@ func convertJob(in *nomadStructs.Job) (*nomadApi.Job, error) {
 	}
 
 	return apiJob, nil
+}
+
+// getConstraint returns a nomad constraint for a given deploy target.
+func getConstraint(dt DeployTarget) *nomadStructs.Constraint {
+	return &nomadStructs.Constraint{
+		LTarget: "${attr.unique.hostname}",
+		RTarget: DeployTargetRegex[dt],
+		Operand: "regexp",
+	}
 }

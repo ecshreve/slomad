@@ -16,7 +16,7 @@ package utils provides general utility functions.
 - [func StringValOr(sp *string, val string) string](<#func-stringvalor>)
 
 
-## func IntPtr
+## func [IntPtr](<https://github.com/ecshreve/slomad/blob/main/pkg/utils/utils.go#L19>)
 
 ```go
 func IntPtr(i int) *int
@@ -53,7 +53,7 @@ ptrs are different: true
 </p>
 </details>
 
-## func IntValOr
+## func [IntValOr](<https://github.com/ecshreve/slomad/blob/main/pkg/utils/utils.go#L24>)
 
 ```go
 func IntValOr(ip *int, val int) int
@@ -90,7 +90,7 @@ not default 999
 </p>
 </details>
 
-## func StringPtr
+## func [StringPtr](<https://github.com/ecshreve/slomad/blob/main/pkg/utils/utils.go#L5>)
 
 ```go
 func StringPtr(s string) *string
@@ -127,7 +127,7 @@ ptrs are different: true
 </p>
 </details>
 
-## func StringValOr
+## func [StringValOr](<https://github.com/ecshreve/slomad/blob/main/pkg/utils/utils.go#L11>)
 
 ```go
 func StringValOr(sp *string, val string) string

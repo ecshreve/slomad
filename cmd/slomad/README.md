@@ -9,13 +9,14 @@ import "github.com/ecshreve/slomad/cmd/slomad"
 ## Index
 
 - [func RunDeploy(j *slomad.Job, confirm, force, verbose bool) error](<#func-rundeploy>)
+- [func RunTraefikDeploy(confirm bool) error](<#func-runtraefikdeploy>)
 - [func main()](<#func-main>)
 - [func newNomadClient() (*nomadApi.Client, error)](<#func-newnomadclient>)
 - [func planApiJob(nomadClient *nomadApi.Client, job *nomadApi.Job) error](<#func-planapijob>)
 - [func submitApiJob(nomadClient *nomadApi.Client, job *nomadApi.Job) error](<#func-submitapijob>)
 
 
-## func RunDeploy
+## func [RunDeploy](<https://github.com/ecshreve/slomad/blob/main/cmd/slomad/deploy.go#L15>)
 
 ```go
 func RunDeploy(j *slomad.Job, confirm, force, verbose bool) error
@@ -23,19 +24,25 @@ func RunDeploy(j *slomad.Job, confirm, force, verbose bool) error
 
 RunDeploy runs a deploy for the given job.
 
-## func main
+## func [RunTraefikDeploy](<https://github.com/ecshreve/slomad/blob/main/cmd/slomad/deploy.go#L39>)
+
+```go
+func RunTraefikDeploy(confirm bool) error
+```
+
+## func [main](<https://github.com/ecshreve/slomad/blob/main/cmd/slomad/main.go#L12>)
 
 ```go
 func main()
 ```
 
-## func newNomadClient
+## func [newNomadClient](<https://github.com/ecshreve/slomad/blob/main/cmd/slomad/deploy.go#L63>)
 
 ```go
 func newNomadClient() (*nomadApi.Client, error)
 ```
 
-## func planApiJob
+## func [planApiJob](<https://github.com/ecshreve/slomad/blob/main/cmd/slomad/deploy.go#L76>)
 
 ```go
 func planApiJob(nomadClient *nomadApi.Client, job *nomadApi.Job) error
@@ -43,7 +50,7 @@ func planApiJob(nomadClient *nomadApi.Client, job *nomadApi.Job) error
 
 planApiJob creates a nomad api client, and runs a plan for the given job, printing the output diff.
 
-## func submitApiJob
+## func [submitApiJob](<https://github.com/ecshreve/slomad/blob/main/cmd/slomad/deploy.go#L94>)
 
 ```go
 func submitApiJob(nomadClient *nomadApi.Client, job *nomadApi.Job) error
