@@ -54,12 +54,13 @@ func main() {
 		// registry.InfluxDBJob,
 		// registry.PlexJob,
 		// registry.HomepageJob,
-		registry.MariaDBJob,
+		// registry.MariaDBJob,
 		// registry.AdminerJob,
+		registry.NextcloudJob,
 	}
 
 	// TODO: better volume creation flow
-	// if err := CreateVolume("mariadb"); err != nil {
+	// if err := CreateVolume("nextcloud"); err != nil {
 	// 	log.Fatalln(oops.Wrapf(err, "error creating mariadb volume"))
 	// }
 

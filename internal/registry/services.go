@@ -190,3 +190,37 @@ var AdminerJob = smd.Job{
 	Ports:  smd.BasicPortConfig(8080),
 	Shape:  smd.DEFAULT_TASK,
 }
+
+//go:embed config/nextcloud.conf
+var NextcloudConfig string
+
+// NOTE
+//
+// added ‘allow_local_remote_servers’ => true, to config.php after initialization
+var NextcloudJob = smd.Job{
+	Name:   "nextcloud",
+	Type:   smd.SERVICE,
+	Target: smd.NEXTBOX,
+	Ports:  []*smd.Port{{Label: "http", To: 80, From: 80, Static: true}},
+	Shape:  smd.XLARGE_TASK,
+	Priv:   true,
+	Templates: map[string]string{
+		"remoteip.conf":     NextcloudConfig,
+		"redis-session.ini": " ",
+	},
+	Volumes: []smd.Volume{
+		{Src: "nextcloud-vol", Dst: "/var/www/html", Mount: true},
+		{Src: "local/config/remoteip.conf", Dst: "/etc/apache2/conf-enabled/remoteip.conf:ro"},
+		{Src: "local/config/redis-session.ini", Dst: "/usr/local/etc/php/conf.d/redis-session.ini"},
+	},
+	Env: map[string]string{
+		"NEXTCLOUD_TRUSTED_DOMAINS": "nextcloud.slab.lan",
+		"NEXTCLOUD_ADMIN_USER":      "admin",
+		"NEXTCLOUD_ADMIN_PASSWORD":  "admin",
+		"MYSQL_HOST":                "mariadb.slab.lan:3306",
+		"MYSQL_DATABASE":            "nextcloud",
+		"MYSQL_USER":                "nextcloud",
+		"MYSQL_PASSWORD":            "nextcloud",
+		"TRUSTED_PROXIES":           "traefik.slab.lan 10.35.0.0/16",
+	},
+}

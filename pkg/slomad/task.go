@@ -79,7 +79,7 @@ func getConfig(name string, jt JobType, args []string, ports []*Port, vols []Vol
 		config["image"] = "reg.slab.lan:5000/csi-nfs-plugin"
 	}
 
-	if name == "plex" {
+	if name == "plex" || name == "nextcloud" {
 		config["network_mode"] = "host"
 	}
 
