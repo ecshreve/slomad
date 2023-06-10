@@ -53,8 +53,12 @@ func main() {
 		// registry.NodeJob,
 		// registry.InfluxDBJob,
 		// registry.PlexJob,
-		registry.TraefikJob,
+		registry.HomepageJob,
 	}
+
+	// if err := CreateVolume("homepage"); err != nil {
+	// 	log.Fatalln(oops.Wrapf(err, "error creating homepage volume"))
+	// }
 
 	for _, srvc := range services {
 		if err := RunDeploy(&srvc, confirm, false, diff); err != nil {

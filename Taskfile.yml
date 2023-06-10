@@ -32,6 +32,7 @@ tasks:
     sources:
       - ./**/*.go
       - ./**/config/*.yml
+      - ./**/config/**/*.yml
     cmds:
       - go build -o bin/slomad github.com/ecshreve/slomad/cmd/slomad
 

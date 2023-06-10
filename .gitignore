@@ -3,3 +3,4 @@ slomad/bin
 bin
 .env
 .vscode
+**/homepage/*

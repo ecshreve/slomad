@@ -134,3 +134,38 @@ var PlexJob = smd.Job{
 		{Src: "/dev/shm", Dst: "/transcode"},
 	},
 }
+
+//go:embed config/homepage/bookmarks.yml
+var bookmarksConfig string
+
+//go:embed config/homepage/services.yml
+var servicesConfig string
+
+//go:embed config/homepage/widgets.yml
+var widgetsConfig string
+
+//go:embed config/homepage/settings.yml
+var settingsConfig string
+
+// TODO: figure out nomad volume mounting
+var HomepageJob = smd.Job{
+	Name:   "homepage",
+	Type:   smd.SERVICE,
+	Target: smd.WORKER,
+	Ports:  smd.BasicPortConfig(3000),
+	Shape:  smd.DEFAULT_TASK,
+	User:   "root",
+	Templates: map[string]string{
+		"bookmarks.yaml": bookmarksConfig,
+		"services.yaml":  servicesConfig,
+		"widgets.yaml":   widgetsConfig,
+		"settings.yaml":  settingsConfig,
+	},
+	Volumes: []smd.Volume{
+		// {Src: "homepage-vol", Dst: "/local/config", Mount: true},
+		{Src: "local/config/bookmarks.yaml", Dst: "/app/config/bookmarks.yaml"},
+		{Src: "local/config/widgets.yaml", Dst: "/app/config/widgets.yaml"},
+		{Src: "local/config/services.yaml", Dst: "/app/config/services.yaml"},
+		{Src: "local/config/settings.yaml", Dst: "/app/config/settings.yaml"},
+	},
+}
