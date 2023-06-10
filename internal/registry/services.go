@@ -169,3 +169,24 @@ var HomepageJob = smd.Job{
 		{Src: "local/config/settings.yaml", Dst: "/app/config/settings.yaml"},
 	},
 }
+
+var MariaDBJob = smd.Job{
+	Name:   "mariadb",
+	Type:   smd.SERVICE,
+	Target: smd.WORKER,
+	Ports:  []*smd.Port{{Label: "http", To: 3306, From: 3306, Static: true}},
+	Shape:  smd.DEFAULT_TASK,
+	User:   "root",
+	Env: map[string]string{
+		"MYSQL_ROOT_PASSWORD": "password",
+	},
+	Volumes: []smd.Volume{{Src: "mariadb-vol", Dst: "/var/lib/mysql", Mount: true}},
+}
+
+var AdminerJob = smd.Job{
+	Name:   "adminer",
+	Type:   smd.SERVICE,
+	Target: smd.WORKER,
+	Ports:  smd.BasicPortConfig(8080),
+	Shape:  smd.DEFAULT_TASK,
+}

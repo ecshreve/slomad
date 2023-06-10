@@ -53,11 +53,14 @@ func main() {
 		// registry.NodeJob,
 		// registry.InfluxDBJob,
 		// registry.PlexJob,
-		registry.HomepageJob,
+		// registry.HomepageJob,
+		registry.MariaDBJob,
+		// registry.AdminerJob,
 	}
 
-	// if err := CreateVolume("homepage"); err != nil {
-	// 	log.Fatalln(oops.Wrapf(err, "error creating homepage volume"))
+	// TODO: better volume creation flow
+	// if err := CreateVolume("mariadb"); err != nil {
+	// 	log.Fatalln(oops.Wrapf(err, "error creating mariadb volume"))
 	// }
 
 	for _, srvc := range services {

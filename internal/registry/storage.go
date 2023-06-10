@@ -32,7 +32,7 @@ func getStorageArgs(storage string) []string {
 	common := []string{
 		"--node-id=${attr.unique.hostname}",
 		fmt.Sprintf("--nfs-server=%s", os.Getenv("NFS_MOUNT")),
-		"--mount-options=defaults",
+		"--mount-options=nolock",
 		fmt.Sprintf("--type=%s", storage),
 	}
 
