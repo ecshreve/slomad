@@ -224,3 +224,20 @@ var NextcloudJob = smd.Job{
 		"TRUSTED_PROXIES":           "traefik.slab.lan 10.35.0.0/16",
 	},
 }
+
+var CalibreJob = smd.Job{
+	Name:   "calibre",
+	Type:   smd.SERVICE,
+	Target: smd.WORKER,
+	Ports:  smd.BasicPortConfig(8083),
+	Shape:  smd.LARGE_TASK,
+	Volumes: []smd.Volume{
+		{Src: "calibre-vol", Dst: "/local/data", Mount: true},
+		{Src: "/local/data/books", Dst: "/books"},
+		{Src: "/local/data/config", Dst: "/config"},
+	},
+	// Env: map[string]string{
+	// 	"PUID": "1026",
+	// 	"PGID": "100",
+	// },
+}

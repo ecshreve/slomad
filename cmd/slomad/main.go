@@ -46,7 +46,7 @@ func main() {
 		// registry.WhoamiJob,
 		// registry.SpeedtestJob,
 		// registry.GrafanaJob,
-		// registry.PrometheusJob,
+		registry.PrometheusJob,
 		// registry.NodeExporterJob,
 		// registry.PromtailJob,
 		// registry.ControllerJob,
@@ -56,12 +56,13 @@ func main() {
 		// registry.HomepageJob,
 		// registry.MariaDBJob,
 		// registry.AdminerJob,
-		registry.NextcloudJob,
+		// registry.NextcloudJob,
+		// registry.CalibreJob,
 	}
 
 	// TODO: better volume creation flow
-	// if err := CreateVolume("nextcloud"); err != nil {
-	// 	log.Fatalln(oops.Wrapf(err, "error creating mariadb volume"))
+	// if err := CreateVolume("calibre"); err != nil {
+	// 	log.Fatalln(oops.Wrapf(err, "error creating calibre volume"))
 	// }
 
 	for _, srvc := range services {
