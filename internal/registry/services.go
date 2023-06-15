@@ -71,6 +71,15 @@ var LokiJob = smd.Job{
 	Shape:  smd.TINY_TASK,
 }
 
+var GotifyJob = smd.Job{
+	Name:    "gotify",
+	Type:    smd.SERVICE,
+	Target:  smd.WORKER,
+	Ports:   smd.BasicPortConfig(80),
+	Shape:   smd.DEFAULT_TASK,
+	Volumes: []smd.Volume{{Src: "gotify-vol", Dst: "/app/data", Mount: true}},
+}
+
 //go:embed config/prometheus.yml
 var prometheusConfig string
 

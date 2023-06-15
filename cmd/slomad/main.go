@@ -46,7 +46,7 @@ func main() {
 		// registry.WhoamiJob,
 		// registry.SpeedtestJob,
 		// registry.GrafanaJob,
-		registry.PrometheusJob,
+		// registry.PrometheusJob,
 		// registry.NodeExporterJob,
 		// registry.PromtailJob,
 		// registry.ControllerJob,
@@ -58,10 +58,11 @@ func main() {
 		// registry.AdminerJob,
 		// registry.NextcloudJob,
 		// registry.CalibreJob,
+		registry.GotifyJob,
 	}
 
 	// TODO: better volume creation flow
-	// if err := CreateVolume("calibre"); err != nil {
+	// if err := CreateVolume("gotify"); err != nil {
 	// 	log.Fatalln(oops.Wrapf(err, "error creating calibre volume"))
 	// }
 
