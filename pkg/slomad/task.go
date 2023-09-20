@@ -73,19 +73,5 @@ func getConfig(name string, jt JobType, args []string, ports []*Port, vols []Vol
 		config["volumes"] = volStrings
 	}
 
-	if jt == STORAGE_CONTROLLER || jt == STORAGE_NODE {
-		config["privileged"] = true
-		config["network_mode"] = "host"
-		config["image"] = "reg.slab.lan:5000/csi-nfs-plugin"
-	}
-
-	if name == "plex" {
-		config["network_mode"] = "host"
-	}
-
-	if name == "traefik" {
-		config["network_mode"] = "host"
-		delete(config, "ports")
-	}
 	return config
 }

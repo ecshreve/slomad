@@ -60,7 +60,10 @@ var GrafanaJob = smd.Job{
 	Ports:  smd.BasicPortConfig(3000),
 	Shape:  smd.LARGE_TASK,
 	User:   "root",
-	Env:    map[string]string{"GF_SERVER_HTTP_PORT": "${NOMAD_PORT_http}"},
+	Env: map[string]string{
+		"GF_SERVER_ROOT_URL":            "http://slab.lan/grafana",
+		"GF_SERVER_SERVE_FROM_SUB_PATH": "true",
+	},
 	// Volumes: []smd.Volume{{Src: "grafana-vol", Dst: "/var/lib/grafana", Mount: true}},
 }
 
@@ -68,8 +71,10 @@ var LokiJob = smd.Job{
 	Name:   "loki",
 	Type:   smd.SERVICE,
 	Target: smd.NODE,
-	Ports:  smd.BasicPortConfig(3100),
-	Shape:  smd.TINY_TASK,
+	Ports: []*smd.Port{
+		{Label: "http", To: 3100, From: 3100, Static: true},
+	},
+	Shape: smd.TINY_TASK,
 }
 
 //go:embed config/prometheus.yml
@@ -84,6 +89,10 @@ var PrometheusJob = smd.Job{
 	Shape:     smd.LARGE_TASK,
 	Templates: map[string]string{"prometheus.yml": promConfigHelper(prometheusConfig)},
 	Volumes:   []smd.Volume{{Src: "local/config", Dst: "/etc/prometheus"}},
+	Args: []string{
+		"--web.external-url=http://slab.lan/prometheus",
+		"--config.file=/etc/prometheus/prometheus.yml",
+	},
 }
 
 var SpeedtestJob = smd.Job{

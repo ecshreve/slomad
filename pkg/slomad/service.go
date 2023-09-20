@@ -17,9 +17,13 @@ func getService(taskName string, portLabel string) *nomadStructs.Service {
 		fmt.Sprintf("urlprefix-/%s", taskName),
 	}
 
-	if taskName == "prometheus" {
-		tags = append(tags, "urlprefix-/graph")
+	if taskName == "loki" {
+		tags = []string{}
 	}
+
+	// if taskName == "grafana" {
+	// 	tags = append(tags, "urlprefix-/login")
+	// }
 
 	return &nomadStructs.Service{
 		Name:      taskName,
