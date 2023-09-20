@@ -42,13 +42,13 @@ func main() {
 	// }
 
 	services := []slomad.Job{
-		// registry.LokiJob,
+		registry.LokiJob,
 		registry.WhoamiJob,
-		// registry.SpeedtestJob,
-		// registry.GrafanaJob,
-		// registry.PrometheusJob,
-		// registry.NodeExporterJob,
-		// registry.PromtailJob,
+		registry.SpeedtestJob,
+		registry.GrafanaJob,
+		registry.PrometheusJob,
+		registry.NodeExporterJob,
+		registry.PromtailJob,
 		// registry.ControllerJob,
 		// registry.NodeJob,
 		// registry.InfluxDBJob,

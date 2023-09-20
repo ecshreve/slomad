@@ -62,13 +62,8 @@ func getTemplates(templates map[string]string) []*nomadStructs.Template {
 
 // getConfig returns a nomad config struct for a given job.
 func getConfig(name string, jt JobType, args []string, ports []*Port, vols []Volume) map[string]interface{} {
-	img := name
-	if name == "whoami" {
-		img = "traefik/whoami"
-	}
 	config := map[string]interface{}{
-		// "image": fmt.Sprintf("reg.slab.lan:5000/%s", name),
-		"image": img,
+		"image": fmt.Sprintf("registry.slab.lan:5000/%s", name),
 		"args":  args,
 		"ports": extractLabels(ports),
 	}

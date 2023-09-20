@@ -4,6 +4,9 @@ import (
 	"github.com/ecshreve/slomad/pkg/slomad"
 )
 
+// TraefikJob is the job definition for the traefik service.
+//
+// @DEPRECATED: This job is no longer used.
 var TraefikJob = slomad.Job{
 	Name:   "traefik",
 	Type:   slomad.SERVICE,

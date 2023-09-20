@@ -52,21 +52,22 @@ var NodeExporterJob = smd.Job{
 	},
 }
 
+// TODO: mount nomad volume and persist data
 var GrafanaJob = smd.Job{
-	Name:    "grafana",
-	Type:    smd.SERVICE,
-	Target:  smd.WORKER,
-	Ports:   smd.BasicPortConfig(3000),
-	Shape:   smd.LARGE_TASK,
-	User:    "root",
-	Env:     map[string]string{"GF_SERVER_HTTP_PORT": "${NOMAD_PORT_http}"},
-	Volumes: []smd.Volume{{Src: "grafana-vol", Dst: "/var/lib/grafana", Mount: true}},
+	Name:   "grafana",
+	Type:   smd.SERVICE,
+	Target: smd.NODE,
+	Ports:  smd.BasicPortConfig(3000),
+	Shape:  smd.LARGE_TASK,
+	User:   "root",
+	Env:    map[string]string{"GF_SERVER_HTTP_PORT": "${NOMAD_PORT_http}"},
+	// Volumes: []smd.Volume{{Src: "grafana-vol", Dst: "/var/lib/grafana", Mount: true}},
 }
 
 var LokiJob = smd.Job{
 	Name:   "loki",
 	Type:   smd.SERVICE,
-	Target: smd.WORKER,
+	Target: smd.NODE,
 	Ports:  smd.BasicPortConfig(3100),
 	Shape:  smd.TINY_TASK,
 }
@@ -78,7 +79,7 @@ var prometheusConfig string
 var PrometheusJob = smd.Job{
 	Name:      "prometheus",
 	Type:      smd.SERVICE,
-	Target:    smd.WORKER,
+	Target:    smd.NODE,
 	Ports:     smd.BasicPortConfig(9090),
 	Shape:     smd.LARGE_TASK,
 	Templates: map[string]string{"prometheus.yml": promConfigHelper(prometheusConfig)},
@@ -88,7 +89,7 @@ var PrometheusJob = smd.Job{
 var SpeedtestJob = smd.Job{
 	Name:   "speedtest",
 	Type:   smd.SERVICE,
-	Target: smd.WORKER,
+	Target: smd.NODE,
 	Ports:  smd.BasicPortConfig(80),
 	Shape:  smd.XTINY_TASK,
 }
@@ -99,37 +100,19 @@ var WhoamiJob = smd.Job{
 	Target: smd.NODE,
 	Shape:  smd.XXTINY_TASK,
 	Ports:  smd.BasicPortConfig(80),
-}
-
-// TODO: mount nomad volume and persist data
-var InfluxDBJob = smd.Job{
-	Name:    "influxdb",
-	Type:    smd.SERVICE,
-	Target:  smd.WORKER,
-	Ports:   smd.BasicPortConfig(8086),
-	Shape:   smd.LARGE_TASK,
-	Volumes: []smd.Volume{{Src: "influx_data", Dst: "/var/lib/influxdb"}},
-}
-
-var PlexJob = smd.Job{
-	Name:   "plex",
-	Type:   smd.SERVICE,
-	Target: smd.PLEXBOX,
-	Ports:  []*smd.Port{{Label: "http", To: 32400, From: 32400, Static: true}},
-	Shape:  smd.PLEX_TASK,
-	User:   "root",
-	Env: map[string]string{
-		"TZ":           "America/Los_Angeles",
-		"VERSION":      "docker",
-		"ADVERTISE_IP": "http://plex.slab.lan:80",
-		"PGID":         "100",
-		"PUID":         "1027",
-	},
-	Volumes: []smd.Volume{
-		{Src: "/mnt/nfs/config/plex", Dst: "/config"},
-		{Src: "/mnt/nfs/media/music", Dst: "/music"},
-		{Src: "/mnt/nfs/media/tv", Dst: "/tv"},
-		{Src: "/mnt/nfs/media/movies", Dst: "/movies"},
-		{Src: "/dev/shm", Dst: "/transcode"},
+	TaskServiceTags: map[string][]string{
+		"whoami": {
+			"urlprefix-/whoami",
+		},
 	},
 }
+
+// // TODO: mount nomad volume and persist data
+// var InfluxDBJob = smd.Job{
+// 	Name:    "influxdb",
+// 	Type:    smd.SERVICE,
+// 	Target:  smd.WORKER,
+// 	Ports:   smd.BasicPortConfig(8086),
+// 	Shape:   smd.LARGE_TASK,
+// 	Volumes: []smd.Volume{{Src: "influx_data", Dst: "/var/lib/influxdb"}},
+// }

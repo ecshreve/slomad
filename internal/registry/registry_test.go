@@ -18,7 +18,7 @@ func TestRegistry(t *testing.T) {
 		registry.SpeedtestJob,
 		registry.GrafanaJob,
 		registry.NodeExporterJob,
-		registry.InfluxDBJob,
+		// registry.InfluxDBJob,
 		// registry.PrometheusJob,
 		// registry.NodeJob,
 		// registry.PromtailJob,

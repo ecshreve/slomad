@@ -13,20 +13,29 @@ func getService(taskName string, portLabel string) *nomadStructs.Service {
 		return nil
 	}
 
+	tags := []string{
+		fmt.Sprintf("urlprefix-/%s", taskName),
+	}
+
+	if taskName == "prometheus" {
+		tags = append(tags, "urlprefix-/graph")
+	}
+
 	return &nomadStructs.Service{
 		Name:      taskName,
 		PortLabel: portLabel,
 		TaskName:  taskName,
 		Checks: []*nomadStructs.ServiceCheck{
 			{
-				Name:          fmt.Sprintf("%s -- %s = tcp check", taskName, portLabel),
+				Name:          "alive",
 				Type:          nomadStructs.ServiceCheckTCP,
 				Interval:      10 * time.Second,
 				Timeout:       2 * time.Second,
 				InitialStatus: "passing",
 			},
 		},
-		Provider: "nomad",
+		Provider: "consul",
+		Tags:     tags,
 	}
 }
 
