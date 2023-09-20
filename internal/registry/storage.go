@@ -10,7 +10,7 @@ import (
 var ControllerJob = smd.Job{
 	Name:   "storage-controller",
 	Type:   smd.STORAGE_CONTROLLER,
-	Target: smd.WORKER,
+	Target: smd.NODE0,
 	Ports:  smd.BasicPortConfig(0),
 	Shape:  smd.TINY_TASK,
 	Args:   getStorageArgs("controller"),

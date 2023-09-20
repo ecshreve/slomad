@@ -17,7 +17,6 @@ func getService(taskName string, portLabel string) *nomadStructs.Service {
 		Name:      taskName,
 		PortLabel: portLabel,
 		TaskName:  taskName,
-		Tags:      []string{"traefik.enable=true"},
 		Checks: []*nomadStructs.ServiceCheck{
 			{
 				Name:          fmt.Sprintf("%s -- %s = tcp check", taskName, portLabel),
@@ -27,7 +26,7 @@ func getService(taskName string, portLabel string) *nomadStructs.Service {
 				InitialStatus: "passing",
 			},
 		},
-		Provider: "consul",
+		Provider: "nomad",
 	}
 }
 

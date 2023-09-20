@@ -43,7 +43,7 @@ func main() {
 
 	services := []slomad.Job{
 		// registry.LokiJob,
-		// registry.WhoamiJob,
+		registry.WhoamiJob,
 		// registry.SpeedtestJob,
 		// registry.GrafanaJob,
 		// registry.PrometheusJob,
@@ -53,7 +53,7 @@ func main() {
 		// registry.NodeJob,
 		// registry.InfluxDBJob,
 		// registry.PlexJob,
-		registry.TraefikJob,
+		// registry.TraefikJob,
 	}
 
 	for _, srvc := range services {

@@ -96,9 +96,8 @@ var SpeedtestJob = smd.Job{
 var WhoamiJob = smd.Job{
 	Name:   "whoami",
 	Type:   smd.SERVICE,
-	Target: smd.WORKER,
+	Target: smd.NODE,
 	Shape:  smd.XXTINY_TASK,
-	Args:   []string{"--port", "${NOMAD_PORT_http}"},
 	Ports:  smd.BasicPortConfig(80),
 }
 
