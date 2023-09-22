@@ -103,6 +103,16 @@ var SpeedtestJob = smd.Job{
 	Shape:  smd.XTINY_TASK,
 }
 
+var UptimeJob = smd.Job{
+	Name:   "uptime",
+	Type:   smd.SERVICE,
+	Target: smd.NODE,
+	Ports: []*smd.Port{
+		{Label: "http", To: 3001, From: 3001, Static: true},
+	},
+	Shape: smd.DEFAULT_TASK,
+}
+
 var WhoamiJob = smd.Job{
 	Name:   "whoami",
 	Type:   smd.SERVICE,
