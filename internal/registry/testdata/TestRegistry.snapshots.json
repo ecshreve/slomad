@@ -5,20 +5,23 @@
       {
         "Args": null,
         "Env": null,
+        "GroupServices": null,
         "Name": "loki",
         "Ports": [
           {
-            "From": 0,
+            "From": 3100,
             "Label": "http",
-            "Static": false,
+            "Static": true,
             "To": 3100
           }
         ],
+        "Priv": false,
         "Shape": {
           "CPU": 128,
           "MEM": 128
         },
-        "Target": 3,
+        "Target": 7,
+        "TaskServiceTags": null,
         "Templates": null,
         "Type": 1,
         "User": "",
@@ -30,11 +33,9 @@
     "Name": "whoami",
     "Values": [
       {
-        "Args": [
-          "--port",
-          "${NOMAD_PORT_http}"
-        ],
+        "Args": null,
         "Env": null,
+        "GroupServices": null,
         "Name": "whoami",
         "Ports": [
           {
@@ -44,11 +45,17 @@
             "To": 80
           }
         ],
+        "Priv": false,
         "Shape": {
           "CPU": 32,
           "MEM": 32
         },
-        "Target": 3,
+        "Target": 7,
+        "TaskServiceTags": {
+          "whoami": [
+            "urlprefix-/whoami"
+          ]
+        },
         "Templates": null,
         "Type": 1,
         "User": "",
@@ -62,6 +69,7 @@
       {
         "Args": null,
         "Env": null,
+        "GroupServices": null,
         "Name": "speedtest",
         "Ports": [
           {
@@ -71,11 +79,13 @@
             "To": 80
           }
         ],
+        "Priv": false,
         "Shape": {
           "CPU": 64,
           "MEM": 64
         },
-        "Target": 3,
+        "Target": 7,
+        "TaskServiceTags": null,
         "Templates": null,
         "Type": 1,
         "User": "",
@@ -89,8 +99,10 @@
       {
         "Args": null,
         "Env": {
-          "GF_SERVER_HTTP_PORT": "${NOMAD_PORT_http}"
+          "GF_SERVER_ROOT_URL": "http://clust.slab.lan:9999/grafana",
+          "GF_SERVER_SERVE_FROM_SUB_PATH": "true"
         },
+        "GroupServices": null,
         "Name": "grafana",
         "Ports": [
           {
@@ -100,21 +112,17 @@
             "To": 3000
           }
         ],
+        "Priv": false,
         "Shape": {
           "CPU": 1024,
           "MEM": 1024
         },
-        "Target": 3,
+        "Target": 7,
+        "TaskServiceTags": null,
         "Templates": null,
         "Type": 1,
         "User": "root",
-        "Volumes": [
-          {
-            "Dst": "/var/lib/grafana",
-            "Mount": true,
-            "Src": "grafana-vol"
-          }
-        ]
+        "Volumes": null
       }
     ]
   },
@@ -130,6 +138,7 @@
           "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
         ],
         "Env": null,
+        "GroupServices": null,
         "Name": "node-exporter",
         "Ports": [
           {
@@ -139,11 +148,13 @@
             "To": 9100
           }
         ],
+        "Priv": false,
         "Shape": {
           "CPU": 64,
           "MEM": 64
         },
         "Target": 0,
+        "TaskServiceTags": null,
         "Templates": null,
         "Type": 2,
         "User": "",
@@ -162,39 +173,6 @@
             "Dst": "/rootfs",
             "Mount": false,
             "Src": "/"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "Name": "influxdb",
-    "Values": [
-      {
-        "Args": null,
-        "Env": null,
-        "Name": "influxdb",
-        "Ports": [
-          {
-            "From": 0,
-            "Label": "http",
-            "Static": false,
-            "To": 8086
-          }
-        ],
-        "Shape": {
-          "CPU": 1024,
-          "MEM": 1024
-        },
-        "Target": 3,
-        "Templates": null,
-        "Type": 1,
-        "User": "",
-        "Volumes": [
-          {
-            "Dst": "/var/lib/influxdb",
-            "Mount": false,
-            "Src": "influx_data"
           }
         ]
       }

@@ -28,7 +28,7 @@
             "InitialStatus": "passing",
             "Interval": 10000000000,
             "Method": "",
-            "Name": "basic -- http = tcp check",
+            "Name": "alive",
             "OnUpdate": "",
             "Path": "",
             "PortLabel": "",
@@ -50,7 +50,7 @@
         "Provider": "consul",
         "TaggedAddresses": null,
         "Tags": [
-          "traefik.enable=true"
+          "urlprefix-/basic"
         ],
         "TaskName": "basic"
       }
