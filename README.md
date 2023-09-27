@@ -8,7 +8,7 @@
 
 ---
 
-deploy nomad jobs with go
+This repo is how I deploy Nomad jobs to my home lab. It's a work in progress. ymmv
 
 
 ## registry
@@ -18,9 +18,3 @@ contains service definitions
 ## slomad
 
 contains the slomad package which provides a minimal interface to the nomad api
-
-## devcontainer
-
-pre-built with devcontainer-cli, image based on ubuntu 22.04, includes hashi tools, docker, and
-my dotfile setup all baked in
-

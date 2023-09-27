@@ -9,58 +9,57 @@ import "github.com/ecshreve/slomad/internal/registry"
 ## Index
 
 - [Variables](<#variables>)
-- [func getStorageArgs(storage string) []string](<#func-getstorageargs>)
-- [func promConfigHelper(tmpl string) string](<#func-promconfighelper>)
+- [func getStorageArgs\(storage string\) \[\]string](<#getStorageArgs>)
+- [func promConfigHelper\(tmpl string\) string](<#promConfigHelper>)
 
 
 ## Variables
+
+<a name="ControllerJob"></a>
 
 ```go
 var ControllerJob = smd.Job{
     Name:   "storage-controller",
     Type:   smd.STORAGE_CONTROLLER,
-    Target: smd.WORKER,
+    Target: smd.NODE0,
     Ports:  smd.BasicPortConfig(0),
     Shape:  smd.TINY_TASK,
     Args:   getStorageArgs("controller"),
 }
 ```
 
+<a name="GrafanaJob"></a>TODO: mount nomad volume and persist data
+
 ```go
 var GrafanaJob = smd.Job{
-    Name:    "grafana",
-    Type:    smd.SERVICE,
-    Target:  smd.WORKER,
-    Ports:   smd.BasicPortConfig(3000),
-    Shape:   smd.LARGE_TASK,
-    User:    "root",
-    Env:     map[string]string{"GF_SERVER_HTTP_PORT": "${NOMAD_PORT_http}"},
-    Volumes: []smd.Volume{{Src: "grafana-vol", Dst: "/var/lib/grafana", Mount: true}},
+    Name:   "grafana",
+    Type:   smd.SERVICE,
+    Target: smd.NODE,
+    Ports:  smd.BasicPortConfig(3000),
+    Shape:  smd.LARGE_TASK,
+    User:   "root",
+    Env: map[string]string{
+        "GF_SERVER_ROOT_URL":            "http://clust.slab.lan:9999/grafana",
+        "GF_SERVER_SERVE_FROM_SUB_PATH": "true",
+    },
 }
 ```
 
-TODO: mount nomad volume and persist data
-
-```go
-var InfluxDBJob = smd.Job{
-    Name:    "influxdb",
-    Type:    smd.SERVICE,
-    Target:  smd.WORKER,
-    Ports:   smd.BasicPortConfig(8086),
-    Shape:   smd.LARGE_TASK,
-    Volumes: []smd.Volume{{Src: "influx_data", Dst: "/var/lib/influxdb"}},
-}
-```
+<a name="LokiJob"></a>
 
 ```go
 var LokiJob = smd.Job{
     Name:   "loki",
     Type:   smd.SERVICE,
-    Target: smd.WORKER,
-    Ports:  smd.BasicPortConfig(3100),
-    Shape:  smd.TINY_TASK,
+    Target: smd.NODE,
+    Ports: []*smd.Port{
+        {Label: "http", To: 3100, From: 3100, Static: true},
+    },
+    Shape: smd.TINY_TASK,
 }
 ```
+
+<a name="NodeExporterJob"></a>
 
 ```go
 var NodeExporterJob = smd.Job{
@@ -83,6 +82,8 @@ var NodeExporterJob = smd.Job{
 }
 ```
 
+<a name="NodeJob"></a>
+
 ```go
 var NodeJob = smd.Job{
     Name:   "storage-node",
@@ -93,6 +94,10 @@ var NodeJob = smd.Job{
     Args:   getStorageArgs("node"),
 }
 ```
+
+<a name="PlexJob"></a>PlexJob is the job definition for the plex service.
+
+@DEPRECATED: This job is no longer used.
 
 ```go
 var PlexJob = smd.Job{
@@ -119,19 +124,25 @@ var PlexJob = smd.Job{
 }
 ```
 
-PrometheusJob is a Job for the Prometheus service.
+<a name="PrometheusJob"></a>PrometheusJob is a Job for the Prometheus service.
 
 ```go
 var PrometheusJob = smd.Job{
     Name:      "prometheus",
     Type:      smd.SERVICE,
-    Target:    smd.WORKER,
+    Target:    smd.NODE,
     Ports:     smd.BasicPortConfig(9090),
     Shape:     smd.LARGE_TASK,
     Templates: map[string]string{"prometheus.yml": promConfigHelper(prometheusConfig)},
     Volumes:   []smd.Volume{{Src: "local/config", Dst: "/etc/prometheus"}},
+    Args: []string{
+        "--web.external-url=http://slab.lan/prometheus",
+        "--config.file=/etc/prometheus/prometheus.yml",
+    },
 }
 ```
+
+<a name="PromtailJob"></a>
 
 ```go
 var PromtailJob = smd.Job{
@@ -152,34 +163,35 @@ var PromtailJob = smd.Job{
 }
 ```
 
+<a name="SpeedtestJob"></a>
+
 ```go
 var SpeedtestJob = smd.Job{
     Name:   "speedtest",
     Type:   smd.SERVICE,
-    Target: smd.WORKER,
+    Target: smd.NODE,
     Ports:  smd.BasicPortConfig(80),
     Shape:  smd.XTINY_TASK,
 }
 ```
 
+<a name="TraefikJob"></a>TraefikJob is the job definition for the traefik service.
+
+@DEPRECATED: This job is no longer used.
+
 ```go
 var TraefikJob = slomad.Job{
     Name:   "traefik",
     Type:   slomad.SERVICE,
-    Target: slomad.WORKER_0,
+    Target: slomad.ALL,
     Shape:  slomad.DEFAULT_TASK,
     Ports: []*slomad.Port{
-        {Label: "web", To: 0, From: 80, Static: true},
-        {Label: "websecure", To: 0, From: 443, Static: true},
-        {Label: "admin", To: 0, From: 8081, Static: true},
+        {Label: "web", To: 80, From: 81, Static: true},
+        {Label: "admin", To: 8080, From: 8081, Static: true},
     },
     Args: []string{
         "--entryPoints.web.address=:80",
-        "--entryPoints.websecure.address=:443",
         "--entryPoints.admin.address=:8081",
-        "--entrypoints.websecure.http.redirections.entryPoint.to=web",
-        "--entrypoints.websecure.http.redirections.entryPoint.scheme=http",
-        "--accesslog=true",
         "--api=true",
         "--api.dashboard=true",
         "--api.insecure=true",
@@ -205,25 +217,50 @@ var TraefikJob = slomad.Job{
 }
 ```
 
+<a name="UptimeJob"></a>
+
+```go
+var UptimeJob = smd.Job{
+    Name:   "uptime",
+    Type:   smd.SERVICE,
+    Target: smd.NODE,
+    Ports: []*smd.Port{
+        {Label: "http", To: 3001, From: 3001, Static: true},
+    },
+    Shape: smd.DEFAULT_TASK,
+}
+```
+
+<a name="WhoamiJob"></a>
+
 ```go
 var WhoamiJob = smd.Job{
     Name:   "whoami",
     Type:   smd.SERVICE,
-    Target: smd.WORKER,
+    Target: smd.NODE,
     Shape:  smd.XXTINY_TASK,
-    Args:   []string{"--port", "${NOMAD_PORT_http}"},
     Ports:  smd.BasicPortConfig(80),
+    TaskServiceTags: map[string][]string{
+        "whoami": {
+            "urlprefix-/whoami",
+        },
+    },
 }
 ```
+
+<a name="prometheusConfig"></a>
 
 ```go
 var prometheusConfig string
 ```
 
+<a name="promtailConfig"></a>
+
 ```go
 var promtailConfig string
 ```
 
+<a name="getStorageArgs"></a>
 ## func [getStorageArgs](<https://github.com/ecshreve/slomad/blob/main/internal/registry/storage.go#L31>)
 
 ```go
@@ -234,6 +271,7 @@ getStorageArgs returns the common args for the storage controller and node.
 
 TODO: input validation
 
+<a name="promConfigHelper"></a>
 ## func [promConfigHelper](<https://github.com/ecshreve/slomad/blob/main/internal/registry/services.go#L11>)
 
 ```go
