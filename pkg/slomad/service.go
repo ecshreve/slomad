@@ -21,9 +21,9 @@ func getService(taskName string, portLabel string) *nomadStructs.Service {
 		tags = []string{}
 	}
 
-	// if taskName == "grafana" {
-	// 	tags = append(tags, "urlprefix-/login")
-	// }
+	if taskName == "grafana" {
+		tags = append(tags, "urlprefix-/login")
+	}
 
 	return &nomadStructs.Service{
 		Name:      taskName,

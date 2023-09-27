@@ -61,7 +61,7 @@ var GrafanaJob = smd.Job{
 	Shape:  smd.LARGE_TASK,
 	User:   "root",
 	Env: map[string]string{
-		"GF_SERVER_ROOT_URL":            "http://slab.lan/grafana",
+		"GF_SERVER_ROOT_URL":            "http://clust.slab.lan:9999/grafana",
 		"GF_SERVER_SERVE_FROM_SUB_PATH": "true",
 	},
 	// Volumes: []smd.Volume{{Src: "grafana-vol", Dst: "/var/lib/grafana", Mount: true}},

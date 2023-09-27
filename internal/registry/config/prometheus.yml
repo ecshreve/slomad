@@ -8,7 +8,7 @@ scrape_configs:
   - job_name: "prometheus"
     scrape_interval: 10s
     static_configs:
-      - targets: ["slab.lan"]
+      - targets: ["localhost:9090"]
     metrics_path: /prometheus/metrics
 
   - job_name: "coder"
@@ -79,6 +79,13 @@ scrape_configs:
     metrics_path: '/metrics'
     static_configs:
       - targets: ['10.14.40.107:9100', '10.14.40.233:9100']
+
+  - job_name: 'codernode'
+    scrape_interval: 30s
+    scheme: http
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['10.14.40.55:9100']
       
   - job_name: 'uptime'
     scrape_interval: 30s
