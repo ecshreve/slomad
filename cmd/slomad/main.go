@@ -49,7 +49,7 @@ func main() {
 		registry.PrometheusJob,
 		registry.NodeExporterJob,
 		registry.PromtailJob,
-		// registry.ControllerJob,
+		registry.ControllerJob,
 		// registry.NodeJob,
 		// registry.InfluxDBJob,
 		// registry.PlexJob,

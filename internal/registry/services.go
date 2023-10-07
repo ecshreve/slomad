@@ -126,6 +126,14 @@ var WhoamiJob = smd.Job{
 	},
 }
 
+var OrganizrJob = smd.Job{
+	Name:   "organizer",
+	Type:   smd.SERVICE,
+	Target: smd.NODE,
+	Ports:  smd.BasicPortConfig(80),
+	Shape:  smd.DEFAULT_TASK,
+}
+
 // // TODO: mount nomad volume and persist data
 // var InfluxDBJob = smd.Job{
 // 	Name:    "influxdb",

@@ -38,6 +38,7 @@ const (
 	BATCH
 	STORAGE_CONTROLLER
 	STORAGE_NODE
+	STORAGE_MONOLITH
 )
 
 // String implements the Stringer interface for JobType.

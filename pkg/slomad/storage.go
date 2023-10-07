@@ -3,9 +3,9 @@ package slomad
 import (
 	"fmt"
 	"sort"
-	"strings"
 
 	nomadStructs "github.com/hashicorp/nomad/nomad/structs"
+	"github.com/sirupsen/logrus"
 )
 
 type Volume struct {
@@ -74,14 +74,15 @@ func getNomadVolumeReq(vols []Volume) map[string]*nomadStructs.VolumeRequest {
 
 // getCSIPluginConfig returns a CSIPluginConfig for a given job.
 func getCSIPluginConfig(j *Job) *nomadStructs.TaskCSIPluginConfig {
-	if j.Type != STORAGE_CONTROLLER && j.Type != STORAGE_NODE {
+	if j.Type != STORAGE_CONTROLLER && j.Type != STORAGE_NODE && j.Type != STORAGE_MONOLITH {
+		logrus.Info("job type is not storage, skipping CSIPluginConfig")
 		return nil
 	}
 
-	storageType := strings.Split(j.Name, "-")[1]
+	// storageType := strings.Split(j.Name, "-")[1]
 	return &nomadStructs.TaskCSIPluginConfig{
 		ID:       "nfs",
 		MountDir: "/csi",
-		Type:     nomadStructs.CSIPluginType(storageType),
+		Type:     nomadStructs.CSIPluginTypeMonolith,
 	}
 }

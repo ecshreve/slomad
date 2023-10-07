@@ -68,6 +68,12 @@ func getConfig(name string, jt JobType, args []string, ports []*Port, vols []Vol
 		"ports": extractLabels(ports),
 	}
 
+	if jt == STORAGE_CONTROLLER {
+		config["image"] = "registry.gitlab.com/rocketduck/csi-plugin-nfs:0.7.0"
+		config["privileged"] = true
+		config["network_mode"] = "host"
+	}
+
 	volStrings := getVolumeStrings(vols)
 	if len(volStrings) > 0 {
 		config["volumes"] = volStrings

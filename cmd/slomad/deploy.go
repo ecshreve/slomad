@@ -67,6 +67,7 @@ func planApiJob(nomadClient *nomadApi.Client, job *nomadApi.Job, diff bool) (boo
 	logPayload := fmt.Sprintf("%+v", desired)
 	if desired.Ignore > 0 {
 		logPayload = "IGNORE"
+		log.Infof("desired: %+v", desired)
 	} else if diff {
 		log.Infof("Plan diff for nomad job %s:\n", *job.Name)
 		pretty.Print(planResp.Diff)
