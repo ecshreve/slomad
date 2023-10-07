@@ -36,7 +36,7 @@ func getReschedulePolicy(jt JobType) *nomadStructs.ReschedulePolicy {
 // getDisk returns a nomad disk struct with a default size for a given job.
 func getDisk(mb int) *nomadStructs.EphemeralDisk {
 	if mb <= 0 || mb > 2000 {
-		log.Infof("Invalid disk size %d, using default of 500MB", mb)
+		log.Debugf("Invalid disk size %d, using default of 500MB", mb)
 		mb = 500
 	}
 	return &nomadStructs.EphemeralDisk{

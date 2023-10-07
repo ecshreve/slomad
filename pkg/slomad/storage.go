@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"sort"
 
+	nomadApi "github.com/hashicorp/nomad/api"
 	nomadStructs "github.com/hashicorp/nomad/nomad/structs"
-	"github.com/sirupsen/logrus"
+	"github.com/samsarahq/go/oops"
+	log "github.com/sirupsen/logrus"
 )
 
 type Volume struct {
@@ -75,7 +77,7 @@ func getNomadVolumeReq(vols []Volume) map[string]*nomadStructs.VolumeRequest {
 // getCSIPluginConfig returns a CSIPluginConfig for a given job.
 func getCSIPluginConfig(j *Job) *nomadStructs.TaskCSIPluginConfig {
 	if j.Type != STORAGE_CONTROLLER && j.Type != STORAGE_NODE && j.Type != STORAGE_MONOLITH {
-		logrus.Info("job type is not storage, skipping CSIPluginConfig")
+		log.Info("job type is not storage, skipping CSIPluginConfig")
 		return nil
 	}
 
@@ -85,4 +87,33 @@ func getCSIPluginConfig(j *Job) *nomadStructs.TaskCSIPluginConfig {
 		MountDir: "/csi",
 		Type:     nomadStructs.CSIPluginTypeMonolith,
 	}
+}
+
+func CreateVolume(volName string) error {
+	nomadConfig := nomadApi.DefaultConfig()
+	nomadClient, err := nomadApi.NewClient(nomadConfig)
+	if err != nil {
+		return oops.Wrapf(err, "unable to create nomad api client")
+	}
+
+	vol := &nomadApi.CSIVolume{
+		Name:     fmt.Sprintf("%s-vol", volName),
+		ID:       fmt.Sprintf("%s-vol", volName),
+		PluginID: "nfs",
+		Capacity: 100000,
+		RequestedCapabilities: []*nomadApi.CSIVolumeCapability{
+			{
+				AccessMode:     nomadApi.CSIVolumeAccessMode("single-node-writer"),
+				AttachmentMode: nomadApi.CSIVolumeAttachmentMode("file-system"),
+			},
+		},
+	}
+
+	nomadVol, _, nomadErr := nomadClient.CSIVolumes().Create(vol, nil)
+	if nomadErr != nil {
+		return oops.Wrapf(nomadErr, "error creating volume: %+v", vol)
+	}
+
+	log.Infof("Sucessfully created nomad volume: %v\n", nomadVol)
+	return nil
 }

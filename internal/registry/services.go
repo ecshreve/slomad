@@ -2,16 +2,9 @@ package registry
 
 import (
 	_ "embed"
-	"os"
-	"strings"
 
 	smd "github.com/ecshreve/slomad/pkg/slomad"
 )
-
-func promConfigHelper(tmpl string) string {
-	s := strings.Replace(tmpl, "<CONSUL_TARGET>", os.Getenv("CONSUL_TARGET"), -1)
-	return s
-}
 
 //go:embed config/promtail.yml
 var promtailConfig string
@@ -26,7 +19,7 @@ var PromtailJob = smd.Job{
 		"-config.file=/local/config/promtail.yml",
 		"-server.http-listen-port=${NOMAD_PORT_http}",
 	},
-	Templates: map[string]string{"promtail.yml": promConfigHelper(promtailConfig)},
+	Templates: map[string]string{"promtail.yml": promtailConfig},
 	Volumes: []smd.Volume{
 		{Src: "/opt/nomad/data/", Dst: "/nomad/"},
 		{Src: "/data/promtail", Dst: "/data"},
@@ -64,7 +57,7 @@ var GrafanaJob = smd.Job{
 		"GF_SERVER_ROOT_URL":            "http://clust.slab.lan:9999/grafana",
 		"GF_SERVER_SERVE_FROM_SUB_PATH": "true",
 	},
-	// Volumes: []smd.Volume{{Src: "grafana-vol", Dst: "/var/lib/grafana", Mount: true}},
+	Volumes: []smd.Volume{{Src: "grafana-vol", Dst: "/var/lib/grafana", Mount: true}},
 }
 
 var LokiJob = smd.Job{
@@ -87,8 +80,11 @@ var PrometheusJob = smd.Job{
 	Target:    smd.NODE,
 	Ports:     smd.BasicPortConfig(9090),
 	Shape:     smd.LARGE_TASK,
-	Templates: map[string]string{"prometheus.yml": promConfigHelper(prometheusConfig)},
-	Volumes:   []smd.Volume{{Src: "local/config", Dst: "/etc/prometheus"}},
+	Templates: map[string]string{"prometheus.yml": prometheusConfig},
+	Volumes: []smd.Volume{
+		{Src: "local/config", Dst: "/etc/prometheus"},
+		{Src: "prometheus-vol", Dst: "/prometheus", Mount: true},
+	},
 	Args: []string{
 		"--web.external-url=http://slab.lan/prometheus",
 		"--config.file=/etc/prometheus/prometheus.yml",
@@ -127,11 +123,36 @@ var WhoamiJob = smd.Job{
 }
 
 var OrganizrJob = smd.Job{
-	Name:   "organizer",
+	Name:   "organizr",
 	Type:   smd.SERVICE,
 	Target: smd.NODE,
 	Ports:  smd.BasicPortConfig(80),
 	Shape:  smd.DEFAULT_TASK,
+}
+
+var MariaDBJob = smd.Job{
+	Name:   "mariadb",
+	Type:   smd.SERVICE,
+	Target: smd.NODE,
+	Ports:  []*smd.Port{{Label: "mysql", To: 3306, From: 3306, Static: true}},
+	Shape:  smd.LARGE_TASK,
+	Env: map[string]string{
+		"PUID":                "1024",
+		"PGID":                "100",
+		"TZ":                  "America/Los_Angeles",
+		"MYSQL_ROOT_PASSWORD": "password",
+	},
+	Volumes: []smd.Volume{
+		{Src: "mariadb-vol", Dst: "/config", Mount: true},
+	},
+}
+
+var AdminerJob = smd.Job{
+	Name:   "adminer",
+	Type:   smd.SERVICE,
+	Target: smd.NODE,
+	Ports:  smd.BasicPortConfig(8080),
+	Shape:  smd.TINY_TASK,
 }
 
 // // TODO: mount nomad volume and persist data

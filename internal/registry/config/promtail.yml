@@ -2,12 +2,12 @@ positions:
   filename: /data/positions.yaml
 
 clients:
-  - url: http://clust.slab.lan:3100/loki/api/v1/push
+  - url: http://10.14.40.140:3100/loki/api/v1/push
 
 scrape_configs:
 - job_name: 'nomad-logs'
   consul_sd_configs:
-    - server: <CONSUL_TARGET>
+    - server: http://10.14.40.140:8500
   relabel_configs:
     - source_labels: [__meta_consul_node]
       target_label: __host__

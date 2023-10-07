@@ -14,31 +14,31 @@ var ControllerJob = smd.Job{
 	Target: smd.NODE0,
 	Ports:  smd.BasicPortConfig(0),
 	Shape:  smd.DEFAULT_TASK,
-	Args:   getStorageArgs("monolith"),
+	Args:   buildStorageArgs("monolith"),
 	Priv:   true,
 	User:   "root",
 }
 
-var NodeJob = smd.Job{
-	Name:   "storage-node",
-	Type:   smd.STORAGE_NODE,
-	Target: smd.NODE,
-	Ports:  smd.BasicPortConfig(0),
-	Shape:  smd.TINY_TASK,
-	Args:   getStorageArgs("node"),
-	Priv:   true,
-}
-
-// getStorageArgs returns the common args for the storage controller and node.
+// buildStorageArgs returns the args for the storage related jobs.
 //
-// TODO: input validation
-func getStorageArgs(storage string) []string {
-	common := []string{
+// Currently this is running in monolith mode, so the storage controller
+// and node are running on the same host.
+func buildStorageArgs(storage string) []string {
+	return []string{
 		"--node-id=${attr.unique.hostname}",
 		fmt.Sprintf("--nfs-server=%s", os.Getenv("NFS_MOUNT")),
 		"--mount-options=defaults",
 		fmt.Sprintf("--type=%s", storage),
 	}
-
-	return common
 }
+
+// DEPRECATED: This job is no longer used.
+// var NodeJob = smd.Job{
+// 	Name:   "storage-node",
+// 	Type:   smd.STORAGE_NODE,
+// 	Target: smd.NODE,
+// 	Ports:  smd.BasicPortConfig(0),
+// 	Shape:  smd.TINY_TASK,
+// 	Args:   getStorageArgs("node"),
+// 	Priv:   true,
+// }

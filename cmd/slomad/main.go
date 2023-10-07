@@ -10,15 +10,16 @@ import (
 )
 
 func main() {
+	log.SetLevel(log.DebugLevel)
 	args := os.Args[1:]
 	confirm := false
-	diff := false
+	verbose := false
 	if len(args) > 0 {
 		switch args[0] {
 		case "confirm":
 			confirm = true
 		case "diff":
-			diff = true
+			verbose = true
 		default:
 			log.Warnf("unknown arg: %s", args[0])
 		}
@@ -50,6 +51,8 @@ func main() {
 		registry.NodeExporterJob,
 		registry.PromtailJob,
 		registry.ControllerJob,
+		registry.MariaDBJob,
+		registry.AdminerJob,
 		// registry.NodeJob,
 		// registry.InfluxDBJob,
 		// registry.PlexJob,
@@ -57,7 +60,8 @@ func main() {
 	}
 
 	for _, srvc := range services {
-		if err := RunDeploy(&srvc, confirm, false, diff); err != nil {
+
+		if err := RunDeploy(&srvc, confirm, false, verbose); err != nil {
 			log.Fatalln(oops.Wrapf(err, "error deploying job"))
 		}
 	}

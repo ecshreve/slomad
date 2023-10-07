@@ -29,7 +29,7 @@ func RunDeploy(j *slomad.Job, confirm, force, verbose bool) error {
 	}
 
 	if ignore {
-		log.Infof("skipping submit for job: %s", *aj.Name)
+		log.Debugf("skipping submit for job: %s", *aj.Name)
 		return nil
 	}
 
