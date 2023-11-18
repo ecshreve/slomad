@@ -53,6 +53,7 @@ func main() {
 		registry.ControllerJob,
 		registry.MariaDBJob,
 		registry.AdminerJob,
+		registry.StattyJob,
 		// registry.NodeJob,
 		// registry.InfluxDBJob,
 		// registry.PlexJob,

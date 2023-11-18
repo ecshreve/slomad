@@ -8,11 +8,21 @@ import "github.com/ecshreve/slomad/cmd/slomad"
 
 ## Index
 
+- [func CreateVolumes\(\)](<#CreateVolumes>)
 - [func RunDeploy\(j \*slomad.Job, confirm, force, verbose bool\) error](<#RunDeploy>)
 - [func main\(\)](<#main>)
 - [func newNomadClient\(\) \(\*nomadApi.Client, error\)](<#newNomadClient>)
 - [func planApiJob\(nomadClient \*nomadApi.Client, job \*nomadApi.Job, diff bool\) \(bool, error\)](<#planApiJob>)
 - [func submitApiJob\(nomadClient \*nomadApi.Client, job \*nomadApi.Job\) error](<#submitApiJob>)
+
+
+<a name="CreateVolumes"></a>
+## func [CreateVolumes](<https://github.com/ecshreve/slomad/blob/main/cmd/slomad/storage.go#L10>)
+
+```go
+func CreateVolumes()
+```
+
 
 
 <a name="RunDeploy"></a>
@@ -52,7 +62,7 @@ func planApiJob(nomadClient *nomadApi.Client, job *nomadApi.Job, diff bool) (boo
 planApiJob runs a plan for the given job, and returns whether or not the job can be ignored, and any errors encountered.
 
 <a name="submitApiJob"></a>
-## func [submitApiJob](<https://github.com/ecshreve/slomad/blob/main/cmd/slomad/deploy.go#L81>)
+## func [submitApiJob](<https://github.com/ecshreve/slomad/blob/main/cmd/slomad/deploy.go#L82>)
 
 ```go
 func submitApiJob(nomadClient *nomadApi.Client, job *nomadApi.Job) error

@@ -155,6 +155,13 @@ var AdminerJob = smd.Job{
 	Shape:  smd.TINY_TASK,
 }
 
+var StattyJob = smd.Job{
+	Name:   "statty",
+	Type:   smd.BATCH,
+	Target: smd.NODE,
+	Shape:  smd.TINY_TASK,
+}
+
 // // TODO: mount nomad volume and persist data
 // var InfluxDBJob = smd.Job{
 // 	Name:    "influxdb",

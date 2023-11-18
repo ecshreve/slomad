@@ -9,6 +9,7 @@ import "github.com/ecshreve/slomad/pkg/slomad"
 ## Index
 
 - [Variables](<#variables>)
+- [func CreateVolume\(volName string\) error](<#CreateVolume>)
 - [func convertJob\(in \*nomadStructs.Job\) \(\*nomadApi.Job, error\)](<#convertJob>)
 - [func extractLabels\(ports \[\]\*Port\) \[\]string](<#extractLabels>)
 - [func getCSIPluginConfig\(j \*Job\) \*nomadStructs.TaskCSIPluginConfig](<#getCSIPluginConfig>)
@@ -78,6 +79,15 @@ var DeployTargetRegex = map[DeployTarget]string{
 }
 ```
 
+<a name="CreateVolume"></a>
+## func [CreateVolume](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/storage.go#L92>)
+
+```go
+func CreateVolume(volName string) error
+```
+
+
+
 <a name="convertJob"></a>
 ## func [convertJob](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/job.go#L61>)
 
@@ -97,7 +107,7 @@ func extractLabels(ports []*Port) []string
 extractLabels returns a list of labels from a list of Ports.
 
 <a name="getCSIPluginConfig"></a>
-## func [getCSIPluginConfig](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/storage.go#L76>)
+## func [getCSIPluginConfig](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/storage.go#L78>)
 
 ```go
 func getCSIPluginConfig(j *Job) *nomadStructs.TaskCSIPluginConfig
@@ -124,7 +134,7 @@ func getConstraint(dt DeployTarget) *nomadStructs.Constraint
 getConstraint returns a nomad constraint for a given deploy target.
 
 <a name="getDisk"></a>
-## func [getDisk](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/group.go#L37>)
+## func [getDisk](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/group.go#L42>)
 
 ```go
 func getDisk(mb int) *nomadStructs.EphemeralDisk
@@ -160,7 +170,7 @@ func getGroupServices(srvcs map[string]string) []*nomadStructs.Service
 
 
 <a name="getMounts"></a>
-## func [getMounts](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/storage.go#L18>)
+## func [getMounts](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/storage.go#L20>)
 
 ```go
 func getMounts(vols []Volume) []*nomadStructs.VolumeMount
@@ -178,7 +188,7 @@ func getNetworks(ports []*Port, priv bool) []*nomadStructs.NetworkResource
 getNetworks converts a list of Ports to a list of Nomad NetworkResources.
 
 <a name="getNomadVolumeReq"></a>
-## func [getNomadVolumeReq](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/storage.go#L53>)
+## func [getNomadVolumeReq](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/storage.go#L55>)
 
 ```go
 func getNomadVolumeReq(vols []Volume) map[string]*nomadStructs.VolumeRequest
@@ -252,7 +262,7 @@ func getTemplates(templates map[string]string) []*nomadStructs.Template
 
 
 <a name="getVolumeStrings"></a>
-## func [getVolumeStrings](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/storage.go#L36>)
+## func [getVolumeStrings](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/storage.go#L38>)
 
 ```go
 func getVolumeStrings(vols []Volume) []string
@@ -354,11 +364,12 @@ const (
     BATCH
     STORAGE_CONTROLLER
     STORAGE_NODE
+    STORAGE_MONOLITH
 )
 ```
 
 <a name="JobType.String"></a>
-### func \(JobType\) [String](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/types.go#L44>)
+### func \(JobType\) [String](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/types.go#L45>)
 
 ```go
 func (jt JobType) String() string
@@ -399,7 +410,7 @@ func basicPort(val int) *Port
 basicPort returns a basic port struct with a default label.
 
 <a name="ResourceValue"></a>
-## type [ResourceValue](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/types.go#L48>)
+## type [ResourceValue](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/types.go#L49>)
 
 
 
@@ -423,7 +434,7 @@ const (
 ```
 
 <a name="TaskResource"></a>
-## type [TaskResource](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/types.go#L62-L65>)
+## type [TaskResource](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/types.go#L63-L66>)
 
 TaskResource is a struct that represents the CPU and MEM resources for a task.
 
@@ -435,7 +446,7 @@ type TaskResource struct {
 ```
 
 <a name="Volume"></a>
-## type [Volume](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/storage.go#L11-L15>)
+## type [Volume](<https://github.com/ecshreve/slomad/blob/main/pkg/slomad/storage.go#L13-L17>)
 
 
 

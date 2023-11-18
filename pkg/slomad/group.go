@@ -30,6 +30,11 @@ func getReschedulePolicy(jt JobType) *nomadStructs.ReschedulePolicy {
 	if jt == SERVICE || jt == STORAGE_CONTROLLER {
 		return &nomadStructs.DefaultServiceJobReschedulePolicy
 	}
+
+	if jt == BATCH {
+		return &nomadStructs.DefaultBatchJobReschedulePolicy
+	}
+
 	return nil
 }
 
