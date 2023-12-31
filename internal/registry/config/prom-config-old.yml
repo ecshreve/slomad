@@ -17,7 +17,7 @@ scrape_configs:
   - job_name: "nomad-metrics"
     consul_sd_configs:
       - server: <CONSUL_TARGET>
-        datacenter: "dcs"
+        datacenter: "dc1"
         services: ["nomad-client", "nomad"]
     relabel_configs:
       - source_labels: [__meta_consul_tags]
@@ -57,7 +57,7 @@ scrape_configs:
   - job_name: "node-exporter"
     consul_sd_configs:
       - server: <CONSUL_TARGET>
-        datacenter: "dcs"
+        datacenter: "dc1"
         scheme: "http"
         services: ["node-exporter"]
     relabel_configs:

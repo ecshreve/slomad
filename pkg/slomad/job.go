@@ -33,7 +33,7 @@ func (j *Job) GetNomadApiJob(force bool) (*nomadApi.Job, error) {
 		Priority:    50,
 		Namespace:   "default",
 		Region:      "global",
-		Datacenters: []string{"dcs"},
+		Datacenters: []string{"dc1"},
 
 		ID:          j.Name,
 		Name:        j.Name,

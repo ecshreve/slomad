@@ -54,7 +54,7 @@
         "ConsulToken": null,
         "CreateIndex": null,
         "Datacenters": [
-          "dcs"
+          "dc1"
         ],
         "DispatchIdempotencyToken": null,
         "Dispatched": false,
