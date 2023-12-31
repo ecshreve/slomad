@@ -1,0 +1,22 @@
+[[task]]
+id = "build"
+type = "short"
+cmd = """
+  go build -o bin/slomad github.com/ecshreve/slomad/cmd/slomad
+"""
+
+[[task]]
+id = "plan"
+type = "short"
+dependencies = ["build"]
+cmd = """
+  bin/slomad diff
+"""
+
+[[task]]
+id = "deploy"
+type = "short"
+dependencies = ["build"]
+cmd = """
+  bin/slomad confirm
+"""
