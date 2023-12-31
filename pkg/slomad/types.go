@@ -19,12 +19,12 @@ const (
 // the target's hostname.
 var DeployTargetRegex = map[DeployTarget]string{
 	ALL:      "^.*$",
+	NODE:     "^clust-node-[0-9]+$",
 	SERVER:   "^server-[0-9]+$",
 	WORKER:   "^worker-[0-9]+$",
 	CODERBOX: "^coderbox$",
 	DEVBOX:   "^devbox$",
 	PLEXBOX:  "^plexbox$",
-	NODE:     "^node-[0-9]+$",
 	NODE0:    "^node-0$",
 }
 

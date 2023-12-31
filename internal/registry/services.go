@@ -115,7 +115,7 @@ var UptimeJob = smd.Job{
 
 var WhoamiJob = smd.Job{
 	Name:   "whoami",
-	Type:   smd.SERVICE,
+	Type:   smd.SYSTEM,
 	Target: smd.NODE,
 	Shape:  smd.XXTINY_TASK,
 	Ports:  smd.BasicPortConfig(80),
